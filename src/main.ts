@@ -63,6 +63,7 @@ let isFilterVegan = false;
 let isFilterVegetarian = false;
 let isFilterNoAlcohol = false;
 let selectedAllergenToExclude = 'ALL';
+let currentViewMode: 'compact' | 'grid' = 'compact';
 
 // DOM Elements
 const toastContainer = document.getElementById('toast-container')!;
@@ -158,7 +159,9 @@ function setLanguage(lang: Language) {
     'footer-link-privacy': t.privacy,
     'footer-link-cookies': t.cookies,
     'footer-link-legal': t.legalNotice,
-    'txt-view-cart-mobile': t.viewCartMobile || 'Ver Pedido'
+    'txt-view-cart-mobile': t.viewCartMobile || 'Ver Pedido',
+    'txt-view-compact': t.viewCompact || '📱 Compacta',
+    'txt-view-grid': t.viewGrid || '🖼️ Galería'
   };
 
   for (const [id, val] of Object.entries(elMap)) {
@@ -427,11 +430,56 @@ function setupDietaryAndAllergenFilters() {
     selectedAllergenToExclude = allergenSelect.value;
     renderMenu();
   });
+
+  // View Mode switcher (Feature: Multi-dimension image view mode toggle)
+  const btnCompact = document.getElementById('btn-view-compact');
+  const btnGrid = document.getElementById('btn-view-grid');
+
+  btnCompact?.addEventListener('click', () => {
+    currentViewMode = 'compact';
+    renderMenu();
+  });
+
+  btnGrid?.addEventListener('click', () => {
+    currentViewMode = 'grid';
+    renderMenu();
+  });
+}
+
+// Helper: Generates responsive multi-dimension images for all viewport form factors
+function getResponsiveImages(item: MenuItem): { thumbnail: string; medium: string; large: string } {
+  if (item.images?.thumbnail && item.images?.medium && item.images?.large) {
+    return item.images;
+  }
+  const base = item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600';
+  const clean = base.split('?')[0];
+  return {
+    thumbnail: `${clean}?w=240&h=240&fit=crop&q=80`,
+    medium: `${clean}?w=600&h=380&fit=crop&q=80`,
+    large: `${clean}?w=900&h=550&fit=crop&q=85`
+  };
 }
 
 function renderMenu() {
   menuCardsContainer.innerHTML = '';
   
+  // Apply current view mode class to container
+  if (currentViewMode === 'compact') {
+    menuCardsContainer.classList.add('compact-view');
+    menuCardsContainer.classList.remove('grid-view');
+  } else {
+    menuCardsContainer.classList.add('grid-view');
+    menuCardsContainer.classList.remove('compact-view');
+  }
+
+  // Update view mode toggle buttons
+  const btnCompact = document.getElementById('btn-view-compact');
+  const btnGrid = document.getElementById('btn-view-grid');
+  if (btnCompact && btnGrid) {
+    btnCompact.classList.toggle('active', currentViewMode === 'compact');
+    btnGrid.classList.toggle('active', currentViewMode === 'grid');
+  }
+
   let filtered = currentCategoryFilter === 'ALL'
     ? menuCatalog
     : menuCatalog.filter(m => m.category === currentCategoryFilter);
@@ -508,23 +556,34 @@ function renderMenu() {
     const stockLabel = isOutOfStock ? t.outOfStock : `${t.stock}: ${item.stock}`;
     const addBtnText = isOutOfStock ? t.outOfStock : t.addToCart;
 
+    // Multi-dimension responsive picture
+    const responsiveImgs = getResponsiveImages(item);
+
     card.innerHTML = `
-      <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${displayName}" class="menu-img" loading="lazy">
+      <picture class="menu-card-picture">
+        <source media="(max-width: 640px)" srcset="${responsiveImgs.thumbnail}">
+        <source media="(max-width: 1024px)" srcset="${responsiveImgs.medium}">
+        <img src="${responsiveImgs.large}" alt="${displayName}" class="menu-img" loading="lazy" width="300" height="200">
+      </picture>
       <div class="menu-body">
-        <div class="menu-badge-row">
-          <span class="badge-tag ${item.requiresCooking ? 'tag-cooking' : 'tag-direct'}">
-            ${cookingLabel}
-          </span>
-          <span class="badge-tag ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
-            ${stockLabel}
-          </span>
+        <div>
+          <div class="menu-badge-row">
+            <span class="badge-tag ${item.requiresCooking ? 'tag-cooking' : 'tag-direct'}">
+              ${cookingLabel}
+            </span>
+            <span class="badge-tag ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
+              ${stockLabel}
+            </span>
+          </div>
+          <h3 class="menu-title">${displayName}</h3>
+          <p class="menu-desc">${displayDesc}</p>
+          
+          <!-- Ingredients and Allergens details -->
+          <div class="menu-meta-details">
+            ${ingredientsHtml}
+            ${allergensHtml}
+          </div>
         </div>
-        <h3 class="menu-title">${displayName}</h3>
-        <p class="menu-desc">${displayDesc}</p>
-        
-        <!-- Ingredients and Allergens -->
-        ${ingredientsHtml}
-        ${allergensHtml}
 
         <div class="menu-footer">
           <span class="menu-price">${item.price.toFixed(2)} €</span>

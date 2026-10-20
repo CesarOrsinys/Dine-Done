@@ -42,6 +42,11 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
 
+    html {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
@@ -49,6 +54,7 @@
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      max-width: 100vw;
     }
 
     /* TOP NAVIGATION */
@@ -309,11 +315,13 @@
     }
     .allergen-select:hover { border-color: var(--accent-pink); }
 
-    /* MENU CARDS GRID */
+    /* MENU CARDS GRID & RESPONSIVE PICTURES */
     .menu-cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
       gap: 20px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .menu-card {
@@ -325,6 +333,8 @@
       flex-direction: column;
       transition: all 0.25s ease;
       position: relative;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .menu-card:hover {
@@ -333,11 +343,142 @@
       box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
     }
 
+    .menu-card-picture {
+      display: block;
+      width: 100%;
+      height: 155px;
+      overflow: hidden;
+      background: #182238;
+      position: relative;
+    }
+
     .menu-img {
-      height: 145px;
+      height: 100%;
       width: 100%;
       object-fit: cover;
-      background: #182238;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-card:hover .menu-img {
+      transform: scale(1.04);
+    }
+
+    /* VIEW MODE TOGGLE BUTTONS */
+    .view-mode-toggle {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      gap: 3px;
+      margin-left: auto;
+    }
+
+    .view-mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .view-mode-btn.active {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+    }
+
+    /* COMPACT VIEW MODE LAYOUT (HORIZONTAL DISH CARD WITH SQUARE THUMBNAIL) */
+    .menu-cards-grid.compact-view {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .menu-cards-grid.compact-view .menu-card {
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: space-between;
+      padding: 12px 14px;
+      gap: 14px;
+      min-height: 110px;
+    }
+
+    .menu-cards-grid.compact-view .menu-card-picture {
+      order: 2;
+      width: 100px;
+      height: 100px;
+      min-width: 100px;
+      min-height: 100px;
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: var(--radius-sm);
+      align-self: center;
+      flex-shrink: 0;
+    }
+
+    .menu-cards-grid.compact-view .menu-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .menu-cards-grid.compact-view .menu-body {
+      order: 1;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .menu-cards-grid.compact-view .menu-title {
+      font-size: 0.96rem;
+      margin-bottom: 2px;
+      line-height: 1.25;
+    }
+
+    .menu-cards-grid.compact-view .menu-desc {
+      font-size: 0.78rem;
+      line-height: 1.35;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .menu-cards-grid.compact-view .menu-badge-row {
+      margin-bottom: 4px;
+      gap: 4px;
+    }
+
+    .menu-cards-grid.compact-view .menu-meta-details {
+      display: none;
+    }
+
+    .menu-cards-grid.compact-view .menu-footer {
+      padding-top: 4px;
+      border-top: none;
+      margin-top: auto;
+    }
+
+    .menu-cards-grid.compact-view .menu-price {
+      font-size: 1.15rem;
+    }
+
+    .menu-cards-grid.compact-view .btn-add {
+      padding: 5px 12px;
+      font-size: 0.8rem;
     }
 
     .menu-body {
@@ -1364,20 +1505,81 @@
 
       /* Menu Cards on Mobile Phones */
       .menu-cards-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
       }
 
       .menu-card {
         border-radius: var(--radius-sm);
+        min-width: 0;
+        max-width: 100%;
       }
 
-      .menu-img {
-        height: 150px;
+      /* Compact mode on Mobile (Optimized horizontal row) */
+      .menu-cards-grid.compact-view .menu-card {
+        flex-direction: row;
+        align-items: center;
+        padding: 10px 12px;
+        gap: 12px;
       }
 
-      .menu-body {
+      .menu-cards-grid.compact-view .menu-card-picture {
+        width: 90px;
+        height: 90px;
+        min-width: 90px;
+        min-height: 90px;
+        max-width: 90px;
+        max-height: 90px;
+      }
+
+      .menu-cards-grid.compact-view .menu-body {
+        padding: 0;
+      }
+
+      /* Grid/Gallery mode on Mobile (Large photo card) */
+      .menu-cards-grid.grid-view .menu-card {
+        flex-direction: column;
+      }
+
+      .menu-cards-grid.grid-view .menu-card-picture {
+        height: 160px;
+        width: 100%;
+      }
+
+      .menu-cards-grid.grid-view .menu-body {
         padding: 14px;
+      }
+
+      @media (max-width: 380px) {
+        .menu-cards-grid.compact-view .menu-card-picture {
+          width: 78px;
+          height: 78px;
+          min-width: 78px;
+          min-height: 78px;
+          max-width: 78px;
+          max-height: 78px;
+        }
+        .menu-cards-grid.compact-view .menu-card {
+          padding: 8px 10px;
+          gap: 8px;
+        }
+        .menu-cards-grid.compact-view .menu-title {
+          font-size: 0.88rem;
+        }
+        .menu-cards-grid.compact-view .menu-desc {
+          font-size: 0.73rem;
+          -webkit-line-clamp: 1;
+        }
+        .menu-cards-grid.compact-view .menu-price {
+          font-size: 1.05rem;
+        }
+        .menu-cards-grid.compact-view .btn-add {
+          padding: 4px 10px;
+          font-size: 0.75rem;
+        }
       }
 
       .menu-title {
@@ -1577,7 +1779,7 @@
               <button class="cat-pill" data-cat="BEVERAGE" id="pill-cat-beverage">🥤 Bebidas</button>
             </div>
 
-            <!-- Features 2 & 3: Dietary Chips and Allergen Filter -->
+            <!-- Features 2 & 3: Dietary Chips, Allergen Filter & View Mode Toggle -->
             <div class="dietary-pills-row">
               <button class="diet-chip" id="btn-filter-vegan">
                 <span>🌱 Vegano</span>
@@ -1599,11 +1801,21 @@
                 <option value="Sin Frutos de cáscara">🥜 Excluir Frutos de cáscara</option>
                 <option value="Sin Sulfitos">🍷 Excluir Sulfitos</option>
               </select>
+
+              <!-- View Mode Toggle (Compact vs Grid) -->
+              <div class="view-mode-toggle" id="view-mode-toggle">
+                <button class="view-mode-btn active" id="btn-view-compact" title="Vista compacta optimizada para móvil">
+                  <span id="txt-view-compact">📱 Compacta</span>
+                </button>
+                <button class="view-mode-btn" id="btn-view-grid" title="Vista cuadrícula con fotos">
+                  <span id="txt-view-grid">🖼️ Galería</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Cards Grid -->
-          <div class="menu-cards-grid" id="menu-cards-container">
+          <!-- Cards Grid (Default compact-view for mobile excellence) -->
+          <div class="menu-cards-grid compact-view" id="menu-cards-container">
             <!-- Dynamically populated -->
           </div>
         </div>

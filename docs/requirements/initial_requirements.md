@@ -37,6 +37,7 @@ created_at: "2026-10-20"
 - **Feature 16 (Nuevo):** Branding desacoplado: Encabezado superior exclusivo del Restaurante; mención a Dine & Done trasladada al Footer completo con redes sociales, cookies, términos y condiciones legales.
 - **Feature 17 (Nuevo):** Selector multi-idioma (i18n) arriba a la derecha que traduce toda la web y la carta del restaurante (ES, EN, FR, DE).
 - **Feature 18 (Nuevo):** Diseño Mobile-First totalmente responsive: optimizado para pedidos desde smartphones y tablets con barra flotante de comanda (`mobile-cart-bar`), drawer deslizante para el carrito, gestos táctiles horizontales y cabecera adaptable.
+- **Feature 19 (Nuevo):** Imágenes multi-dimensión responsivas y modos de vista de carta: `<picture>` con `source` específicos para móvil (thumbnail cuadrado 240x240), tablet (600x380) y desktop (900x550), vista compacta horizontal de plato (diseño moderno tipo delivery app) y conmutador `📱 Compacta` / `🖼️ Galería` sin desbordamiento horizontal.
 
 ### 2.3. Business Rules & Edge Cases (Reglas de Negocio)
 - [Regla 1: Identificación de mesa] El comensal debe tener siempre una mesa asociada antes de confirmar el pedido, detectada automáticamente por URL o configurada manualmente.
@@ -46,6 +47,7 @@ created_at: "2026-10-20"
 - [Regla 5: Control de acceso RBAC] Las vistas operativas (Camarero, Cocina, Gerente) requieren autenticación de staff; el Comensal opera de forma pública y anónima.
 - [Regla 6: Normativa española de plásticos] Conforme al Real Decreto 293/2018 y Ley 7/2022, las bolsas de plástico conllevan un cobro obligatorio (0.10 €) y los envases plásticos/cubiertos no reutilizables tienen un suplemento impositivo (0.15 €), desglosados explícitamente en el ticket.
 - [Regla 7: Internacionalización total] El cambio de idioma conmuta instantáneamente todas las etiquetas, descripciones de platos, alérgenos y filtros al idioma seleccionado sin recargar la página.
+- [Regla 8: Imágenes multi-dimensión responsivas] Las fotos de los platos deben descargarse y presentarse en las dimensiones adecuadas al dispositivo (`thumbnail` para móviles estrechos en tarjeta horizontal, `medium` para tablets y `large` para escritorios), garantizando cero desbordamiento horizontal (`scrollWidth <= innerWidth`).
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

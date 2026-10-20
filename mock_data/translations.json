@@ -54,7 +54,9 @@
     "privacy": "Política de Privacidad",
     "cookies": "Política de Cookies",
     "legalNotice": "Aviso Legal",
-    "viewCartMobile": "Ver Pedido"
+    "viewCartMobile": "Ver Pedido",
+    "viewCompact": "📱 Compacta",
+    "viewGrid": "🖼️ Galería"
   },
   "en": {
     "menuTitle": "Digital Menu & Dining",
@@ -111,7 +113,9 @@
     "privacy": "Privacy Policy",
     "cookies": "Cookie Policy",
     "legalNotice": "Legal Notice",
-    "viewCartMobile": "View Order"
+    "viewCartMobile": "View Order",
+    "viewCompact": "📱 Compact",
+    "viewGrid": "🖼️ Gallery"
   },
   "fr": {
     "menuTitle": "Carte & Menu Digital",
@@ -168,7 +172,9 @@
     "privacy": "Politique de Confidentialité",
     "cookies": "Politique de Cookies",
     "legalNotice": "Mentions Légales",
-    "viewCartMobile": "Voir la Commande"
+    "viewCartMobile": "Voir la Commande",
+    "viewCompact": "📱 Compact",
+    "viewGrid": "🖼️ Galerie"
   },
   "de": {
     "menuTitle": "Digitale Speisekarte",
@@ -225,6 +231,8 @@
     "privacy": "Datenschutzerklärung",
     "cookies": "Cookie-Richtlinie",
     "legalNotice": "Impressum",
-    "viewCartMobile": "Bestellung Ansehen"
+    "viewCartMobile": "Bestellung Ansehen",
+    "viewCompact": "📱 Kompakt",
+    "viewGrid": "🖼️ Galerie"
   }
 }

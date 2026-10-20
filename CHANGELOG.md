@@ -5,6 +5,15 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.1] - 2026-10-20
+### Added
+- **Imágenes Multi-Dimensión Responsivas & Vista Compacta Móvil (HU-19):**
+  - Incorporación de interfaz de dimensiones múltiples `ResponsiveImageUrls` (`thumbnail: 240x240`, `medium: 600x380`, `large: 900x550`) para todos los ítems del menú.
+  - Implementación del elemento nativo `<picture>` con etiquetas `<source media="(max-width: 640px)" ...>` y `<source media="(max-width: 1024px)" ...>`, reduciendo drásticamente la carga de datos en teléfonos y adaptando el renderizado según el dispositivo.
+  - Nuevo diseño de tarjeta compacta horizontal en móviles (estilo UberEats/Glovo): imagen miniatura cuadrada a la derecha y contenido principal a la izquierda (título, precio, insignia de cocina y botón de añadir), visualizando múltiples platos simultáneamente en pantalla sin scroll vertical excesivo.
+  - Selector interactivo de modo de visualización en la barra de filtros: modo `📱 Compacta` (por defecto en móviles) y modo `🖼️ Galería` (para visualizar fotografías grandes de alta resolución).
+  - Eliminación total de scrollbars horizontales en pantallas estrechas mediante contención estricta de desbordamiento (`overflow-x: hidden; max-width: 100vw;`).
+
 ## [1.3.0] - 2026-10-20
 ### Added
 - **Diseño Totalmente Responsive para Móviles y Tablets (HU-18):**
