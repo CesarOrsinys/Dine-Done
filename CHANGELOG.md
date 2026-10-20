@@ -5,6 +5,25 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.1] - 2026-10-20
+### Added
+- **Traducción Automática a los 14 Idiomas Soportados:**
+  - Integración del servicio de traducción en línea que traduce automáticamente tanto el título como la descripción del nuevo plato a todos los idiomas de la plataforma (`es`, `en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`).
+  - Panel desplegable para revisar y personalizar las traducciones generadas antes o después de la incorporación a la carta.
+  - Almacenamiento íntegro de la matriz de traducciones para mantener el 100% de disponibilidad en el selector de idiomas dinámico.
+- **Soporte de Imágenes Multi-Dispositivo Adaptativas:**
+  - Capacidad para subir imágenes desde archivo local (`FileReader` a DataURL) o especificar URL directa, con previsualización en tiempo real.
+  - Almacenamiento adaptado a los 3 breakpoints de visualización: 📱 Móvil (`thumbnail`: 240x240), 💻 Tablet (`medium`: 600x380) y 🖥️ Desktop (`large`: 900x550).
+  - Opción avanzada para ingresar URLs específicas por dispositivo si se dispone de recursos gráficos a medida.
+
+### Changed
+- **Botones de Acción Compactos en Gerencia:**
+  - Rediseño de los botones de adición en la vista de Gerente (`#btn-open-add-product` y `#btn-open-add-user`) convirtiéndolos en botones de icono único `➕` de dimensiones compactas (`36x36px`) sin texto redundante.
+- **Limpieza Visual de la Interfaz:**
+  - Eliminación de todas las etiquetas textuales técnicas visibles en la aplicación (`(Requisito 3)`, `(Features 6 y 10)`, `(Feature 7)`, etc.) para ofrecer una estética profesional y limpia.
+- **Inputs Ampliados en el Formulario de Nuevo Producto:**
+  - Rediseño del modal de adición de plato con inputs amplios (`100% width`, padding generoso, `textarea` multilínea para descripción y mayor ancho general de modal a `720px`).
+
 ## [1.6.0] - 2026-10-20
 ### Added
 - **Header Móvil en 2 Filas Centradas (Req 1):**

@@ -85,8 +85,14 @@ created_at: "2026-10-20"
   - Se introduce el parámetro configurable `skipStaffAssignment` en `restaurant_config.json` y el panel de Gerencia para omitir la asignación manual previa de camarero y cocinero.
   - **Barrera de seguridad de cobro en efectivo:** Si un pedido tiene pago en efectivo pendiente (`PENDING_CASH`), queda estrictamente bloqueado el paso a elaboración en cocina (KDS) y la entrega en mesa hasta que el camarero registre y valide el cobro.
 - [Regla 18: Altas de empleados y productos al inventario desde el panel de Gerencia]
-  - Botón "➕ Añadir Usuario" en el panel de Gerencia para registrar nuevo personal interno (`WAITER`, `CHEF`, `MANAGER`) con credenciales y rol. Se excluye el rol de comensal por privacidad.
-  - Botón "➕ Añadir Producto" para incorporar platos y bebidas directamente a la carta con precio, stock, requerimiento de cocina, alérgenos y filtros dietéticos, generando compatibilidad con todos los 14 idiomas de la plataforma.
+  - Botón "➕" compacto en el panel de Gerencia para registrar nuevo personal interno (`WAITER`, `CHEF`, `MANAGER`) con credenciales y rol. Se excluye el rol de comensal por privacidad.
+  - Botón "➕" compacto para incorporar platos y bebidas directamente a la carta con precio, stock, requerimiento de cocina, alérgenos y filtros dietéticos.
+- [Regla 19: Botones compactos, limpieza de etiquetas técnicas, imágenes multi-dispositivo y traducción automática]
+  - Botones de adición con icono cruceta `➕` exclusivo y tamaño compacto (`36x36px`) para evitar anchos sobredimensionados.
+  - Supresión de etiquetas de texto técnico en la interfaz visible de la aplicación (`(Requisito 3)`, `(Features 6 y 10)`, `(Feature 7)`, etc.).
+  - Modal de nuevo producto ampliado con inputs cómodos a todo el ancho para nombre y descripción.
+  - Soporte de imágenes multi-dispositivo: subida de archivo local (`FileReader`), URL directa, previsualización en tiempo real y ajuste independiente para 📱 Móvil (240x240), 💻 Tablet (600x380) y 🖥️ Desktop (900x550).
+  - Traducción automática integrada a los 14 idiomas soportados (`es`, `en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`) con panel de inspección y edición, asegurando disponibilidad universal en el selector de idiomas.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
