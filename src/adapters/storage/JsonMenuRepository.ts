@@ -19,7 +19,8 @@ export class JsonMenuRepository implements IMenuRepository {
           const parsed = JSON.parse(stored) as MenuItem[];
           if (Array.isArray(parsed) && parsed.length > 0) {
             // Merge custom stored price/stock while always updating translations and assets
-            this.items = seedItems.map(seed => {
+            const seedIds = new Set(seedItems.map(s => s.id));
+            const merged = seedItems.map(seed => {
               const existing = parsed.find(p => p.id === seed.id);
               if (existing) {
                 return {
@@ -34,6 +35,9 @@ export class JsonMenuRepository implements IMenuRepository {
               }
               return seed;
             });
+            // Append custom products created by the manager
+            const customItems = parsed.filter(p => !seedIds.has(p.id));
+            this.items = [...merged, ...customItems];
             this.save();
             return;
           }
@@ -100,5 +104,15 @@ export class JsonMenuRepository implements IMenuRepository {
     this.items[idx] = { ...updatedItem };
     this.save();
     return JSON.parse(JSON.stringify(this.items[idx]));
+  }
+
+  async createItem(item: MenuItem): Promise<MenuItem> {
+    const existing = this.items.find(i => i.id === item.id);
+    if (existing) {
+      throw new Error(`Ya existe un producto con el ID ${item.id}.`);
+    }
+    this.items.push(item);
+    this.save();
+    return JSON.parse(JSON.stringify(item));
   }
 }

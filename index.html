@@ -1553,41 +1553,65 @@
     /* MOBILE PHONES (UNDER 768px)                              */
     /* ======================================================== */
     @media (max-width: 768px) {
+      /* Requisito 1: Header móvil en 2 filas */
       header {
-        height: 64px;
-        padding: 0 14px;
-      }
-
-      .brand-logo {
-        width: 36px;
-        height: 36px;
-      }
-
-      .brand-logo svg {
-        width: 18px;
-        height: 18px;
-      }
-
-      .brand h1 {
-        font-size: 1.05rem;
-      }
-
-      #brand-header-tagline {
-        display: none;
-      }
-
-      .header-actions {
+        height: auto;
+        min-height: 82px;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 8px;
       }
 
+      /* Fila 1 única con el logo centrado sin el título */
+      .brand {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+      }
+
+      .brand-logo {
+        width: 42px;
+        height: 42px;
+        margin: 0 auto;
+      }
+
+      .brand-logo svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      /* El título y subtítulo desaparecen por completo en móvil */
+      .brand h1,
+      #brand-header-title,
+      #brand-header-tagline,
+      .brand > div:last-child {
+        display: none !important;
+      }
+
+      /* Fila 2: Botones de patrones (tema), selector de idioma y botón de acceso */
+      .header-actions {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .theme-select,
       .lang-select {
-        padding: 5px 8px;
-        font-size: 0.78rem;
+        padding: 6px 10px;
+        font-size: 0.8rem;
       }
 
       .btn-staff-auth {
-        padding: 6px 10px;
-        font-size: 0.78rem;
+        padding: 6px 12px;
+        font-size: 0.8rem;
         gap: 4px;
       }
 
@@ -1894,14 +1918,17 @@
     /* Small Mobile Phones (< 400px) */
     @media (max-width: 400px) {
       header {
-        padding: 0 10px;
+        padding: 8px 10px;
+        gap: 6px;
       }
       .brand-logo {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
       }
-      .brand h1 {
-        font-size: 0.95rem;
+      .brand h1,
+      #brand-header-title,
+      .brand > div:last-child {
+        display: none !important;
       }
       .pay-methods {
         grid-template-columns: 1fr;
@@ -2272,6 +2299,22 @@
         </div>
       </div>
 
+      <!-- OPERATIONAL SETTINGS: OMITIR ASIGNACIÓN (Requisito 3) -->
+      <div class="manager-section-card" style="margin-bottom:24px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+          <div>
+            <h3 style="font-size:1.05rem; margin:0 0 4px 0; color:var(--text-main);">⚙️ Flujo Operativo y Asignación de Personal (Requisito 3)</h3>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin:0; max-width:650px;">
+              Permite omitir la asignación individual obligatoria de camarero y cocinero. Los platos pasan directamente a <em>"Listo para servir"</em> y <em>"Entregar a mesa"</em>. <strong>Nota de seguridad:</strong> Si el pedido se paga en efectivo, no puede pasar a preparación ni a entrega hasta que sea cobrado.
+            </p>
+          </div>
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.88rem; font-weight:700; background:var(--bg-dark); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); color:var(--text-main);">
+            <input type="checkbox" id="chk-skip-staff-assignment" style="width:18px; height:18px; cursor:pointer; accent-color:var(--accent-orange);">
+            <span>Omitir asignación a camarero / cocinero</span>
+          </label>
+        </div>
+      </div>
+
       <!-- TOP REQUESTED ITEMS & STOCK CONTROL -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:28px;">
         <div class="manager-section-card">
@@ -2293,7 +2336,13 @@
         </div>
 
         <div class="manager-section-card">
-          <h3 style="font-size:1.1rem; margin-bottom:16px;">📦 Control de Carta, Precios y Stock (Features 6 y 10)</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap;">
+            <h3 style="font-size:1.1rem; margin:0;">📦 Control de Carta, Precios y Stock (Features 6 y 10)</h3>
+            <!-- Requisito 4: Botón para agregar nuevos productos al stock -->
+            <button class="btn-action" id="btn-open-add-product" style="background:var(--accent-emerald); color:#fff; padding:7px 14px; font-size:0.82rem; border-radius:var(--radius-sm); border:none; cursor:pointer; font-weight:700; box-shadow:0 2px 10px rgba(16,185,129,0.3);">
+              ➕ Añadir Producto
+            </button>
+          </div>
           <div class="table-container" style="max-height:320px; overflow-y:auto;">
             <table>
               <thead>
@@ -2313,9 +2362,15 @@
         </div>
       </div>
 
-      <!-- USER MANAGEMENT (FEATURE 7) -->
+      <!-- USER MANAGEMENT (FEATURE 7 & Requisito 4) -->
       <div class="manager-section-card">
-        <h3 style="font-size:1.1rem; margin-bottom:16px;">👥 Control de Usuarios y Personal (Feature 7)</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap;">
+          <h3 style="font-size:1.1rem; margin:0;">👥 Control de Usuarios y Personal (Feature 7)</h3>
+          <!-- Requisito 4: Botón para agregar nuevos usuarios -->
+          <button class="btn-action" id="btn-open-add-user" style="background:var(--accent-orange); color:#fff; padding:7px 14px; font-size:0.82rem; border-radius:var(--radius-sm); border:none; cursor:pointer; font-weight:700; box-shadow:var(--shadow-glow);">
+            ➕ Añadir Usuario
+          </button>
+        </div>
         <div class="table-container">
           <table>
             <thead>
@@ -2374,6 +2429,160 @@
             <div><strong>Gerente:</strong> <code>gerente</code> / <code>gerente123</code></div>
           </div>
         </details>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR NUEVO USUARIO (Requisito 4) -->
+  <div class="modal-overlay" id="add-user-modal" style="display:none;">
+    <div class="modal-card" style="max-width:480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:1.2rem; font-weight:700;">👤 Registrar Nuevo Empleado</h3>
+        <button id="btn-close-add-user-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;">
+        Añade un nuevo miembro al equipo interno del restaurante. Por política estricta de privacidad (RGPD), no se admiten roles de cliente.
+      </p>
+
+      <form id="add-user-form" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-user-name" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Nombre y Apellidos:</label>
+          <input type="text" id="new-user-name" placeholder="ej. María Morales" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-user-username" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Usuario / Alias:</label>
+          <input type="text" id="new-user-username" placeholder="ej. mmorales" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-user-email" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Correo Electrónico:</label>
+          <input type="email" id="new-user-email" placeholder="ej. maria.morales@granvia.com" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-user-role" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Rol de Personal:</label>
+          <select id="new-user-role" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; cursor:pointer;">
+            <option value="WAITER">🏃 Camarero / Servicio de Sala</option>
+            <option value="CHEF">👨‍🍳 Cocinero / Cocina (KDS)</option>
+            <option value="MANAGER">📊 Gerente / Administración</option>
+          </select>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-user-password" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Contraseña de Acceso:</label>
+          <input type="password" id="new-user-password" placeholder="••••••••" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button type="button" id="btn-cancel-add-user" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
+            💾 Guardar Empleado
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR NUEVO PRODUCTO AL STOCK (Requisito 4) -->
+  <div class="modal-overlay" id="add-product-modal" style="display:none;">
+    <div class="modal-card" style="max-width:560px; max-height:90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:1.2rem; font-weight:700;">🍽️ Añadir Nuevo Producto / Plato</h3>
+        <button id="btn-close-add-product-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;">
+        Incorpora un nuevo plato a la carta con stock inicial, ficha de alérgenos y requerimientos de elaboración.
+      </p>
+
+      <form id="add-product-form" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-product-name" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Nombre del Plato / Bebida:</label>
+          <input type="text" id="new-product-name" placeholder="ej. Gazpacho Andaluz Tradicional" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-product-desc" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Descripción e Ingredientes:</label>
+          <textarea id="new-product-desc" rows="2" placeholder="ej. Sopa fría de tomate, pepino, pimiento y aceite de oliva virgen extra con picatostes." required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none; resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label for="new-product-category" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Categoría:</label>
+            <select id="new-product-category" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none; cursor:pointer;">
+              <option value="STARTER">🥗 Entrante</option>
+              <option value="MAIN_COURSE">🥩 Plato Principal</option>
+              <option value="DESSERT">🍰 Postre</option>
+              <option value="BEVERAGE">🍷 Bebida</option>
+              <option value="SIDE">🍟 Guarnición</option>
+            </select>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label for="new-product-price" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Precio (€):</label>
+            <input type="number" step="0.10" min="0" id="new-product-price" placeholder="ej. 8.50" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label for="new-product-stock" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Stock Inicial:</label>
+            <input type="number" step="1" min="0" id="new-product-stock" placeholder="ej. 25" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none;">
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px; margin-top:24px;">
+            <input type="checkbox" id="new-product-cooking" checked style="width:18px; height:18px; cursor:pointer; accent-color:var(--accent-orange);">
+            <label for="new-product-cooking" style="font-size:0.82rem; font-weight:600; color:var(--text-main); cursor:pointer;">Requiere Cocina (KDS)</label>
+          </div>
+        </div>
+
+        <!-- Filtros dietéticos -->
+        <div style="background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Propiedades Dietéticas:</div>
+          <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
+              <input type="checkbox" id="new-product-vegan" style="accent-color:var(--accent-emerald);"> 🌱 Vegano
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
+              <input type="checkbox" id="new-product-veg" style="accent-color:var(--accent-amber);"> 🧀 Vegetariano
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
+              <input type="checkbox" id="new-product-0alcohol" style="accent-color:var(--accent-blue);"> 💧 0% Alcohol
+            </label>
+          </div>
+        </div>
+
+        <!-- Alérgenos -->
+        <div style="background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Alérgenos Presentes:</div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:6px; font-size:0.78rem;">
+            <label><input type="checkbox" name="new-product-allergen" value="Gluten"> 🌾 Gluten</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Crustáceos"> 🦐 Crustáceos</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Huevos"> 🥚 Huevos</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Pescado"> 🐟 Pescado</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Cacahuetes"> 🥜 Cacahuetes</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Soja"> 🌱 Soja</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Lácteos"> 🥛 Lácteos</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Frutos de cáscara"> 🌰 F. Cáscara</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Apio"> 🌿 Apio</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Mostaza"> 🌭 Mostaza</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Sésamo"> 🥯 Sésamo</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Sulfitos"> 🍷 Sulfitos</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Altramuces"> 🌾 Altramuces</label>
+            <label><input type="checkbox" name="new-product-allergen" value="Moluscos"> 🦪 Moluscos</label>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button type="button" id="btn-cancel-add-product" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
+            💾 Incorporar a Carta
+          </button>
+        </div>
       </form>
     </div>
   </div>

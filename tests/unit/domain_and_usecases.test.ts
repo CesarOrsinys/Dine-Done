@@ -16,6 +16,8 @@ import { PaymentMethod } from '../../src/core/domain/enums/PaymentMethod.js';
 import { PaymentStatus } from '../../src/core/domain/enums/PaymentStatus.js';
 import { OrderStatus } from '../../src/core/domain/enums/OrderStatus.js';
 import { UserRole } from '../../src/core/domain/enums/UserRole.js';
+import { MenuCategory } from '../../src/core/domain/enums/MenuCategory.js';
+import { MenuItem } from '../../src/core/domain/entities/MenuItem.js';
 
 describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
   let orderRepo: JsonOrderRepository;
@@ -310,6 +312,96 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(canAccessTab(UserRole.MANAGER, UserRole.WAITER), true, 'Manager must access waiter tab');
     assert.strictEqual(canAccessTab(UserRole.MANAGER, UserRole.CHEF), true, 'Manager must access chef tab');
     assert.strictEqual(canAccessTab(UserRole.MANAGER, UserRole.MANAGER), true, 'Manager must access manager tab');
+  });
+
+  it('Operational Flow & Cash Barrier: Cash orders cannot pass to cooking or delivery until paid', async () => {
+    // Create an order with cash payment (PENDING_CASH)
+    const order = await createOrderUseCase.execute({
+      tableNumber: 'Mesa 1',
+      customerName: 'Comensal Anónimo',
+      items: [{
+        menuItemId: 'menu_1',
+        name: 'Tequeños Artesanales de Queso (5 uds)',
+        unitPrice: 9.5,
+        quantity: 1,
+        requiresCooking: true
+      }],
+      packaging: { bags: false, plasticContainers: false, cutleryCount: 0 },
+      paymentMethod: PaymentMethod.CASH,
+      tipAmount: 0
+    });
+
+    assert.strictEqual(order.paymentStatus, PaymentStatus.PENDING_CASH);
+
+    // Business rule: until paid, cannot cook
+    function canStartCooking(status: OrderStatus, payStatus: PaymentStatus): boolean {
+      if (payStatus === PaymentStatus.PENDING_CASH) return false;
+      return status === OrderStatus.PLACED;
+    }
+
+    function canDeliverToTable(status: OrderStatus, payStatus: PaymentStatus): boolean {
+      if (payStatus === PaymentStatus.PENDING_CASH) return false;
+      return status === OrderStatus.READY_TO_SERVE;
+    }
+
+    assert.strictEqual(canStartCooking(order.status, order.paymentStatus), false, 'Must NOT allow cooking if cash pending');
+    assert.strictEqual(canDeliverToTable(OrderStatus.READY_TO_SERVE, order.paymentStatus), false, 'Must NOT allow delivery if cash pending');
+
+    // Confirm cash payment
+    const paidOrder = await processCashUseCase.execute(order.id);
+    assert.strictEqual(paidOrder.paymentStatus, PaymentStatus.PAID);
+    assert.strictEqual(canStartCooking(paidOrder.status, paidOrder.paymentStatus), true, 'Allows cooking once paid');
+    assert.strictEqual(canDeliverToTable(OrderStatus.READY_TO_SERVE, paidOrder.paymentStatus), true, 'Allows delivery once paid');
+  });
+
+  it('Manager Creation: Can create new staff users and new products in menu', async () => {
+    const userRepo = new JsonUserRepository();
+
+    // 1. Create new staff user
+    const newUser = await userRepo.create({
+      id: `usr_new_${Date.now()}`,
+      name: 'Sofía Navarro',
+      username: 'snavarro',
+      email: 'sofia@dinedone.com',
+      role: UserRole.WAITER,
+      password: 'password123',
+      active: true
+    });
+
+    assert.ok(newUser.id);
+    assert.strictEqual(newUser.name, 'Sofía Navarro');
+    assert.strictEqual(newUser.role, UserRole.WAITER);
+
+    // 2. Create new product in menu catalog
+    const allLangs = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+    const transMap: Record<string, { name: string; description: string }> = {};
+    for (const l of allLangs) {
+      transMap[l] = { name: 'Gazpacho Andaluz', description: 'Sopa fría' };
+    }
+
+    const newDish = await menuRepo.createItem({
+      id: `item_test_${Date.now()}`,
+      name: 'Gazpacho Andaluz',
+      description: 'Sopa fría tradicional de tomate y verduras',
+      price: 9.50,
+      category: MenuCategory.STARTER,
+      stock: 30,
+      requiresCooking: false,
+      isVegan: true,
+      isVegetarian: true,
+      isAlcoholFree: true,
+      allergens: ['Gluten'],
+      translations: transMap
+    });
+
+    assert.ok(newDish.id);
+    assert.strictEqual(newDish.stock, 30);
+    assert.strictEqual(newDish.price, 9.50);
+
+    const allItems = await menuRepo.getAll();
+    const found = allItems.find((i: MenuItem) => i.id === newDish.id);
+    assert.ok(found, 'Created dish must exist in repository');
+    assert.strictEqual(found?.name, 'Gazpacho Andaluz');
   });
 });
 

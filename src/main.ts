@@ -138,6 +138,22 @@ let currentUser: User = {
 // Staff authentication session (RBAC tracking)
 let authenticatedStaffUser: User | null = null;
 
+// Operational Flow Settings (Requirement 3: Skip staff assignment)
+let skipStaffAssignment: boolean = (() => {
+  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('DND_SKIP_STAFF_ASSIGN') : null;
+  if (stored !== null) return stored === 'true';
+  return (restaurantConfig as any).skipStaffAssignment ?? true;
+})();
+
+function generateFallbackTranslations(name: string, description: string): Record<string, { name: string; description: string }> {
+  const transMap: Record<string, { name: string; description: string }> = {};
+  const allLangs = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+  for (const lang of allLangs) {
+    transMap[lang] = { name: name, description: description };
+  }
+  return transMap;
+}
+
 let menuCatalog: MenuItem[] = [];
 let allOrders: Order[] = [];
 let allUsers: User[] = [];
@@ -1239,7 +1255,7 @@ function getTranslatedStatus(status: OrderStatus, t: any): string {
   }
 }
 
-// 10. Camarero: Comandas Board
+// 10. Camarero: Comandas Board (Requisitos 2 y 3: Sin nombre de comensal, opción omitir asignación, bloqueo de entrega si pendiente efectivo)
 function renderWaiterOrders() {
   waiterOrdersContainer.innerHTML = '';
   const t = translations[currentLanguage] || translations['es'];
@@ -1264,7 +1280,8 @@ function renderWaiterOrders() {
       <div class="order-header">
         <div>
           <div class="order-num">${order.orderNumber}</div>
-          <div style="font-size:0.8rem; color:var(--text-muted);">${order.customerName}</div>
+          <!-- Requisito 2: Se elimina el nombre del comensal por privacidad estricta (RGPD) -->
+          <div style="font-size:0.75rem; color:var(--text-muted);">${order.items.length} productos en comanda</div>
         </div>
         <span class="order-table-badge">${order.tableNumber}</span>
       </div>
@@ -1287,11 +1304,13 @@ function renderWaiterOrders() {
         ${order.packagingCost ? `<span class="pack-tag-pill" style="color:var(--accent-orange);">+${order.packagingCost.toFixed(2)} €</span>` : ''}
       </div>
 
-      <!-- Staff assignment -->
-      <div class="order-staff-row">
-        <div>🏃 ${t.roleWaiter || 'Camarero'}: <strong>${order.waiterName || 'Sin asignar'}</strong></div>
-        <div>👨‍🍳 ${t.roleChef || 'Cocinero'}: <strong>${order.chefName || 'Sin asignar'}</strong></div>
-      </div>
+      <!-- Staff assignment (Omitible según Requisito 3) -->
+      ${!skipStaffAssignment ? `
+        <div class="order-staff-row">
+          <div>🏃 ${t.roleWaiter || 'Camarero'}: <strong>${order.waiterName || 'Sin asignar'}</strong></div>
+          <div>👨‍🍳 ${t.roleChef || 'Cocinero'}: <strong>${order.chefName || 'Sin asignar'}</strong></div>
+        </div>
+      ` : ''}
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:0.82rem;">
         <div>Estado: <strong style="color:var(--accent-orange);">${getTranslatedStatus(order.status, t)}</strong></div>
@@ -1299,20 +1318,26 @@ function renderWaiterOrders() {
       </div>
 
       <div class="order-actions-bar">
-        ${!order.waiterId ? `
+        ${(!skipStaffAssignment && !order.waiterId) ? `
           <button class="btn-action btn-waiter-deliver btn-assign-waiter" data-id="${order.id}">
             🏃 Atender comanda
           </button>
         ` : ''}
 
-        ${order.status === OrderStatus.READY_TO_SERVE ? `
-          <button class="btn-action btn-kitchen-ready btn-mark-delivered" data-id="${order.id}">
-            🍽️ Entregar a mesa
-          </button>
-        ` : ''}
+        ${order.status === OrderStatus.READY_TO_SERVE ? (
+          isPendingCash ? `
+            <div style="font-size:0.8rem; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-sm); padding:6px 10px; font-weight:700; width:100%;">
+              ⚠️ Bloqueo de entrega: Pendiente de cobro en efectivo en sala
+            </div>
+          ` : `
+            <button class="btn-action btn-kitchen-ready btn-mark-delivered" data-id="${order.id}">
+              🍽️ Entregar a mesa
+            </button>
+          `
+        ) : ''}
 
         ${isPendingCash ? `
-          <button class="btn-action btn-waiter-cash btn-confirm-cash" data-id="${order.id}">
+          <button class="btn-action btn-waiter-cash btn-confirm-cash" data-id="${order.id}" style="background:var(--accent-amber); color:#000; font-weight:700;">
             💵 Cobrar ${order.total.toFixed(2)} € en efectivo
           </button>
         ` : ''}
@@ -1330,6 +1355,11 @@ function renderWaiterOrders() {
     });
 
     card.querySelector('.btn-mark-delivered')?.addEventListener('click', async () => {
+      // Requisito 3: Bloqueo estricto de entrega si pendiente en efectivo
+      if (order.paymentStatus === PaymentStatus.PENDING_CASH) {
+        showToast('⚠️ No se puede entregar a la mesa: la comanda tiene pendiente el cobro en efectivo.', 'warning');
+        return;
+      }
       await updateStatusUseCase.execute(order.id, OrderStatus.DELIVERED);
       showToast(`Comanda ${order.orderNumber} entregada a la ${order.tableNumber}.`, 'success');
       refreshAll();
@@ -1345,7 +1375,7 @@ function renderWaiterOrders() {
   });
 }
 
-// 11. Cocina: Kitchen Display System (KDS)
+// 11. Cocina: Kitchen Display System (KDS) (Requisito 3: Bloqueo de cocción si pendiente de pago en efectivo)
 function renderChefOrders() {
   chefOrdersContainer.innerHTML = '';
 
@@ -1368,6 +1398,7 @@ function renderChefOrders() {
     card.className = `order-card ${isUnderCooking ? 'status-in-kitchen' : 'status-placed'}`;
 
     const cookingItems = order.items.filter(i => i.requiresCooking);
+    const isPendingCash = order.paymentStatus === PaymentStatus.PENDING_CASH;
 
     const t = translations[currentLanguage] || translations['es'];
     card.innerHTML = `
@@ -1389,23 +1420,31 @@ function renderChefOrders() {
         `).join('')}
       </div>
 
-      <!-- Staff assignment -->
-      <div class="order-staff-row">
-        <div>👨‍🍳 Cocinero asignado: <strong>${order.chefName || 'Sin asignar'}</strong></div>
-      </div>
+      <!-- Staff assignment (Omitible según Requisito 3) -->
+      ${!skipStaffAssignment ? `
+        <div class="order-staff-row">
+          <div>👨‍🍳 Cocinero asignado: <strong>${order.chefName || 'Sin asignar'}</strong></div>
+        </div>
+      ` : ''}
 
       <div class="order-actions-bar">
-        ${!order.chefId ? `
+        ${(!skipStaffAssignment && !order.chefId) ? `
           <button class="btn-action btn-kitchen-start btn-assign-chef" data-id="${order.id}">
             👨‍🍳 Asignarme
           </button>
         ` : ''}
 
-        ${order.status === OrderStatus.PLACED ? `
-          <button class="btn-action btn-kitchen-start btn-start-cook" data-id="${order.id}">
-            🔥 Empezar a Cocinar
-          </button>
-        ` : ''}
+        ${order.status === OrderStatus.PLACED ? (
+          isPendingCash ? `
+            <div style="font-size:0.8rem; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-sm); padding:8px 12px; font-weight:700; width:100%;">
+              ⚠️ Esperando cobro en efectivo en sala: No puede pasar a cocina hasta que sea cobrado.
+            </div>
+          ` : `
+            <button class="btn-action btn-kitchen-start btn-start-cook" data-id="${order.id}">
+              🔥 Empezar a Cocinar
+            </button>
+          `
+        ) : ''}
 
         ${order.status === OrderStatus.IN_KITCHEN ? `
           <button class="btn-action btn-kitchen-ready btn-ready-cook" data-id="${order.id}">
@@ -1426,6 +1465,11 @@ function renderChefOrders() {
     });
 
     card.querySelector('.btn-start-cook')?.addEventListener('click', async () => {
+      // Requisito 3: Bloqueo estricto de inicio de preparación si pendiente en efectivo
+      if (order.paymentStatus === PaymentStatus.PENDING_CASH) {
+        showToast('⚠️ No se puede iniciar la preparación: El pedido debe ser cobrado previamente en efectivo por el camarero.', 'warning');
+        return;
+      }
       await updateStatusUseCase.execute(order.id, OrderStatus.IN_KITCHEN);
       showToast(`Comanda ${order.orderNumber} en cocción.`, 'info');
       refreshAll();
@@ -1537,9 +1581,161 @@ async function renderManagerDashboard() {
     `;
     userTbody.appendChild(tr);
   });
+  // Operational Settings (Requisito 3)
+  const chkSkip = document.getElementById('chk-skip-staff-assignment') as HTMLInputElement;
+  if (chkSkip) {
+    chkSkip.checked = skipStaffAssignment;
+    chkSkip.onchange = () => {
+      skipStaffAssignment = chkSkip.checked;
+      localStorage.setItem('DND_SKIP_STAFF_ASSIGN', skipStaffAssignment ? 'true' : 'false');
+      showToast(
+        skipStaffAssignment 
+          ? 'Flujo operativo: asignación obligatoria a personal omitida.'
+          : 'Flujo operativo: asignación obligatoria a personal requerida.',
+        'info'
+      );
+      if (currentUser.role === UserRole.WAITER) renderWaiterOrders();
+      if (currentUser.role === UserRole.CHEF) renderChefOrders();
+    };
+  }
 }
 
-// 13. Realtime Subscriptions & Refresh
+// 13. Setup Manager Modals: Añadir Usuario y Añadir Producto al Stock (Requisito 4)
+function setupManagerModals() {
+  // Modal Añadir Usuario
+  const modalAddUser = document.getElementById('add-user-modal')!;
+  const btnOpenAddUser = document.getElementById('btn-open-add-user');
+  const btnCloseAddUser = document.getElementById('btn-close-add-user-modal');
+  const btnCancelAddUser = document.getElementById('btn-cancel-add-user');
+  const formAddUser = document.getElementById('add-user-form') as HTMLFormElement;
+
+  btnOpenAddUser?.addEventListener('click', () => {
+    formAddUser.reset();
+    modalAddUser.style.display = 'flex';
+  });
+
+  function closeAddUserModal() {
+    modalAddUser.style.display = 'none';
+  }
+
+  btnCloseAddUser?.addEventListener('click', closeAddUserModal);
+  btnCancelAddUser?.addEventListener('click', closeAddUserModal);
+
+  formAddUser?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('new-user-name') as HTMLInputElement).value.trim();
+    const username = (document.getElementById('new-user-username') as HTMLInputElement).value.trim();
+    const email = (document.getElementById('new-user-email') as HTMLInputElement).value.trim();
+    const roleVal = (document.getElementById('new-user-role') as HTMLSelectElement).value;
+    const password = (document.getElementById('new-user-password') as HTMLInputElement).value.trim();
+
+    if (!name || !username || !email || !password) {
+      showToast('Por favor completa todos los campos del nuevo empleado.', 'warning');
+      return;
+    }
+
+    // Role check: Only internal staff allowed (RGPD Privacy)
+    if (roleVal !== UserRole.WAITER && roleVal !== UserRole.CHEF && roleVal !== UserRole.MANAGER) {
+      showToast('Rol no permitido: solo se pueden registrar empleados internos.', 'danger');
+      return;
+    }
+
+    const newUser: User = {
+      id: `usr_${Date.now()}`,
+      name,
+      username,
+      email,
+      role: roleVal as UserRole,
+      password,
+      active: true
+    };
+
+    try {
+      await services.userRepo.create(newUser);
+      allUsers = await services.userRepo.getAll();
+      renderManagerDashboard();
+      closeAddUserModal();
+      showToast(`¡Empleado ${newUser.name} registrado con éxito como ${newUser.role}!`, 'success');
+    } catch (err: any) {
+      showToast(`Error al crear usuario: ${err.message}`, 'danger');
+    }
+  });
+
+  // Modal Añadir Producto al Menú / Stock
+  const modalAddProduct = document.getElementById('add-product-modal')!;
+  const btnOpenAddProduct = document.getElementById('btn-open-add-product');
+  const btnCloseAddProduct = document.getElementById('btn-close-add-product-modal');
+  const btnCancelAddProduct = document.getElementById('btn-cancel-add-product');
+  const formAddProduct = document.getElementById('add-product-form') as HTMLFormElement;
+
+  btnOpenAddProduct?.addEventListener('click', () => {
+    formAddProduct.reset();
+    (document.getElementById('new-product-cooking') as HTMLInputElement).checked = true;
+    modalAddProduct.style.display = 'flex';
+  });
+
+  function closeAddProductModal() {
+    modalAddProduct.style.display = 'none';
+  }
+
+  btnCloseAddProduct?.addEventListener('click', closeAddProductModal);
+  btnCancelAddProduct?.addEventListener('click', closeAddProductModal);
+
+  formAddProduct?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('new-product-name') as HTMLInputElement).value.trim();
+    const description = (document.getElementById('new-product-desc') as HTMLTextAreaElement).value.trim();
+    const category = (document.getElementById('new-product-category') as HTMLSelectElement).value as MenuCategory;
+    const price = parseFloat((document.getElementById('new-product-price') as HTMLInputElement).value);
+    const stock = parseInt((document.getElementById('new-product-stock') as HTMLInputElement).value, 10);
+    const requiresCooking = (document.getElementById('new-product-cooking') as HTMLInputElement).checked;
+    const isVegan = (document.getElementById('new-product-vegan') as HTMLInputElement).checked;
+    const isVegetarian = (document.getElementById('new-product-veg') as HTMLInputElement).checked;
+    const isAlcoholFree = (document.getElementById('new-product-0alcohol') as HTMLInputElement).checked;
+
+    if (!name || isNaN(price) || price < 0 || isNaN(stock) || stock < 0) {
+      showToast('Por favor introduce datos válidos para el producto (precio y stock no negativos).', 'warning');
+      return;
+    }
+
+    const allergenCheckboxes = document.querySelectorAll<HTMLInputElement>('input[name="new-product-allergen"]:checked');
+    const allergens = Array.from(allergenCheckboxes).map(cb => cb.value);
+
+    const newDish: MenuItem = {
+      id: `item_custom_${Date.now()}`,
+      name,
+      description,
+      price,
+      category,
+      stock,
+      requiresCooking,
+      isVegan,
+      isVegetarian,
+      isAlcoholFree,
+      allergens,
+      imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&auto=format&fit=crop&q=80',
+      images: {
+        thumbnail: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240&auto=format&fit=crop&q=80',
+        medium: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80',
+        large: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&auto=format&fit=crop&q=80'
+      },
+      translations: generateFallbackTranslations(name, description)
+    };
+
+    try {
+      await services.menuRepo.createItem(newDish);
+      menuCatalog = await services.menuRepo.getAll();
+      renderManagerDashboard();
+      renderMenu();
+      closeAddProductModal();
+      showToast(`¡Plato "${newDish.name}" añadido al stock con ${newDish.stock} unidades!`, 'success');
+    } catch (err: any) {
+      showToast(`Error al crear producto: ${err.message}`, 'danger');
+    }
+  });
+}
+
+// 14. Realtime Subscriptions & Refresh
 async function refreshAll() {
   menuCatalog = await services.menuRepo.getAll();
   allOrders = await services.orderRepo.findAll();
@@ -1619,6 +1815,7 @@ async function initApp() {
   setupCartControls();
   setupMobileCartDrawer();
   setupExportReport();
+  setupManagerModals();
 
   renderMenu();
   updateCartUI();

@@ -7,6 +7,7 @@
   "vatNumber": "B-88776655",
   "softwareBranding": "Dine & Done",
   "softwareVersion": "v1.2.0",
+  "skipStaffAssignment": true,
   "availableTables": [
     "Mesa 1",
     "Mesa 2",

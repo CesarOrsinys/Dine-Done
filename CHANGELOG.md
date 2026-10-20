@@ -5,6 +5,22 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.0] - 2026-10-20
+### Added
+- **Header Móvil en 2 Filas Centradas (Req 1):**
+  - Fila 1: Logo de la empresa centrado de manera limpia y prominente. El título y subtítulo quedan ocultos en móviles para optimizar el espacio vertical.
+  - Fila 2: Selectores de paleta de color (patrones de diseño), selector de idioma y botón de acceso/salida de personal.
+- **Flujo Operativo sin Asignación Obligatoria & Barrera de Cobro en Efectivo (Req 3):**
+  - Opción configurable en `restaurant_config.json` y en el panel de Gerencia (`skipStaffAssignment`) para omitir la asignación manual a camarero o cocinero, habilitando el servicio directo.
+  - **Bloqueo estricto de pedidos en efectivo:** Si un pedido está pendiente de cobro en efectivo (`PENDING_CASH`), queda terminantemente bloqueado el inicio de cocción en cocina y la entrega a mesa hasta que el camarero valide el cobro.
+- **Gestión Gerencial de Altas de Empleados y Nuevos Productos (Req 4):**
+  - Botón y modal interactivo para incorporar nuevos miembros del personal interno (`WAITER`, `CHEF`, `MANAGER`) con credenciales seguras.
+  - Botón y modal interactivo para dar de alta nuevos platos y productos en la carta con stock, precio, alérgenos, propiedades dietéticas y generación de traducciones para los 14 idiomas soportados.
+
+### Changed
+- **Privacidad Estricta de Comensales en Comandas de Camarero (Req 2):**
+  - Eliminación definitiva del nombre del comensal en las tarjetas de comandas de sala (`renderWaiterOrders`), cumpliendo con la normativa de privacidad y protección de datos.
+
 ## [1.5.1] - 2026-10-20
 ### Changed
 - **Control de Acceso RBAC Estricto por Rol Operativo:**

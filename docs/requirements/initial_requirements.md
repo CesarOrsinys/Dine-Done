@@ -75,6 +75,18 @@ created_at: "2026-10-20"
     4. **Versión Retro** (`retro`): Paleta vintage diner `#F6E2B3`, `#E7A84E`, `#D96C2C`, `#3E8E7E`, `#274C56` sobre base cálida pergamino.
     5. **Versión Pastel** (`pastel`): Paleta suave `#FFF1E6`, `#FDE2E4`, `#E2ECE9`, `#CDDAFD`, `#DBE7E4`.
   - Persistencia del tema seleccionado en `localStorage` (`DND_THEME`).
+- [Regla 15: Header móvil estructurado en 2 filas]
+  - En vistas móviles, el encabezado organiza sus elementos en dos niveles centrados:
+    - Fila 1: Logo del restaurante centrado de forma prominente. El título y subtítulo quedan ocultos para máxima limpieza visual.
+    - Fila 2: Selectores de paleta de color (patrones), selector multi-idioma y botón de acceso/salida de empleados.
+- [Regla 16: Supresión de datos personales del comensal en comandas de camarero]
+  - Se elimina cualquier dato identificativo o nombre de comensal de las tarjetas de comanda de sala (`renderWaiterOrders`). El camarero supervisa exclusivamente número de mesa, productos y estados operativos garantizando la privacidad RGPD.
+- [Regla 17: Flujo operativo sin asignación obligatoria y barrera de cobro en efectivo]
+  - Se introduce el parámetro configurable `skipStaffAssignment` en `restaurant_config.json` y el panel de Gerencia para omitir la asignación manual previa de camarero y cocinero.
+  - **Barrera de seguridad de cobro en efectivo:** Si un pedido tiene pago en efectivo pendiente (`PENDING_CASH`), queda estrictamente bloqueado el paso a elaboración en cocina (KDS) y la entrega en mesa hasta que el camarero registre y valide el cobro.
+- [Regla 18: Altas de empleados y productos al inventario desde el panel de Gerencia]
+  - Botón "➕ Añadir Usuario" en el panel de Gerencia para registrar nuevo personal interno (`WAITER`, `CHEF`, `MANAGER`) con credenciales y rol. Se excluye el rol de comensal por privacidad.
+  - Botón "➕ Añadir Producto" para incorporar platos y bebidas directamente a la carta con precio, stock, requerimiento de cocina, alérgenos y filtros dietéticos, generando compatibilidad con todos los 14 idiomas de la plataforma.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
