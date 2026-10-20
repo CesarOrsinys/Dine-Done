@@ -10,6 +10,7 @@ import { JsonOrderRepository } from '../../src/adapters/storage/JsonOrderReposit
 import { JsonMenuRepository } from '../../src/adapters/storage/JsonMenuRepository.js';
 import { JsonUserRepository } from '../../src/adapters/storage/JsonUserRepository.js';
 import restaurantConfig from '../../mock_data/restaurant_config.json' with { type: 'json' };
+import translations from '../../mock_data/translations.json' with { type: 'json' };
 import { StripePaymentGatewayMock } from '../../src/adapters/storage/StripePaymentGatewayMock.js';
 import { LocalEventRealtimeNotifier } from '../../src/adapters/infrastructure/LocalEventRealtimeNotifier.js';
 import { PaymentMethod } from '../../src/core/domain/enums/PaymentMethod.js';
@@ -553,6 +554,39 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
       }
     }
     assert.ok(checkedCount > 100, `Must verify at least 100 translated allergen instances (verified: ${checkedCount})`);
+  });
+
+  it('HU-15 & Staff i18n: Should verify complete, non-empty staff translations across all 14 languages', () => {
+    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+    const staffKeys = [
+      // Waiter
+      'waiterRefresh', 'waiterNoOrders', 'orderItemsCount', 'orderStatusLabel', 'orderPaymentLabel',
+      'paymentPaid', 'paymentPendingCash', 'btnAttendOrder', 'btnDeliverOrder', 'alertCashDeliveryBlocked', 'btnCollectCash',
+      // Chef
+      'kdsPendingBadge', 'kdsNoOrders', 'kdsKitchenRequirements', 'kdsPrepNote', 'kdsAssignedChef',
+      'kdsBtnAssignMe', 'kdsCashBlocked', 'kdsBtnStartCook', 'kdsBtnReadyCook',
+      // Manager
+      'managerExportReport', 'kpiRevenueLabel', 'kpiRevenueSub', 'kpiTipsLabel', 'kpiTipsSub',
+      'kpiAvgTicketLabel', 'kpiAvgTicketSub', 'kpiOrdersCountLabel', 'kpiOrdersSubInKitchen', 'kpiOrdersSubDelivered',
+      'managerWorkflowTitle', 'managerWorkflowDesc', 'managerSkipAssignment', 'managerTopItemsTitle',
+      'thDish', 'thOrderedQty', 'thTotalRevenue', 'ordersCountUnit', 'managerStockTitle', 'managerStockSub',
+      'thProduct', 'thCategory', 'thPrice', 'thStock', 'thActions', 'btnEdit', 'btnSave',
+      'managerUsersTitle', 'btnAddUser', 'btnAddProduct', 'userActive', 'userInactive', 'userLoginLabel',
+      'roleManagerBadge', 'roleChefBadge', 'roleWaiterBadge', 'roleStaffGeneric'
+    ];
+
+    const trans = translations as Record<string, Record<string, string>>;
+
+    for (const lang of requiredLanguages) {
+      assert.ok(trans[lang], `Language '${lang}' must exist in translations.json`);
+      for (const key of staffKeys) {
+        const val = trans[lang][key];
+        assert.ok(
+          val && typeof val === 'string' && val.trim().length > 0,
+          `Key '${key}' must exist and not be empty for language '${lang}'`
+        );
+      }
+    }
   });
 });
 

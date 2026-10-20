@@ -319,15 +319,51 @@ function setLanguage(lang: string) {
     'txt-view-grid': t.viewGrid || '🖼️ Galería',
     'txt-waiter-title': t.waiterTitle || 'Panel de Comandas de Sala',
     'txt-waiter-sub': t.waiterSub || 'Supervisa las órdenes activas, atiende entregas de platos listos y gestiona cobros en efectivo.',
+    'btn-refresh-waiter': t.waiterRefresh || '🔄 Refrescar Comandas',
     'txt-chef-title': t.chefTitle || 'Kitchen Display System (KDS) 👨‍🍳🔥',
     'txt-chef-sub': t.chefSub || 'Órdenes que requieren elaboración culinaria. Pasa los platos a elaboración y avisa cuando estén listos.',
     'txt-manager-title': t.managerTitle || 'Panel Gerencial, KPIs & Control Operativo',
-    'txt-manager-sub': t.managerSub || 'Métricas financieras consolidadas, control de inventario de platos y gestión del personal.'
+    'txt-manager-sub': t.managerSub || 'Métricas financieras consolidadas, control de inventario de platos y gestión del personal.',
+    'btn-export-report': t.managerExportReport || '📥 Exportar Informe (JSON)',
+    'kpi-label-revenue': t.kpiRevenueLabel || 'Facturación Total Cobrada',
+    'kpi-sub-revenue': t.kpiRevenueSub || 'Vía Stripe y Efectivo validado',
+    'kpi-label-tips': t.kpiTipsLabel || 'Propinas Acumuladas',
+    'kpi-sub-tips': t.kpiTipsSub || 'Destinadas al equipo de sala y cocina',
+    'kpi-label-avg': t.kpiAvgTicketLabel || 'Ticket Promedio',
+    'kpi-sub-avg': t.kpiAvgTicketSub || 'Promedio por comanda pagada',
+    'kpi-label-orders': t.kpiOrdersCountLabel || 'Comandas Totales',
+    'txt-manager-workflow-title': t.managerWorkflowTitle || '⚙️ Flujo Operativo y Asignación de Personal',
+    'txt-manager-workflow-desc': t.managerWorkflowDesc || 'Permite omitir la asignación individual obligatoria de camarero y cocinero. Los platos pasan directamente a "Listo para servir" y "Entregar a mesa". Nota de seguridad: Si el pedido se paga en efectivo, no puede pasar a preparación ni a entrega hasta que sea cobrado.',
+    'txt-skip-staff-label': t.managerSkipAssignment || 'Omitir asignación a camarero / cocinero',
+    'txt-top-items-title': t.managerTopItemsTitle || '🏆 Platos Más Solicitados',
+    'th-top-dish': t.thDish || 'Plato',
+    'th-top-qty': t.thOrderedQty || 'Uds. Pedidas',
+    'th-top-revenue': t.thTotalRevenue || 'Total Recaudado',
+    'txt-stock-section-title': t.managerStockTitle || '📦 Control de Carta, Precios y Stock',
+    'txt-stock-section-sub': t.managerStockSub || 'Modifica precios, stock o edita alérgenos y traducciones en tiempo real.',
+    'th-stock-prod': t.thProduct || 'Producto',
+    'th-stock-cat': t.thCategory || 'Categoría',
+    'th-stock-price': t.thPrice || 'Precio (€)',
+    'th-stock-qty': t.thStock || 'Stock Actual',
+    'th-stock-actions': t.thActions || 'Acciones',
+    'txt-users-section-title': t.managerUsersTitle || '👥 Control de Usuarios y Personal'
   };
 
   for (const [id, val] of Object.entries(elMap)) {
     const el = document.getElementById(id);
     if (el && val) el.innerHTML = val;
+  }
+
+  // Update add buttons tooltip attributes
+  const btnAddProd = document.getElementById('btn-open-add-product');
+  if (btnAddProd) {
+    btnAddProd.setAttribute('title', t.btnAddProduct || 'Añadir Producto');
+    btnAddProd.setAttribute('aria-label', t.btnAddProduct || 'Añadir Producto');
+  }
+  const btnAddUser = document.getElementById('btn-open-add-user');
+  if (btnAddUser) {
+    btnAddUser.setAttribute('title', t.btnAddUser || 'Añadir Usuario');
+    btnAddUser.setAttribute('aria-label', t.btnAddUser || 'Añadir Usuario');
   }
 
   // Update table bar elements
@@ -415,8 +451,16 @@ function setLanguage(lang: string) {
     langSelector.value = lang;
   }
 
-  // Re-render menu cards and cart with translated values
-  renderMenu();
+  // Re-render role view and cart with translated values
+  if (currentUser.role === UserRole.CUSTOMER) {
+    renderMenu();
+  } else if (currentUser.role === UserRole.WAITER) {
+    renderWaiterOrders();
+  } else if (currentUser.role === UserRole.CHEF) {
+    renderChefOrders();
+  } else if (currentUser.role === UserRole.MANAGER) {
+    renderManagerDashboard();
+  }
   updateCartUI();
 }
 
@@ -1784,12 +1828,19 @@ function getTranslatedStatus(status: OrderStatus, t: any): string {
   }
 }
 
+// Helper to translate payment status across all views
+function getTranslatedPaymentStatus(status: PaymentStatus, t: any): string {
+  if (status === PaymentStatus.PAID) return t.paymentPaid || 'Pagado';
+  if (status === PaymentStatus.PENDING_CASH) return t.paymentPendingCash || 'Efectivo Pendiente';
+  return status;
+}
+
 // 10. Camarero: Comandas Board (Requisitos 2 y 3: Sin nombre de comensal, opción omitir asignación, bloqueo de entrega si pendiente efectivo)
 function renderWaiterOrders() {
   waiterOrdersContainer.innerHTML = '';
   const t = translations[currentLanguage] || translations['es'];
   if (allOrders.length === 0) {
-    waiterOrdersContainer.innerHTML = `<p style="color:var(--text-muted); padding:30px;">No hay comandas registradas en sala.</p>`;
+    waiterOrdersContainer.innerHTML = `<p style="color:var(--text-muted); padding:30px;">${t.waiterNoOrders || 'No hay comandas registradas en sala.'}</p>`;
     return;
   }
 
@@ -1810,64 +1861,69 @@ function renderWaiterOrders() {
         <div>
           <div class="order-num">${order.orderNumber}</div>
           <!-- Requisito 2: Se elimina el nombre del comensal por privacidad estricta (RGPD) -->
-          <div style="font-size:0.75rem; color:var(--text-muted);">${order.items.length} productos en comanda</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">${order.items.length} ${t.orderItemsCount || 'productos en comanda'}</div>
         </div>
         <span class="order-table-badge">${order.tableNumber}</span>
       </div>
 
       <div class="order-items-box">
-        ${order.items.map(i => `
-          <div class="order-item-row">
-            <span><strong>${i.quantity}x</strong> ${i.name}</span>
-            <span style="color:var(--text-muted); font-size:0.8rem;">${(i.unitPrice * i.quantity).toFixed(2)} €</span>
-          </div>
-          ${i.notes ? `<div class="order-item-notes">Nota: ${i.notes}</div>` : ''}
-        `).join('')}
+        ${order.items.map(i => {
+          const itemCatalog = menuCatalog.find(m => m.id === i.menuItemId);
+          const itemTrans = (itemCatalog?.translations as any)?.[currentLanguage];
+          const itemName = itemTrans?.name || i.name;
+          return `
+            <div class="order-item-row">
+              <span><strong>${i.quantity}x</strong> ${itemName}</span>
+              <span style="color:var(--text-muted); font-size:0.8rem;">${(i.unitPrice * i.quantity).toFixed(2)} €</span>
+            </div>
+            ${i.notes ? `<div class="order-item-notes">${t.orderNote || 'Nota'}: ${i.notes}</div>` : ''}
+          `;
+        }).join('')}
       </div>
 
       <!-- Feature 4: Packaging breakdown tags under Spanish Law -->
       <div class="order-pack-tags">
-        ${order.packaging.bags ? '<span class="pack-tag-pill">🛍️ Bolsa (R.D. 293/2018)</span>' : ''}
-        ${order.packaging.plasticContainers ? '<span class="pack-tag-pill">♻️ Envases (Ley 7/2022)</span>' : ''}
-        <span class="pack-tag-pill">🍴 ${order.packaging.cutleryCount} cubiertos eco</span>
+        ${order.packaging.bags ? `<span class="pack-tag-pill">🛍️ ${t.packagingBag || 'Bolsa (R.D. 293/2018)'}</span>` : ''}
+        ${order.packaging.plasticContainers ? `<span class="pack-tag-pill">♻️ ${t.packagingContainers || 'Envases (Ley 7/2022)'}</span>` : ''}
+        <span class="pack-tag-pill">🍴 ${order.packaging.cutleryCount} ${t.packagingCutlery || 'cubiertos eco'}</span>
         ${order.packagingCost ? `<span class="pack-tag-pill" style="color:var(--accent-orange);">+${order.packagingCost.toFixed(2)} €</span>` : ''}
       </div>
 
       <!-- Staff assignment (Omitible según Requisito 3) -->
       ${!skipStaffAssignment ? `
         <div class="order-staff-row">
-          <div>🏃 ${t.roleWaiter || 'Camarero'}: <strong>${order.waiterName || 'Sin asignar'}</strong></div>
-          <div>👨‍🍳 ${t.roleChef || 'Cocinero'}: <strong>${order.chefName || 'Sin asignar'}</strong></div>
+          <div>🏃 ${t.roleWaiter || 'Camarero'}: <strong>${order.waiterName || t.unassigned || 'Sin asignar'}</strong></div>
+          <div>👨‍🍳 ${t.roleChef || 'Cocinero'}: <strong>${order.chefName || t.unassigned || 'Sin asignar'}</strong></div>
         </div>
       ` : ''}
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:0.82rem;">
-        <div>Estado: <strong style="color:var(--accent-orange);">${getTranslatedStatus(order.status, t)}</strong></div>
-        <div>Pago: <strong style="color:${isPaid ? 'var(--accent-emerald)' : 'var(--accent-amber)'};">${order.paymentStatus}</strong></div>
+        <div>${t.orderStatusLabel || 'Estado'}: <strong style="color:var(--accent-orange);">${getTranslatedStatus(order.status, t)}</strong></div>
+        <div>${t.orderPaymentLabel || 'Pago'}: <strong style="color:${isPaid ? 'var(--accent-emerald)' : 'var(--accent-amber)'};">${getTranslatedPaymentStatus(order.paymentStatus, t)}</strong></div>
       </div>
 
       <div class="order-actions-bar">
         ${(!skipStaffAssignment && !order.waiterId) ? `
           <button class="btn-action btn-waiter-deliver btn-assign-waiter" data-id="${order.id}">
-            🏃 Atender comanda
+            ${t.btnAttendOrder || '🏃 Atender comanda'}
           </button>
         ` : ''}
 
         ${order.status === OrderStatus.READY_TO_SERVE ? (
           isPendingCash ? `
             <div style="font-size:0.8rem; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-sm); padding:6px 10px; font-weight:700; width:100%;">
-              ⚠️ Bloqueo de entrega: Pendiente de cobro en efectivo en sala
+              ${t.alertCashDeliveryBlocked || '⚠️ Bloqueo de entrega: Pendiente de cobro en efectivo en sala'}
             </div>
           ` : `
             <button class="btn-action btn-kitchen-ready btn-mark-delivered" data-id="${order.id}">
-              🍽️ Entregar a mesa
+              ${t.btnDeliverOrder || '🍽️ Entregar a mesa'}
             </button>
           `
         ) : ''}
 
         ${isPendingCash ? `
           <button class="btn-action btn-waiter-cash btn-confirm-cash" data-id="${order.id}" style="background:var(--accent-amber); color:#000; font-weight:700;">
-            💵 Cobrar ${order.total.toFixed(2)} € en efectivo
+            ${t.btnCollectCash || '💵 Cobrar'} ${order.total.toFixed(2)} € ${t.inCash || 'en efectivo'}
           </button>
         ` : ''}
       </div>
@@ -1914,10 +1970,11 @@ function renderChefOrders() {
     o.items.some(i => i.requiresCooking)
   );
 
-  document.getElementById('kds-pending-badge')!.innerText = `${kitchenOrders.length} Comandas en Cocina`;
+  const t = translations[currentLanguage] || translations['es'];
+  document.getElementById('kds-pending-badge')!.innerText = `${kitchenOrders.length} ${t.kdsPendingBadge || 'Comandas en Cocina'}`;
 
   if (kitchenOrders.length === 0) {
-    chefOrdersContainer.innerHTML = `<p style="color:var(--text-muted); padding:30px;">👨‍🍳 No hay pedidos pendientes de cocción en este momento. ¡Todo servido!</p>`;
+    chefOrdersContainer.innerHTML = `<p style="color:var(--text-muted); padding:30px;">${t.kdsNoOrders || '👨‍🍳 No hay pedidos pendientes de cocción en este momento. ¡Todo servido!'}</p>`;
     return;
   }
 
@@ -1929,55 +1986,59 @@ function renderChefOrders() {
     const cookingItems = order.items.filter(i => i.requiresCooking);
     const isPendingCash = order.paymentStatus === PaymentStatus.PENDING_CASH;
 
-    const t = translations[currentLanguage] || translations['es'];
     card.innerHTML = `
       <div class="order-header">
         <div>
           <div class="order-num" style="color:#ef4444;">${order.orderNumber}</div>
-          <div style="font-size:0.8rem; color:var(--text-muted);">${order.tableNumber} • Creado hace instantes</div>
+          <div style="font-size:0.8rem; color:var(--text-muted);">${order.tableNumber} • ${t.kdsCreatedJustNow || 'Creado hace instantes'}</div>
         </div>
         <span class="badge-tag tag-cooking">${getTranslatedStatus(order.status, t)}</span>
       </div>
 
       <div class="order-items-box">
-        <h4 style="font-size:0.82rem; color:var(--accent-amber); margin-bottom:4px;">REQUERIMIENTOS DE COCINA:</h4>
-        ${cookingItems.map(i => `
-          <div class="order-item-row" style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span><strong style="color:#fff; font-size:1.05rem;">${i.quantity}x</strong> ${i.name}</span>
-          </div>
-          ${i.notes ? `<div class="order-item-notes">Nota de preparación: ${i.notes}</div>` : ''}
-        `).join('')}
+        <h4 style="font-size:0.82rem; color:var(--accent-amber); margin-bottom:4px;">${t.kdsKitchenRequirements || 'REQUERIMIENTOS DE COCINA:'}</h4>
+        ${cookingItems.map(i => {
+          const itemCatalog = menuCatalog.find(m => m.id === i.menuItemId);
+          const itemTrans = (itemCatalog?.translations as any)?.[currentLanguage];
+          const itemName = itemTrans?.name || i.name;
+          return `
+            <div class="order-item-row" style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+              <span><strong style="color:#fff; font-size:1.05rem;">${i.quantity}x</strong> ${itemName}</span>
+            </div>
+            ${i.notes ? `<div class="order-item-notes">${t.kdsPrepNote || 'Nota de preparación:'} ${i.notes}</div>` : ''}
+          `;
+        }).join('')}
       </div>
 
       <!-- Staff assignment (Omitible según Requisito 3) -->
       ${!skipStaffAssignment ? `
         <div class="order-staff-row">
-          <div>👨‍🍳 Cocinero asignado: <strong>${order.chefName || 'Sin asignar'}</strong></div>
+          <div>👨‍🍳 ${t.kdsAssignedChef || 'Cocinero asignado:'} <strong>${order.chefName || t.unassigned || 'Sin asignar'}</strong></div>
         </div>
       ` : ''}
 
       <div class="order-actions-bar">
         ${(!skipStaffAssignment && !order.chefId) ? `
           <button class="btn-action btn-kitchen-start btn-assign-chef" data-id="${order.id}">
-            👨‍🍳 Asignarme
+            ${t.kdsBtnAssignMe || '👨‍🍳 Asignarme'}
           </button>
         ` : ''}
 
         ${order.status === OrderStatus.PLACED ? (
           isPendingCash ? `
             <div style="font-size:0.8rem; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-sm); padding:8px 12px; font-weight:700; width:100%;">
-              ⚠️ Esperando cobro en efectivo en sala: No puede pasar a cocina hasta que sea cobrado.
+              ${t.kdsCashBlocked || '⚠️ Esperando cobro en efectivo en sala: No puede pasar a cocina hasta que sea cobrado.'}
             </div>
           ` : `
             <button class="btn-action btn-kitchen-start btn-start-cook" data-id="${order.id}">
-              🔥 Empezar a Cocinar
+              ${t.kdsBtnStartCook || '🔥 Empezar a Cocinar'}
             </button>
           `
         ) : ''}
 
         ${order.status === OrderStatus.IN_KITCHEN ? `
           <button class="btn-action btn-kitchen-ready btn-ready-cook" data-id="${order.id}">
-            ✅ ¡Plato Listo para Servir!
+            ${t.kdsBtnReadyCook || '✅ ¡Plato Listo para Servir!'}
           </button>
         ` : ''}
       </div>
@@ -2023,16 +2084,20 @@ async function renderManagerDashboard() {
   document.getElementById('kpi-tips')!.innerText = `${report.totalTips.toFixed(2)} €`;
   document.getElementById('kpi-avg-ticket')!.innerText = `${report.averageTicket.toFixed(2)} €`;
   document.getElementById('kpi-orders-count')!.innerText = report.totalOrders.toString();
-  document.getElementById('kpi-orders-sub')!.innerText = `${report.inKitchenOrdersCount} en cocina / ${report.deliveredOrdersCount} servidas`;
+  document.getElementById('kpi-orders-sub')!.innerText = `${report.inKitchenOrdersCount} ${t.kpiOrdersSubInKitchen || 'en cocina'} / ${report.deliveredOrdersCount} ${t.kpiOrdersSubDelivered || 'servidas'}`;
 
   // Top Items Table
   const topTbody = document.getElementById('top-items-tbody')!;
   topTbody.innerHTML = '';
   report.topRequestedItems.forEach(item => {
+    const itemCatalog = menuCatalog.find(m => m.name === item.name || Object.values(m.translations || {}).some((tr: any) => tr?.name === item.name));
+    const itemTrans = (itemCatalog?.translations as any)?.[currentLanguage];
+    const itemName = itemTrans?.name || item.name;
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${item.name}</strong></td>
-      <td>${item.count} pedidos</td>
+      <td><strong>${itemName}</strong></td>
+      <td>${item.count} ${t.ordersCountUnit || 'pedidos'}</td>
       <td style="color:var(--accent-emerald); font-weight:700;">${item.revenue.toFixed(2)} €</td>
     `;
     topTbody.appendChild(tr);
@@ -2042,35 +2107,45 @@ async function renderManagerDashboard() {
   const stockTbody = document.getElementById('stock-tbody')!;
   stockTbody.innerHTML = '';
   menuCatalog.forEach(item => {
+    const itemTrans = (item.translations as any)?.[currentLanguage];
+    const itemName = itemTrans?.name || item.name;
+
+    const catKey = item.category.toLowerCase();
+    const catLabel = catKey === 'starter' ? (t.starters || item.category)
+      : catKey === 'main' ? (t.mains || item.category)
+      : catKey === 'dessert' ? (t.desserts || item.category)
+      : catKey === 'beverage' ? (t.beverages || item.category)
+      : item.category;
+
     const tr = document.createElement('tr');
     tr.className = 'stock-table-row';
     tr.innerHTML = `
       <td class="stock-td-info">
         <div class="stock-title-badge-wrap">
-          <strong class="stock-item-name">${item.name}</strong>
-          <span class="badge-tag tag-direct stock-inline-category">${item.category}</span>
+          <strong class="stock-item-name">${itemName}</strong>
+          <span class="badge-tag tag-direct stock-inline-category">${catLabel}</span>
         </div>
         ${item.allergens && item.allergens.length > 0 ? `<div class="stock-item-allergens" style="font-size:0.72rem; color:#f472b6; margin-top:3px;">⚠️ ${t.allergens || 'Alérgenos'}: ${item.allergens.map((a: string) => `${getAllergenIcon(a)} ${a}`).join(', ')}</div>` : ''}
       </td>
-      <td class="stock-td-category-desktop"><span class="badge-tag tag-direct">${item.category}</span></td>
+      <td class="stock-td-category-desktop"><span class="badge-tag tag-direct">${catLabel}</span></td>
       <td class="stock-td-price">
-        <span class="stock-cell-label">Precio (€):</span>
+        <span class="stock-cell-label">${t.thPrice || 'Precio (€)'}:</span>
         <div class="stock-input-wrap">
           <input type="number" step="0.5" class="stock-input" id="price-input-${item.id}" value="${item.price.toFixed(2)}" min="0" style="width:75px;">
           <span class="stock-currency-symbol">€</span>
         </div>
       </td>
       <td class="stock-td-stock">
-        <span class="stock-cell-label">Stock:</span>
+        <span class="stock-cell-label">${t.thStock || 'Stock'}:</span>
         <input type="number" class="stock-input" id="stock-input-${item.id}" value="${item.stock}" min="0" style="width:70px;">
       </td>
       <td class="stock-td-actions">
         <div class="stock-actions-flex">
           <button class="btn-action btn-edit-product-full" data-id="${item.id}" title="Editar Información Completa del Plato" style="padding:6px 10px; font-size:0.76rem; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-weight:600; box-shadow:0 2px 6px rgba(37,99,235,0.35);">
-            ✏️ Editar
+            ${t.btnEdit || '✏️ Editar'}
           </button>
           <button class="btn-action btn-waiter-deliver btn-save-item" data-id="${item.id}" title="Guardar Cambios Rápidos de Precio y Stock" style="padding:6px 10px; font-size:0.76rem;">
-            💾 Guardar
+            ${t.btnSave || '💾 Guardar'}
           </button>
         </div>
       </td>
@@ -2117,23 +2192,23 @@ async function renderManagerDashboard() {
     const staffOnly = allUsers.filter(u => u.role !== UserRole.CUSTOMER);
     staffOnly.forEach(u => {
       // Role details and colors
-      let roleLabel = 'Personal';
+      let roleLabel = t.roleStaffGeneric || 'Personal';
       let roleTagClass = 'tag-direct';
       let roleBorder = '#3b82f6';
       let defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
 
       if (u.role === UserRole.MANAGER) {
-        roleLabel = '🛡️ Gerente';
+        roleLabel = t.roleManagerBadge || '🛡️ Gerente';
         roleTagClass = 'tag-stock';
         roleBorder = '#10b981';
         defaultAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
       } else if (u.role === UserRole.CHEF) {
-        roleLabel = '👨‍🍳 Cocinero';
+        roleLabel = t.roleChefBadge || '👨‍🍳 Cocinero';
         roleTagClass = 'tag-cooking';
         roleBorder = '#ef4444';
         defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
       } else if (u.role === UserRole.WAITER) {
-        roleLabel = '🏃 Camarero';
+        roleLabel = t.roleWaiterBadge || '🏃 Camarero';
         roleTagClass = 'tag-direct';
         roleBorder = '#3b82f6';
         defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
@@ -2141,25 +2216,28 @@ async function renderManagerDashboard() {
 
       const avatarSrc = u.avatarUrl || defaultAvatar;
 
+      const statusText = u.active ? (t.userActive || 'ACTIVO') : (t.userInactive || 'INACTIVO');
+      const statusTitle = u.active ? (t.userActiveTooltip || 'Usuario Activo') : (t.userInactiveTooltip || 'Usuario Inactivo');
+
       const card = document.createElement('div');
       card.className = 'user-profile-card';
       card.innerHTML = `
         <div class="user-card-header">
           <div class="user-avatar-wrap">
             <img src="${avatarSrc}" alt="${u.name}" class="user-avatar-img" style="border-color:${roleBorder};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=334155&color=fff&bold=true'">
-            <span class="user-status-dot ${u.active ? 'active' : 'inactive'}" title="${u.active ? 'Usuario Activo' : 'Usuario Inactivo'}"></span>
+            <span class="user-status-dot ${u.active ? 'active' : 'inactive'}" title="${statusTitle}"></span>
           </div>
           <div class="user-card-info">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
               <h4 class="user-card-name" title="${u.name}">${u.name}</h4>
-              <button class="btn-action btn-edit-user" data-id="${u.id}" title="Editar Empleado" style="padding:2px 7px; font-size:0.72rem; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; border-radius:4px; cursor:pointer; font-weight:600; flex-shrink:0; display:inline-flex; align-items:center; gap:3px;">
-                ✏️ Editar
+              <button class="btn-action btn-edit-user" data-id="${u.id}" title="${t.btnEdit || 'Editar'}" style="padding:2px 7px; font-size:0.72rem; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; border-radius:4px; cursor:pointer; font-weight:600; flex-shrink:0; display:inline-flex; align-items:center; gap:3px;">
+                ${t.btnEdit || '✏️ Editar'}
               </button>
             </div>
             <div class="user-card-meta">
               <span class="badge-tag ${roleTagClass}" style="font-size:0.72rem; padding:2px 7px;">${roleLabel}</span>
               <span class="badge-tag ${u.active ? 'tag-stock' : 'tag-cooking'}" style="font-size:0.68rem; padding:1px 6px;">
-                ${u.active ? 'ACTIVO' : 'INACTIVO'}
+                ${statusText}
               </span>
             </div>
           </div>
@@ -2173,10 +2251,10 @@ async function renderManagerDashboard() {
           <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:2px;">
             <div style="display:flex; align-items:center; gap:5px; color:var(--text-muted);">
               <span>🔑</span>
-              <span>Login:</span>
+              <span>${t.userLoginLabel || 'Login:'}</span>
               <span class="user-login-badge">${u.username || u.id}</span>
             </div>
-            <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-muted); opacity:0.8;" title="ID Interno">${u.id}</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-muted); opacity:0.8;" title="${t.userIdTooltip || 'ID Interno'}">${u.id}</span>
           </div>
         </div>
       `;

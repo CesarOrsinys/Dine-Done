@@ -2849,22 +2849,22 @@
       <!-- KPI METRICS STATS -->
       <div class="kpi-metrics-grid">
         <div class="kpi-stat-card">
-          <div class="kpi-label">Facturación Total Cobrada</div>
+          <div class="kpi-label" id="kpi-label-revenue">Facturación Total Cobrada</div>
           <div class="kpi-value" id="kpi-revenue">0.00 €</div>
-          <div class="kpi-sub">Vía Stripe y Efectivo validado</div>
+          <div class="kpi-sub" id="kpi-sub-revenue">Vía Stripe y Efectivo validado</div>
         </div>
         <div class="kpi-stat-card">
-          <div class="kpi-label">Propinas Acumuladas</div>
+          <div class="kpi-label" id="kpi-label-tips">Propinas Acumuladas</div>
           <div class="kpi-value" id="kpi-tips" style="color:var(--accent-amber);">0.00 €</div>
-          <div class="kpi-sub">Destinadas al equipo de sala y cocina</div>
+          <div class="kpi-sub" id="kpi-sub-tips">Destinadas al equipo de sala y cocina</div>
         </div>
         <div class="kpi-stat-card">
-          <div class="kpi-label">Ticket Promedio</div>
+          <div class="kpi-label" id="kpi-label-avg">Ticket Promedio</div>
           <div class="kpi-value" id="kpi-avg-ticket">0.00 €</div>
-          <div class="kpi-sub">Promedio por comanda pagada</div>
+          <div class="kpi-sub" id="kpi-sub-avg">Promedio por comanda pagada</div>
         </div>
         <div class="kpi-stat-card">
-          <div class="kpi-label">Comandas Totales</div>
+          <div class="kpi-label" id="kpi-label-orders">Comandas Totales</div>
           <div class="kpi-value" id="kpi-orders-count">0</div>
           <div class="kpi-sub" id="kpi-orders-sub">0 activas / 0 entregadas</div>
         </div>
@@ -2874,14 +2874,14 @@
       <div class="manager-section-card" style="margin-bottom:24px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
           <div>
-            <h3 style="font-size:1.05rem; margin:0 0 4px 0; color:var(--text-main);">⚙️ Flujo Operativo y Asignación de Personal</h3>
-            <p style="font-size:0.82rem; color:var(--text-muted); margin:0; max-width:650px;">
+            <h3 id="txt-manager-workflow-title" style="font-size:1.05rem; margin:0 0 4px 0; color:var(--text-main);">⚙️ Flujo Operativo y Asignación de Personal</h3>
+            <p id="txt-manager-workflow-desc" style="font-size:0.82rem; color:var(--text-muted); margin:0; max-width:650px;">
               Permite omitir la asignación individual obligatoria de camarero y cocinero. Los platos pasan directamente a <em>"Listo para servir"</em> y <em>"Entregar a mesa"</em>. <strong>Nota de seguridad:</strong> Si el pedido se paga en efectivo, no puede pasar a preparación ni a entrega hasta que sea cobrado.
             </p>
           </div>
           <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.88rem; font-weight:700; background:var(--bg-dark); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); color:var(--text-main);">
             <input type="checkbox" id="chk-skip-staff-assignment" style="width:18px; height:18px; cursor:pointer; accent-color:var(--accent-orange);">
-            <span>Omitir asignación a camarero / cocinero</span>
+            <span id="txt-skip-staff-label">Omitir asignación a camarero / cocinero</span>
           </label>
         </div>
       </div>
@@ -2889,14 +2889,14 @@
       <!-- TOP REQUESTED ITEMS & STOCK CONTROL -->
       <div class="manager-grid-two-cols">
         <div class="manager-section-card">
-          <h3 style="font-size:1.1rem; margin-bottom:16px;">🏆 Platos Más Solicitados</h3>
+          <h3 id="txt-top-items-title" style="font-size:1.1rem; margin-bottom:16px;">🏆 Platos Más Solicitados</h3>
           <div class="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Plato</th>
-                  <th>Uds. Pedidas</th>
-                  <th>Total Recaudado</th>
+                  <th id="th-top-dish">Plato</th>
+                  <th id="th-top-qty">Uds. Pedidas</th>
+                  <th id="th-top-revenue">Total Recaudado</th>
                 </tr>
               </thead>
               <tbody id="top-items-tbody">
@@ -2909,8 +2909,8 @@
         <div class="manager-section-card" id="manager-stock-section">
           <div class="manager-section-header-row">
             <div>
-              <h3 style="font-size:1.1rem; margin:0 0 4px 0;">📦 Control de Carta, Precios y Stock</h3>
-              <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">Modifica precios, stock o edita alérgenos y traducciones en tiempo real.</p>
+              <h3 id="txt-stock-section-title" style="font-size:1.1rem; margin:0 0 4px 0;">📦 Control de Carta, Precios y Stock</h3>
+              <p id="txt-stock-section-sub" style="font-size:0.78rem; color:var(--text-muted); margin:0;">Modifica precios, stock o edita alérgenos y traducciones en tiempo real.</p>
             </div>
             <!-- Botón compacto de añadir producto (sólo icono) -->
             <button class="btn-action btn-compact-add" id="btn-open-add-product" title="Añadir Producto" aria-label="Añadir Producto" style="background:var(--accent-emerald); color:#fff; box-shadow:0 2px 10px rgba(16,185,129,0.3);">
@@ -2921,11 +2921,11 @@
             <table class="stock-table" id="stock-table">
               <thead>
                 <tr>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Precio (€)</th>
-                  <th>Stock Actual</th>
-                  <th>Acciones</th>
+                  <th id="th-stock-prod">Producto</th>
+                  <th id="th-stock-cat">Categoría</th>
+                  <th id="th-stock-price">Precio (€)</th>
+                  <th id="th-stock-qty">Stock Actual</th>
+                  <th id="th-stock-actions">Acciones</th>
                 </tr>
               </thead>
               <tbody id="stock-tbody">
@@ -2939,7 +2939,7 @@
       <!-- USER MANAGEMENT -->
       <div class="manager-section-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap;">
-          <h3 style="font-size:1.1rem; margin:0;">👥 Control de Usuarios y Personal</h3>
+          <h3 id="txt-users-section-title" style="font-size:1.1rem; margin:0;">👥 Control de Usuarios y Personal</h3>
           <!-- Botón compacto de añadir usuario (sólo icono) -->
           <button class="btn-action btn-compact-add" id="btn-open-add-user" title="Añadir Usuario" aria-label="Añadir Usuario" style="background:var(--accent-orange); color:#fff; box-shadow:var(--shadow-glow);">
             ➕

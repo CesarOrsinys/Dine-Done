@@ -5,6 +5,17 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.11] - 2026-10-20
+### Fixed
+- **Internacionalización Integral (i18n) en Pantallas de Personal (Camarero, Cocinero y Gerente):**
+  - Eliminación de la mezcla lingüística de textos fijos en español y enums crudos en inglés (`PAID`, `PENDING_CASH`, `STARTER`, `MAIN`, `DESSERT`, `BEVERAGE`, `Sin asignar`, etc.) en las vistas de personal.
+  - Incorporación de 67 nuevas claves de traducción en `mock_data/translations.json` con paridad del 100% en los 14 idiomas soportados (`es`, `en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`).
+  - **Vista de Camarero:** Traducción completa de encabezados, estado de pedidos, estado de pago (`Pagado` / `Pendiente de cobro en efectivo`), botón de cobro rápido, bloqueo de entrega en efectivo, botones de atender y entregar comanda, y resolución dinámica de nombres de plato y notas según el idioma del camarero.
+  - **Pantalla de Cocina (KDS):** Insignias de pedidos pendientes, requisitos de cocina, notas de preparación, asignación de cocinero (`Cocinero asignado` / `Asignarme comanda`), bloqueo de preparación de pedidos en efectivo no abonados y botones de inicio y finalización de cocinado completamente localizados.
+  - **Panel de Gerencia:** Tarjetas de KPI (facturación, propinas, ticket medio, desglose de comandas en cocina y servidas), configuración de flujo de trabajo, tabla de platos más demandados, tabla y tarjetas móviles de control de precios y stock con categorías traducidas, botones de acción (`✏️ Editar`, `💾 Guardar`, `➕ Añadir plato`, `➕ Añadir trabajador`) y cuadrícula de tarjetas de perfil de personal (roles, insignias de estado activo/inactivo y credenciales).
+  - **Re-renderizado Reactivo al Cambiar de Idioma:** Al seleccionar cualquier idioma en la barra de navegación, la vista activa del personal se re-renderiza inmediatamente adaptando todos los textos, tablas y etiquetas en tiempo real sin recargar la página.
+  - Cobertura con prueba unitaria automatizada que verifica la integridad y paridad de todas las claves de personal en los 14 idiomas (19/19 pruebas exitosas).
+
 ## [1.6.10] - 2026-10-20
 ### Fixed
 - **Visualización Universal de Iconos de Alérgenos en Todos los Idiomas:**
