@@ -5,6 +5,18 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.8] - 2026-10-20
+### Fixed
+- **Visibilidad y Gestión Responsiva de Control de Carta, Precios y Stock en Móvil:**
+  - Corrección de la cuadrícula rígida horizontal inline `1fr 1fr` que empujaba la sección de gestión de carta y stock fuera de la pantalla en dispositivos móviles y pantallas estrechas.
+  - Implementación de la clase responsiva `.manager-grid-two-cols` con apilado vertical automático en tabletas (`<= 1024px`) y móviles (`<= 768px`).
+  - Posicionamiento prioritario de **Control de Carta, Precios y Stock** (`order: -1`) en dispositivos móviles para acceso directo sin necesidad de scroll excesivo.
+  - Transformación responsiva de las filas de la tabla (`.stock-table-row`) en tarjetas de gestión táctiles adaptadas a pantallas pequeñas:
+    - Encabezado con título del plato, etiqueta de categoría y listado de alérgenos.
+    - Cuadrícula compacta de 2 columnas para edición rápida de Precio (€) y Stock disponible con inputs táctiles optimizados.
+    - Botones de acción extendidos (`✏️ Editar` para edición integral con 14 idiomas y `💾 Guardar` para persistencia inmediata).
+  - Eliminación de trampas de scroll (`overflow-y: auto` con altura forzada a 320px) en favor de un scroll nativo fluido en móvil.
+
 ## [1.6.7] - 2026-10-20
 ### Added
 - **Edición de Tarjetas de Perfil de Empleados en Gerencia:**

@@ -1617,24 +1617,33 @@ async function renderManagerDashboard() {
   stockTbody.innerHTML = '';
   menuCatalog.forEach(item => {
     const tr = document.createElement('tr');
+    tr.className = 'stock-table-row';
     tr.innerHTML = `
-      <td>
-        <strong>${item.name}</strong>
-        ${item.allergens && item.allergens.length > 0 ? `<div style="font-size:0.7rem; color:#f472b6;">Alérgenos: ${item.allergens.join(', ')}</div>` : ''}
+      <td class="stock-td-info">
+        <div class="stock-title-badge-wrap">
+          <strong class="stock-item-name">${item.name}</strong>
+          <span class="badge-tag tag-direct stock-inline-category">${item.category}</span>
+        </div>
+        ${item.allergens && item.allergens.length > 0 ? `<div class="stock-item-allergens" style="font-size:0.72rem; color:#f472b6; margin-top:3px;">🌾 Alérgenos: ${item.allergens.join(', ')}</div>` : ''}
       </td>
-      <td><span class="badge-tag tag-direct">${item.category}</span></td>
-      <td>
-        <input type="number" step="0.5" class="stock-input" id="price-input-${item.id}" value="${item.price.toFixed(2)}" min="0" style="width:75px;">
+      <td class="stock-td-category-desktop"><span class="badge-tag tag-direct">${item.category}</span></td>
+      <td class="stock-td-price">
+        <span class="stock-cell-label">Precio (€):</span>
+        <div class="stock-input-wrap">
+          <input type="number" step="0.5" class="stock-input" id="price-input-${item.id}" value="${item.price.toFixed(2)}" min="0" style="width:75px;">
+          <span class="stock-currency-symbol">€</span>
+        </div>
       </td>
-      <td>
-        <input type="number" class="stock-input" id="stock-input-${item.id}" value="${item.stock}" min="0">
+      <td class="stock-td-stock">
+        <span class="stock-cell-label">Stock:</span>
+        <input type="number" class="stock-input" id="stock-input-${item.id}" value="${item.stock}" min="0" style="width:70px;">
       </td>
-      <td>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <button class="btn-action btn-edit-product-full" data-id="${item.id}" title="Editar Información Completa del Plato" style="padding:5px 9px; font-size:0.75rem; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-weight:600; box-shadow:0 2px 6px rgba(37,99,235,0.35);">
+      <td class="stock-td-actions">
+        <div class="stock-actions-flex">
+          <button class="btn-action btn-edit-product-full" data-id="${item.id}" title="Editar Información Completa del Plato" style="padding:6px 10px; font-size:0.76rem; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-weight:600; box-shadow:0 2px 6px rgba(37,99,235,0.35);">
             ✏️ Editar
           </button>
-          <button class="btn-action btn-waiter-deliver btn-save-item" data-id="${item.id}" title="Guardar Cambios Rápidos de Precio y Stock" style="padding:5px 9px; font-size:0.75rem;">
+          <button class="btn-action btn-waiter-deliver btn-save-item" data-id="${item.id}" title="Guardar Cambios Rápidos de Precio y Stock" style="padding:6px 10px; font-size:0.76rem;">
             💾 Guardar
           </button>
         </div>

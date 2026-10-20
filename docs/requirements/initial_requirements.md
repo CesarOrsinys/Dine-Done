@@ -115,6 +115,10 @@ created_at: "2026-10-20"
   - **Botón de edición en tarjeta:** Cada tarjeta de trabajador en el panel de Gerencia cuenta con un botón directo `✏️ Editar` en la cabecera.
   - **Modal de edición integral:** Permite actualizar nombre y apellidos, nombre de usuario (`username`), email corporativo, rol laboral (`Gerente`, `Cocinero`, `Camarero`), estado activo/inactivo mediante checkbox, y URL del avatar o foto de perfil.
   - **Gestión segura de credenciales:** El campo de contraseña es opcional durante la edición, permitiendo conservar la contraseña existente si se deja en blanco o actualizarla si se introduce una nueva. Si el usuario editado es el que ha iniciado sesión, su sesión activa se sincroniza en tiempo real.
+- [Regla 25: Visibilidad y gestión responsiva de carta, precios y stock en versión móvil]
+  - **Desapilado y prioridad en móvil:** En resoluciones móviles (`<= 768px`), la sección de analítica gerencial abandona la cuadrícula rígida de 2 columnas (`1fr 1fr`) y se convierte en un flujo vertical apilado, ubicando la sección de **📦 Control de Carta, Precios y Stock** con prioridad superior (`order: -1`) para visualización y gestión inmediata sin desplazamientos horizontales ni elementos cortados.
+  - **Tarjetas táctiles de producto:** En pantallas móviles, las filas de la tabla de stock se transforman automáticamente en tarjetas táctiles independientes (`stock-table-row`) que muestran claramente el nombre del plato, insignia de categoría y alérgenos, campos numéricos cómodos para modificar precio y stock en dos columnas, y botones de acción a todo el ancho (`✏️ Editar` para el modal completo y `💾 Guardar` para persistencia rápida).
+  - **Eliminación de trampas de scroll:** Se elimina la restricción de altura rígida y doble barra de scroll en móvil, permitiendo un desplazamiento fluido nativo a lo largo de toda la carta del restaurante.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
