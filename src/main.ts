@@ -135,6 +135,9 @@ let currentUser: User = {
   active: true
 };
 
+// Staff authentication session (RBAC tracking)
+let authenticatedStaffUser: User | null = null;
+
 let menuCatalog: MenuItem[] = [];
 let allOrders: Order[] = [];
 let allUsers: User[] = [];
@@ -402,7 +405,6 @@ function setupStaffAuth() {
   const btnLogin = document.getElementById('btn-staff-login')!;
   const btnLogout = document.getElementById('btn-staff-logout')!;
   const btnClose = document.getElementById('btn-close-modal')!;
-  const staffSwitcher = document.getElementById('staff-role-switcher')!;
   const loginForm = document.getElementById('staff-login-form') as HTMLFormElement;
   const usernameInput = document.getElementById('login-username') as HTMLInputElement;
   const passwordInput = document.getElementById('login-password') as HTMLInputElement;
@@ -446,11 +448,12 @@ function setupStaffAuth() {
     );
 
     if (staffUser && staffUser.password && staffUser.password === passVal) {
+      authenticatedStaffUser = staffUser;
       modal.style.display = 'none';
-      staffSwitcher.style.display = 'flex';
       btnLogin.style.display = 'none';
       btnLogout.style.display = 'flex';
 
+      updateRoleSwitcherVisibility();
       switchRole(staffUser.role);
       updateTableControlsVisibility();
       showToast(`¡Bienvenido, ${staffUser.name}! Acceso verificado como ${staffUser.role}.`, 'success');
@@ -463,7 +466,8 @@ function setupStaffAuth() {
   });
 
   btnLogout?.addEventListener('click', () => {
-    staffSwitcher.style.display = 'none';
+    authenticatedStaffUser = null;
+    updateRoleSwitcherVisibility();
     btnLogout.style.display = 'none';
     btnLogin.style.display = 'flex';
 
@@ -481,7 +485,7 @@ function setupStaffAuth() {
   });
 }
 
-// 6. Navigation & Role Switcher
+// 6. Navigation & Role Switcher (RBAC)
 function setupRoleSwitcher() {
   const roleButtons = document.querySelectorAll('.role-btn');
   roleButtons.forEach(btn => {
@@ -492,15 +496,77 @@ function setupRoleSwitcher() {
   });
 }
 
+// Helper: RBAC switcher visibility:
+// - Cocineros: no tienen acceso a la pestaña de camarero ni de Gerente (solo Cocina KDS)
+// - Camareros: solo tienen acceso a Camarero
+// - Gerente: tiene acceso a todo (Camarero, Cocina y Gerente)
+function updateRoleSwitcherVisibility() {
+  const staffSwitcher = document.getElementById('staff-role-switcher');
+  const btnWaiter = document.querySelector('.role-btn.role-waiter') as HTMLElement;
+  const btnChef = document.querySelector('.role-btn.role-chef') as HTMLElement;
+  const btnManager = document.querySelector('.role-btn.role-manager') as HTMLElement;
+
+  if (!authenticatedStaffUser) {
+    if (staffSwitcher) staffSwitcher.style.display = 'none';
+    return;
+  }
+
+  if (staffSwitcher) staffSwitcher.style.display = 'flex';
+
+  const userRole = authenticatedStaffUser.role;
+
+  if (userRole === UserRole.WAITER) {
+    if (btnWaiter) btnWaiter.style.display = 'inline-flex';
+    if (btnChef) btnChef.style.display = 'none';
+    if (btnManager) btnManager.style.display = 'none';
+  } else if (userRole === UserRole.CHEF) {
+    if (btnWaiter) btnWaiter.style.display = 'none';
+    if (btnChef) btnChef.style.display = 'inline-flex';
+    if (btnManager) btnManager.style.display = 'none';
+  } else if (userRole === UserRole.MANAGER) {
+    if (btnWaiter) btnWaiter.style.display = 'inline-flex';
+    if (btnChef) btnChef.style.display = 'inline-flex';
+    if (btnManager) btnManager.style.display = 'inline-flex';
+  }
+}
+
 async function switchRole(role: UserRole) {
+  // Authorization check (RBAC Security)
+  if (role !== UserRole.CUSTOMER) {
+    if (!authenticatedStaffUser) {
+      showToast('Acceso denegado: debes iniciar sesión como personal.', 'danger');
+      return;
+    }
+    if (authenticatedStaffUser.role === UserRole.WAITER && role !== UserRole.WAITER) {
+      showToast('Acceso restringido: los camareros solo tienen acceso a su panel de sala.', 'warning');
+      return;
+    }
+    if (authenticatedStaffUser.role === UserRole.CHEF && role !== UserRole.CHEF) {
+      showToast('Acceso restringido: los cocineros no tienen acceso a la pestaña de camarero ni de gerente.', 'warning');
+      return;
+    }
+    // Gerente (MANAGER) tiene acceso a todo
+  }
+
   // Update currentUser matching role
-  const foundUser = allUsers.find(u => u.role === role) || {
-    id: `usr_${role.toLowerCase()}`,
-    name: role === UserRole.CUSTOMER ? 'Comensal en Sala' : role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
-    email: `${role.toLowerCase()}@dinedone.com`,
-    role: role,
-    active: true
-  };
+  const foundUser = (role === UserRole.CUSTOMER)
+    ? {
+        id: 'guest_customer',
+        name: 'Comensal en Sala',
+        email: 'comensal@restaurante.local',
+        role: UserRole.CUSTOMER,
+        active: true
+      }
+    : (authenticatedStaffUser && authenticatedStaffUser.role === role)
+      ? authenticatedStaffUser
+      : allUsers.find(u => u.role === role) || {
+          id: `usr_${role.toLowerCase()}`,
+          name: role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
+          email: `${role.toLowerCase()}@dinedone.com`,
+          role: role,
+          active: true
+        };
+
   currentUser = foundUser;
 
   // Header update (if user info display exists)
@@ -559,7 +625,7 @@ async function switchRole(role: UserRole) {
 function updateTableControlsVisibility() {
   const staffTableControls = document.getElementById('staff-table-controls');
   if (staffTableControls) {
-    const isStaff = currentUser.role !== UserRole.CUSTOMER;
+    const isStaff = authenticatedStaffUser !== null && authenticatedStaffUser.role !== UserRole.CUSTOMER;
     staffTableControls.style.display = isStaff ? 'flex' : 'none';
   }
 }

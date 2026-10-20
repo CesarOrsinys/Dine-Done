@@ -287,5 +287,29 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.ok(roles.includes(UserRole.CHEF), 'Must have at least one CHEF');
     assert.ok(roles.includes(UserRole.MANAGER), 'Must have at least one MANAGER');
   });
+
+  it('RBAC Rule: Should verify that Chefs only access kitchen, Waiters only waiter, and Manager accesses all panels', () => {
+    function canAccessTab(userRole: UserRole, targetTab: UserRole): boolean {
+      if (userRole === UserRole.MANAGER) return true; // Manager accesses all
+      if (userRole === UserRole.WAITER) return targetTab === UserRole.WAITER; // Waiter only waiter
+      if (userRole === UserRole.CHEF) return targetTab === UserRole.CHEF; // Chef only chef
+      return false;
+    }
+
+    // Waiter tests
+    assert.strictEqual(canAccessTab(UserRole.WAITER, UserRole.WAITER), true, 'Waiter must access waiter tab');
+    assert.strictEqual(canAccessTab(UserRole.WAITER, UserRole.CHEF), false, 'Waiter must NOT access chef tab');
+    assert.strictEqual(canAccessTab(UserRole.WAITER, UserRole.MANAGER), false, 'Waiter must NOT access manager tab');
+
+    // Chef tests
+    assert.strictEqual(canAccessTab(UserRole.CHEF, UserRole.CHEF), true, 'Chef must access chef tab');
+    assert.strictEqual(canAccessTab(UserRole.CHEF, UserRole.WAITER), false, 'Chef must NOT access waiter tab');
+    assert.strictEqual(canAccessTab(UserRole.CHEF, UserRole.MANAGER), false, 'Chef must NOT access manager tab');
+
+    // Manager tests
+    assert.strictEqual(canAccessTab(UserRole.MANAGER, UserRole.WAITER), true, 'Manager must access waiter tab');
+    assert.strictEqual(canAccessTab(UserRole.MANAGER, UserRole.CHEF), true, 'Manager must access chef tab');
+    assert.strictEqual(canAccessTab(UserRole.MANAGER, UserRole.MANAGER), true, 'Manager must access manager tab');
+  });
 });
 

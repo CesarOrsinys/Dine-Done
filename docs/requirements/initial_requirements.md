@@ -43,9 +43,13 @@ created_at: "2026-10-20"
 - [Regla 1: Identificación de mesa] El comensal debe tener siempre una mesa asociada antes de confirmar el pedido, detectada automáticamente por URL o configurada manualmente.
 - [Regla 2: Ficha técnica de plato] Cada plato del menú debe informar con precisión de sus ingredientes y alérgenos reconocidos para seguridad alimentaria de los comensales.
 - [Regla 3: Personalización de restaurante] El nombre comercial y datos de marca del restaurante provienen de `restaurant_config.json` sin hardcoding de Dine & Done en el encabezado.
-- [Regla 4: Concurrencia de stock] El inventario se descuenta atómicamente por BBDD / repositorio para evitar sobreventas.
-- [Regla 5: Control de acceso RBAC] Las vistas operativas (Camarero, Cocina, Gerente) requieren autenticación de staff; el Comensal opera de forma pública y anónima.
-- [Regla 6: Normativa española de plásticos] Conforme al Real Decreto 293/2018 y Ley 7/2022, las bolsas de plástico conllevan un cobro obligatorio (0.10 €) y los envases plásticos/cubiertos no reutilizables tienen un suplemento impositivo (0.15 €), desglosados explícitamente en el ticket.
+- [Regla 4: Concurrencia de stock] La reducción de inventario debe validarse en el momento de confirmar o procesar la comanda, previniendo sobreventas de platos sin existencias.
+- [Regla 5: Control de acceso RBAC estricto por perfil de empleado]
+  - Las vistas operativas de staff requieren autenticación obligatoria; el Comensal opera de forma pública y anónima.
+  - **Cocineros (`CHEF`):** Tienen acceso exclusivo al panel de Cocina (KDS). Tienen terminantemente restringido el acceso a las pestañas de Camarero y Gerente (ocultas en la botonera y bloqueadas lógicamente).
+  - **Camareros (`WAITER`):** Tienen acceso exclusivo al panel de Camarero (Comandas de sala). No tienen acceso a Cocina ni a Gerente.
+  - **Gerente (`MANAGER`):** Dispone de acceso global y sin restricciones a todos los paneles operativos (Camarero, Cocina y Gerencia).
+- [Regla 6: Normativa española de plásticos y residuos] Cumplimiento del R.D. 293/2018 y Ley 7/2022 con cobro y desglose transparente obligatorio de bolsas de plástico y recipientes de un solo uso en pedidos para llevar.
 - [Regla 7: Internacionalización total] El cambio de idioma conmuta instantáneamente todas las etiquetas, descripciones de platos, alérgenos y filtros al idioma seleccionado sin recargar la página.
 - [Regla 8: Imágenes multi-dimensión responsivas] Las fotos de los platos deben descargarse y presentarse en las dimensiones adecuadas al dispositivo (`thumbnail` para móviles estrechos en tarjeta horizontal, `medium` para tablets y `large` para escritorios), garantizando cero desbordamiento horizontal (`scrollWidth <= innerWidth`).
 - [Regla 9: Barra de filtros mobile-first perfectamente alineada] La botonera de filtros en pantallas móviles organiza las categorías en carrusel táctil horizontal sin barra de scroll visible, los 3 filtros dietéticos (Vegano, Vegetariano, 0% Alcohol) en un grid equilibrado de 3 columnas de igual ancho, y el selector de alérgenos junto al conmutador de modo de visualización en controles de ancho completo (100%), garantizando simetría perfecta y ergonomía táctil.

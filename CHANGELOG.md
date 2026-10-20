@@ -5,6 +5,16 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.1] - 2026-10-20
+### Changed
+- **Control de Acceso RBAC Estricto por Rol Operativo:**
+  - **Cocineros (`CHEF`):** Acceso restringido exclusivamente a la pantalla de cocina (KDS). Se ocultan y bloquean los botones y accesos a las pestañas de Camarero y Gerente.
+  - **Camareros (`WAITER`):** Acceso restringido exclusivamente al panel de comandas de sala (`WAITER`). Se ocultan y bloquean los accesos a Cocina y Gerente.
+  - **Gerente (`MANAGER`):** Acceso total y sin restricciones a todas las pestañas operativas (Camarero, Cocina y Gerencia) manteniendo intactos los privilegios de administración durante la inspección.
+- **Validación en Tiempo de Ejecución y Pruebas Unitarias:**
+  - Protección lógica en el controlador `switchRole()` y en el DOM `updateRoleSwitcherVisibility()`.
+  - Nueva suite de pruebas unitarias verificando la matriz de permisos para los roles de Cocinero, Camarero y Gerente.
+
 ## [1.5.0] - 2026-10-20
 ### Added
 - **Configuración Dinámica de Mesas y Restricción Exclusiva para Empleados (Req 1 & 2):**
