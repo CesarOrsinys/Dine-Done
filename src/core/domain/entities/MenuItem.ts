@@ -28,9 +28,5 @@ export interface MenuItem {
   isAlcoholFree?: boolean;
   imageUrl?: string;
   images?: ResponsiveImageUrls;
-  translations?: {
-    en?: MenuItemTranslation;
-    fr?: MenuItemTranslation;
-    de?: MenuItemTranslation;
-  };
+  translations?: Record<string, MenuItemTranslation>;
 }

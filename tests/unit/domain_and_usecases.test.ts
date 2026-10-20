@@ -199,4 +199,59 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(reloaded?.price, 9.95);
     assert.strictEqual(reloaded?.stock, 40);
   });
+
+  it('HU-12: Should verify all 10 languages in menu and enforce menu-driven language selector decoupling rule', async () => {
+    const allItems = await menuRepo.getAll();
+    assert.ok(allItems.length >= 10);
+
+    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar'];
+
+    // Every item must support all 10 languages
+    for (const item of allItems) {
+      assert.ok(item.name, 'Item must have base Spanish name');
+      assert.ok(item.translations, `Item ${item.id} must have translations dictionary`);
+      for (const lang of requiredLanguages) {
+        if (lang === 'es') continue;
+        const trans = item.translations[lang];
+        assert.ok(trans, `Item ${item.id} must have translation for ${lang}`);
+        assert.ok(trans.name && trans.name.length > 0, `Item ${item.id} must have translated name for ${lang}`);
+      }
+    }
+
+    // Decoupling rule function test:
+    // If a language (e.g. 'it') is in app translations but missing from menu, it must not be included
+    function filterAvailableLanguages(items: typeof allItems, appLangs: string[]): string[] {
+      const available = ['es'];
+      for (const lang of appLangs) {
+        if (lang === 'es') continue;
+        const allHaveIt = items.every(i => i.translations?.[lang]?.name?.trim());
+        if (allHaveIt) available.push(lang);
+      }
+      return available;
+    }
+
+    const appLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'it'];
+    const availableLangs = filterAvailableLanguages(allItems, appLanguages);
+
+    // 'it' was in appLanguages but NOT in menu items, so it MUST NOT be available
+    assert.ok(!availableLangs.includes('it'), 'Language not in menu must not be available');
+    // All 10 supported menu languages MUST be available
+    for (const lang of requiredLanguages) {
+      assert.ok(availableLangs.includes(lang), `Language ${lang} should be available`);
+    }
+
+    // If an item removes 'zh', then 'zh' must immediately disappear from available languages
+    const itemsWithoutZh = allItems.map((item, idx) => {
+      if (idx === 0) {
+        const copy = { ...item, translations: { ...item.translations } };
+        delete copy.translations['zh'];
+        return copy;
+      }
+      return item;
+    });
+
+    const langsAfterRemoval = filterAvailableLanguages(itemsWithoutZh, appLanguages);
+    assert.ok(!langsAfterRemoval.includes('zh'), 'Language missing from even 1 menu item must be omitted from selector');
+  });
 });
+

@@ -17,10 +17,74 @@ import { ManageStockUseCase } from './core/usecases/ManageStockUseCase.js';
 import { ProcessCashPaymentUseCase } from './core/usecases/ProcessCashPaymentUseCase.js';
 import { UpdateOrderStatusUseCase } from './core/usecases/UpdateOrderStatusUseCase.js';
 
-// Types for i18n
-type Language = 'es' | 'en' | 'fr' | 'de';
+// Types for i18n supporting all 10 international languages
+export type Language = 'es' | 'en' | 'fr' | 'de' | 'zh' | 'ko' | 'uk' | 'pt' | 'ja' | 'ar' | string;
 let currentLanguage: Language = 'es';
-const translations: Record<Language, any> = translationsData as Record<Language, any>;
+const translations: Record<string, any> = translationsData as Record<string, any>;
+
+// Language metadata mapping
+const LANGUAGE_META: Record<string, { flag: string; label: string; name: string }> = {
+  es: { flag: '🇪🇸', label: 'ES', name: 'Español' },
+  en: { flag: '🇬🇧', label: 'EN', name: 'English' },
+  fr: { flag: '🇫🇷', label: 'FR', name: 'Français' },
+  de: { flag: '🇩🇪', label: 'DE', name: 'Deutsch' },
+  zh: { flag: '🇨🇳', label: 'ZH', name: '中文' },
+  ko: { flag: '🇰🇷', label: 'KO', name: '한국어' },
+  uk: { flag: '🇺🇦', label: 'UK', name: 'Українська' },
+  pt: { flag: '🇵🇹', label: 'PT', name: 'Português' },
+  ja: { flag: '🇯🇵', label: 'JA', name: '日本語' },
+  ar: { flag: '🇸🇦', label: 'AR', name: 'العربية' }
+};
+
+// Decoupled i18n rule: only languages available across the menu items catalog appear in the selector
+function getAvailableMenuLanguages(): string[] {
+  if (!menuCatalog || menuCatalog.length === 0) return ['es'];
+
+  // Base language is always Spanish ('es')
+  const available: string[] = ['es'];
+  const allKnownLanguages = Object.keys(translations);
+
+  for (const lang of allKnownLanguages) {
+    if (lang === 'es') continue;
+    // Check if every item in the menu has this language translated
+    const isAvailableInMenu = menuCatalog.every(item => {
+      const itemTrans = item.translations?.[lang];
+      return itemTrans && itemTrans.name && itemTrans.name.trim().length > 0;
+    });
+
+    if (isAvailableInMenu) {
+      available.push(lang);
+    }
+  }
+
+  return available;
+}
+
+function updateLanguageSelectorOptions() {
+  const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
+  if (!langSelector) return;
+
+  const availableLangs = getAvailableMenuLanguages();
+
+  // If currentLanguage is not among available menu languages, fallback to 'es'
+  if (!availableLangs.includes(currentLanguage)) {
+    currentLanguage = 'es';
+  }
+
+  langSelector.innerHTML = '';
+  availableLangs.forEach(lang => {
+    const meta = LANGUAGE_META[lang] || { flag: '🌐', label: lang.toUpperCase(), name: lang.toUpperCase() };
+    const opt = document.createElement('option');
+    opt.value = lang;
+    opt.textContent = `${meta.flag} ${meta.label}`;
+    opt.title = meta.name;
+    if (lang === currentLanguage) {
+      opt.selected = true;
+    }
+    langSelector.appendChild(opt);
+  });
+  langSelector.value = currentLanguage;
+}
 
 // 1. Initialize Hexagonal Services & Use Cases via DI
 const services = RepositoryContainer.getServices(true);
@@ -116,15 +180,30 @@ function applyBusinessBranding() {
 function setupLanguageSelector() {
   const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
   if (langSelector) {
+    updateLanguageSelectorOptions();
     langSelector.value = currentLanguage;
     langSelector.addEventListener('change', () => {
-      setLanguage(langSelector.value as Language);
+      setLanguage(langSelector.value);
     });
   }
 }
 
-function setLanguage(lang: Language) {
+function setLanguage(lang: string) {
+  // Check if lang is available in the menu catalog
+  const availableLangs = getAvailableMenuLanguages();
+  if (!availableLangs.includes(lang)) {
+    lang = 'es';
+  }
   currentLanguage = lang;
+
+  // RTL and Document Language attributes
+  document.documentElement.lang = lang;
+  if (lang === 'ar') {
+    document.documentElement.setAttribute('dir', 'rtl');
+  } else {
+    document.documentElement.setAttribute('dir', 'ltr');
+  }
+
   const t = translations[lang] || translations['es'];
 
   // Static UI Elements dictionary update
@@ -145,6 +224,7 @@ function setLanguage(lang: Language) {
     'txt-pack-bags': t.bagOption,
     'txt-pack-plastic': t.plasticOption,
     'txt-tip-label': t.tipSection,
+    'txt-tip-note': t.tipNote || '100% íntegro para el equipo de sala',
     'txt-pay-label': t.paymentMethod,
     'txt-bill-subtotal-label': t.subtotalDishes,
     'txt-bill-pack-label': t.packagingTotal,
@@ -161,7 +241,13 @@ function setLanguage(lang: Language) {
     'footer-link-legal': t.legalNotice,
     'txt-view-cart-mobile': t.viewCartMobile || 'Ver Pedido',
     'txt-view-compact': t.viewCompact || '📱 Compacta',
-    'txt-view-grid': t.viewGrid || '🖼️ Galería'
+    'txt-view-grid': t.viewGrid || '🖼️ Galería',
+    'txt-waiter-title': t.waiterTitle || 'Panel de Comandas de Sala',
+    'txt-waiter-sub': t.waiterSub || 'Supervisa las órdenes activas, atiende entregas de platos listos y gestiona cobros en efectivo.',
+    'txt-chef-title': t.chefTitle || 'Kitchen Display System (KDS) 👨‍🍳🔥',
+    'txt-chef-sub': t.chefSub || 'Órdenes que requieren elaboración culinaria. Pasa los platos a elaboración y avisa cuando estén listos.',
+    'txt-manager-title': t.managerTitle || 'Panel Gerencial, KPIs & Control Operativo',
+    'txt-manager-sub': t.managerSub || 'Métricas financieras consolidadas, control de inventario de platos y gestión del personal.'
   };
 
   for (const [id, val] of Object.entries(elMap)) {
@@ -169,6 +255,28 @@ function setLanguage(lang: Language) {
     if (el && val) el.innerHTML = val;
   }
 
+  // Update table bar elements
+  const btnEditTable = document.getElementById('btn-toggle-edit-table');
+  if (btnEditTable) {
+    const isEditing = (document.getElementById('quick-table-input')?.style.display !== 'none');
+    btnEditTable.innerText = isEditing ? t.save : t.changeTable;
+  }
+  const quickInput = document.getElementById('quick-table-input') as HTMLInputElement;
+  if (quickInput) {
+    quickInput.placeholder = t.tableInputPlaceholder || 'Escribe el nº de mesa...';
+  }
+
+  // Update table detection badge text
+  const badgeEl = document.getElementById('table-detection-badge');
+  if (badgeEl) {
+    const origin = badgeEl.getAttribute('data-origin') || 'url';
+    if (origin === 'url') badgeEl.innerText = t.detectedTable || 'Detectada por URL';
+    else if (origin === 'storage') badgeEl.innerText = t.rememberedTable || 'Mesa Recordada';
+    else if (origin === 'manual') badgeEl.innerText = t.manualTable || 'Configurada Manualmente';
+    else badgeEl.innerText = t.defaultTable || 'Mesa por Defecto';
+  }
+
+  // Update dietary filter buttons
   const btnVegan = document.getElementById('btn-filter-vegan');
   if (btnVegan) btnVegan.innerHTML = `<span>${t.filterVegan}</span>`;
 
@@ -178,14 +286,63 @@ function setLanguage(lang: Language) {
   const btnNoAlc = document.getElementById('btn-filter-noalcohol');
   if (btnNoAlc) btnNoAlc.innerHTML = `<span>${t.filterNoAlcohol}</span>`;
 
+  // Update Allergen Selector options
+  const allergenSelect = document.getElementById('allergen-filter-select') as HTMLSelectElement;
+  if (allergenSelect) {
+    const currentVal = allergenSelect.value;
+    const allergenOptions = [
+      { val: 'ALL', text: t.allAllergens || '⚠️ Todos los alérgenos permitidos' },
+      { val: 'Sin Gluten', text: t.noGluten || '🌾 Excluir Gluten' },
+      { val: 'Sin Lácteos', text: t.noDairy || '🥛 Excluir Lácteos' },
+      { val: 'Sin Huevos', text: t.noEggs || '🥚 Excluir Huevos' },
+      { val: 'Sin Pescado', text: t.noFish || '🐟 Excluir Pescado' },
+      { val: 'Sin Frutos de cáscara', text: t.noNuts || '🥜 Excluir Frutos de cáscara' },
+      { val: 'Sin Sulfitos', text: t.noSulphites || '🍷 Excluir Sulfitos' }
+    ];
+    allergenSelect.innerHTML = '';
+    allergenOptions.forEach(opt => {
+      const optionEl = document.createElement('option');
+      optionEl.value = opt.val;
+      optionEl.textContent = opt.text;
+      if (opt.val === currentVal) optionEl.selected = true;
+      allergenSelect.appendChild(optionEl);
+    });
+  }
+
+  // Update Cutlery label
   const cutleryLabel = document.getElementById('txt-pack-cutlery');
   if (cutleryLabel) cutleryLabel.innerText = `${t.cutleryOption}:`;
 
+  // Update Staff Login / Logout buttons
   const btnStaffLogin = document.getElementById('btn-staff-login');
   if (btnStaffLogin) btnStaffLogin.innerHTML = `<span>${t.staffLogin}</span>`;
 
   const btnStaffLogout = document.getElementById('btn-staff-logout');
   if (btnStaffLogout) btnStaffLogout.innerHTML = `<span>${t.staffLogout}</span>`;
+
+  // Update Role Switcher Buttons
+  const btnRoleWaiter = document.querySelector('.role-btn.role-waiter');
+  if (btnRoleWaiter) btnRoleWaiter.innerHTML = `<span>🏃 ${t.roleWaiter}</span>`;
+  const btnRoleChef = document.querySelector('.role-btn.role-chef');
+  if (btnRoleChef) btnRoleChef.innerHTML = `<span>👨‍🍳 ${t.roleChef}</span>`;
+  const btnRoleManager = document.querySelector('.role-btn.role-manager');
+  if (btnRoleManager) btnRoleManager.innerHTML = `<span>📊 ${t.roleManager}</span>`;
+
+  // Update Payment Buttons
+  const btnPayStripe = document.getElementById('btn-pay-stripe');
+  if (btnPayStripe) {
+    btnPayStripe.innerHTML = `<span>${t.payCard}</span><small style="font-size:0.7rem; color:var(--text-dim);">Stripe</small>`;
+  }
+  const btnPayCash = document.getElementById('btn-pay-cash');
+  if (btnPayCash) {
+    btnPayCash.innerHTML = `<span>${t.payCash}</span><small style="font-size:0.7rem; color:var(--text-dim);">Pagar en mesa</small>`;
+  }
+
+  // Update language selector dropdown value
+  const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
+  if (langSelector && langSelector.value !== lang) {
+    langSelector.value = lang;
+  }
 
   // Re-render menu cards and cart with translated values
   renderMenu();
@@ -324,20 +481,24 @@ function setupTableIdentification() {
   const urlParams = new URLSearchParams(window.location.search);
   const fromParam = urlParams.get('table') || urlParams.get('mesa') || urlParams.get('m');
   const badgeEl = document.getElementById('table-detection-badge')!;
+  const t = translations[currentLanguage] || translations['es'];
 
   if (fromParam) {
     currentAssignedTable = fromParam.startsWith('Mesa') ? fromParam : `Mesa ${fromParam}`;
     localStorage.setItem('DND_SELECTED_TABLE', currentAssignedTable);
-    badgeEl.innerText = 'Detectada por URL';
+    badgeEl.setAttribute('data-origin', 'url');
+    badgeEl.innerText = t.detectedTable || 'Detectada por URL';
     badgeEl.className = 'badge-tag tag-stock';
   } else {
     const stored = localStorage.getItem('DND_SELECTED_TABLE');
     if (stored) {
       currentAssignedTable = stored;
-      badgeEl.innerText = 'Mesa Recordada';
+      badgeEl.setAttribute('data-origin', 'storage');
+      badgeEl.innerText = t.rememberedTable || 'Mesa Recordada';
       badgeEl.className = 'badge-tag tag-direct';
     } else {
-      badgeEl.innerText = 'Mesa por Defecto';
+      badgeEl.setAttribute('data-origin', 'default');
+      badgeEl.innerText = t.defaultTable || 'Mesa por Defecto';
       badgeEl.className = 'badge-tag tag-stock';
     }
   }
@@ -349,11 +510,12 @@ function setupTableIdentification() {
   const quickInput = document.getElementById('quick-table-input') as HTMLInputElement;
 
   editBtn.addEventListener('click', () => {
+    const curT = translations[currentLanguage] || translations['es'];
     if (quickInput.style.display === 'none') {
       quickInput.style.display = 'inline-block';
       quickInput.value = currentAssignedTable;
       quickInput.focus();
-      editBtn.innerText = '💾 Guardar';
+      editBtn.innerText = curT.save || '💾 Guardar';
       editBtn.style.background = 'var(--accent-orange)';
     } else {
       saveManualTable();
@@ -367,16 +529,18 @@ function setupTableIdentification() {
   });
 
   function saveManualTable() {
+    const curT = translations[currentLanguage] || translations['es'];
     const val = quickInput.value.trim();
     if (val) {
       currentAssignedTable = val.startsWith('Mesa') ? val : `Mesa ${val}`;
       localStorage.setItem('DND_SELECTED_TABLE', currentAssignedTable);
-      badgeEl.innerText = 'Configurada Manualmente';
+      badgeEl.setAttribute('data-origin', 'manual');
+      badgeEl.innerText = curT.manualTable || 'Configurada Manualmente';
       badgeEl.className = 'badge-tag tag-cooking';
-      showToast(`Mesa actualizada a "${currentAssignedTable}".`, 'success');
+      showToast(`${curT.manualTableSet || 'Mesa actualizada a'} "${currentAssignedTable}".`, 'success');
     }
     quickInput.style.display = 'none';
-    editBtn.innerText = '✏️ Cambiar Mesa';
+    editBtn.innerText = curT.changeTable || '✏️ Cambiar Mesa';
     editBtn.style.background = 'rgba(255,255,255,0.08)';
     updateTableUI();
   }
@@ -520,7 +684,7 @@ function renderMenu() {
 
   const t = translations[currentLanguage] || translations['es'];
   const countBadge = document.getElementById('badge-menu-count');
-  if (countBadge) countBadge.innerText = `${filtered.length} ${t.allDishes || 'Platos'}`;
+  if (countBadge) countBadge.innerText = `${filtered.length} ${t.items || t.allDishes || 'Platos'}`;
 
   filtered.forEach(item => {
     const card = document.createElement('div');
@@ -534,14 +698,14 @@ function renderMenu() {
     const displayIngredients = trans?.ingredients || item.ingredients || [];
     const displayAllergens = trans?.allergens || item.allergens || [];
 
-    const ingLabel = currentLanguage === 'en' ? 'Ingredients' : currentLanguage === 'fr' ? 'Ingrédients' : currentLanguage === 'de' ? 'Zutaten' : 'Ingredientes';
+    const ingLabel = t.ingredientsLabel || 'Ingredientes';
     const ingredientsHtml = displayIngredients.length > 0 ? `
       <div style="font-size:0.77rem; color:var(--text-muted); margin-bottom:8px; line-height:1.4;">
         🌿 <strong>${ingLabel}:</strong> ${displayIngredients.join(', ')}
       </div>
     ` : '';
 
-    const noAllergenLabel = currentLanguage === 'en' ? 'Allergen Free' : currentLanguage === 'fr' ? 'Sans allergènes' : currentLanguage === 'de' ? 'Allergenfrei' : 'Libre de alérgenos';
+    const noAllergenLabel = t.allergenFree || 'Libre de alérgenos';
     const allergensHtml = displayAllergens.length > 0 ? `
       <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px;">
         ${displayAllergens.map((a: string) => `<span class="badge-tag" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:0.67rem;">⚠️ ${a}</span>`).join('')}
@@ -629,7 +793,7 @@ function updateCartUI() {
 
   const totalCount = currentCart.reduce((acc, c) => acc + c.quantity, 0);
   const t = translations[currentLanguage] || translations['es'];
-  counterEl.innerText = `${totalCount} ${totalCount === 1 ? 'ítem' : 'ítems'}`;
+  counterEl.innerText = `${totalCount} ${t.items || (totalCount === 1 ? 'ítem' : 'ítems')}`;
 
   if (currentCart.length === 0) {
     container.innerHTML = `
@@ -889,9 +1053,21 @@ async function handlePlaceOrder() {
   }
 }
 
+// Helper to translate order status across all views
+function getTranslatedStatus(status: OrderStatus, t: any): string {
+  switch (status) {
+    case OrderStatus.PLACED: return t.statusPlaced || 'Pendiente';
+    case OrderStatus.IN_KITCHEN: return t.statusCooking || 'En Cocina';
+    case OrderStatus.READY_TO_SERVE: return t.statusReady || 'Listo';
+    case OrderStatus.DELIVERED: return t.statusDelivered || 'Entregado';
+    default: return status;
+  }
+}
+
 // 10. Camarero: Comandas Board
 function renderWaiterOrders() {
   waiterOrdersContainer.innerHTML = '';
+  const t = translations[currentLanguage] || translations['es'];
   if (allOrders.length === 0) {
     waiterOrdersContainer.innerHTML = `<p style="color:var(--text-muted); padding:30px;">No hay comandas registradas en sala.</p>`;
     return;
@@ -938,12 +1114,12 @@ function renderWaiterOrders() {
 
       <!-- Staff assignment -->
       <div class="order-staff-row">
-        <div>🏃 Camarero: <strong>${order.waiterName || 'Sin asignar'}</strong></div>
-        <div>👨‍🍳 Cocinero: <strong>${order.chefName || 'Sin asignar'}</strong></div>
+        <div>🏃 ${t.roleWaiter || 'Camarero'}: <strong>${order.waiterName || 'Sin asignar'}</strong></div>
+        <div>👨‍🍳 ${t.roleChef || 'Cocinero'}: <strong>${order.chefName || 'Sin asignar'}</strong></div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:0.82rem;">
-        <div>Estado: <strong style="color:var(--accent-orange);">${order.status}</strong></div>
+        <div>Estado: <strong style="color:var(--accent-orange);">${getTranslatedStatus(order.status, t)}</strong></div>
         <div>Pago: <strong style="color:${isPaid ? 'var(--accent-emerald)' : 'var(--accent-amber)'};">${order.paymentStatus}</strong></div>
       </div>
 
@@ -1018,13 +1194,14 @@ function renderChefOrders() {
 
     const cookingItems = order.items.filter(i => i.requiresCooking);
 
+    const t = translations[currentLanguage] || translations['es'];
     card.innerHTML = `
       <div class="order-header">
         <div>
           <div class="order-num" style="color:#ef4444;">${order.orderNumber}</div>
           <div style="font-size:0.8rem; color:var(--text-muted);">${order.tableNumber} • Creado hace instantes</div>
         </div>
-        <span class="badge-tag tag-cooking">${order.status}</span>
+        <span class="badge-tag tag-cooking">${getTranslatedStatus(order.status, t)}</span>
       </div>
 
       <div class="order-items-box">

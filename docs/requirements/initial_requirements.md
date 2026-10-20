@@ -48,6 +48,12 @@ created_at: "2026-10-20"
 - [Regla 6: Normativa española de plásticos] Conforme al Real Decreto 293/2018 y Ley 7/2022, las bolsas de plástico conllevan un cobro obligatorio (0.10 €) y los envases plásticos/cubiertos no reutilizables tienen un suplemento impositivo (0.15 €), desglosados explícitamente en el ticket.
 - [Regla 7: Internacionalización total] El cambio de idioma conmuta instantáneamente todas las etiquetas, descripciones de platos, alérgenos y filtros al idioma seleccionado sin recargar la página.
 - [Regla 8: Imágenes multi-dimensión responsivas] Las fotos de los platos deben descargarse y presentarse en las dimensiones adecuadas al dispositivo (`thumbnail` para móviles estrechos en tarjeta horizontal, `medium` para tablets y `large` para escritorios), garantizando cero desbordamiento horizontal (`scrollWidth <= innerWidth`).
+- [Regla 9: Barra de filtros mobile-first perfectamente alineada] La botonera de filtros en pantallas móviles organiza las categorías en carrusel táctil horizontal sin barra de scroll visible, los 3 filtros dietéticos (Vegano, Vegetariano, 0% Alcohol) en un grid equilibrado de 3 columnas de igual ancho, y el selector de alérgenos junto al conmutador de modo de visualización en controles de ancho completo (100%), garantizando simetría perfecta y ergonomía táctil.
+- [Regla 10: Desacoplamiento estricto del i18n de la aplicación y del menú con 10 idiomas y RTL]
+  - Soporte de 10 idiomas globales: Español (`es`), Inglés (`en`), Francés (`fr`), Alemán (`de`), Chino (`zh`), Coreano (`ko`), Ucraniano (`uk`), Portugués (`pt`), Japonés (`ja`) y Árabe (`ar`).
+  - Soporte RTL (Right-to-Left) automático para Árabe (`dir="rtl"`).
+  - Regla de desacoplamiento de catálogo: El selector de idiomas solo expone los idiomas presentes en el catálogo activo de platos del menú. Si un idioma no está disponible en el menú, queda automáticamente oculto del selector.
+  - Traducción integral de toda la interfaz (incluyendo selector de alérgenos, tarjetas de mesa, estados de comanda en vivo, opciones de empaque y cobro).
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

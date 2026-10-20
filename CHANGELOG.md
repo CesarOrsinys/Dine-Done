@@ -5,6 +5,24 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.0] - 2026-10-20
+### Added
+- **Alineación Perfecta de Controles de Filtro en Móvil:**
+  - Rediseño estético y simétrico de la barra de filtros en pantallas pequeñas:
+    - Fila de categorías con desplazamiento táctil horizontal suave y sin barra de scroll visible.
+    - Fila de filtros dietéticos reorganizada en un grid de 3 columnas iguales (`🌱 Vegano`, `🥗 Vegetariano`, `🚫 0% Alcohol`) distribuyendo homogéneamente el ancho disponible.
+    - Fila de controles con selector de alérgenos y conmutador de vista (`📱 Compacta` / `🖼️ Galería`) configurados a ancho completo (100%) y altura idéntica (38px), eliminando cualquier desalineamiento o solapamiento asimétrico en dispositivos estrechos.
+- **Soporte de 10 Idiomas Internacionales & RTL:**
+  - Incorporación de Chino (`zh`), Coreano (`ko`), Ucraniano (`uk`), Portugués (`pt`), Japonés (`ja`) y Árabe (`ar`), sumados a Español (`es`), Inglés (`en`), Francés (`fr`) y Alemán (`de`).
+  - Soporte nativo de dirección RTL (`dir="rtl"`) al conmutar a Árabe, invirtiendo la disposición de textos, tarjetas y controles de acuerdo a la caligrafía árabe.
+- **Desacoplamiento Estricto de Menú i18n vs App i18n:**
+  - El selector de idiomas solo expone los idiomas disponibles en el catálogo activo de platos del menú (`menuCatalog`). Si un idioma no está provisto en el menú, no se muestra como opción disponible en el selector.
+- **Traducción Exhaustiva de Toda la Aplicación:**
+  - Opciones del desplegable de alérgenos traducidas dinámicamente según el idioma activo.
+  - Insignias de identificación de mesa (Mesa por defecto, Detectada por URL, Configurada manualmente).
+  - Títulos de sección para Camarero, Cocina (KDS) y Gerencia, botones de autenticación y métodos de pago.
+  - Etiquetas de alérgenos y detalles de ingredientes en las tarjetas del menú.
+
 ## [1.3.1] - 2026-10-20
 ### Added
 - **Imágenes Multi-Dimensión Responsivas & Vista Compacta Móvil (HU-19):**
