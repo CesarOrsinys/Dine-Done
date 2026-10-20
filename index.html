@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dine & Done | Gestión Gastronómica Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f111a;
+      --bg-card: rgba(22, 27, 46, 0.9);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent: #f97316;
+      --accent-gradient: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --radius-md: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .hero-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 40px;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .path-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-card">
+    <div class="badge">PROYECTO INICIALIZADO • DINE & DONE</div>
+    <h1>Dine & Done 🍽️✨</h1>
+    <p>
+      Estructura hexagonal configurada y lista. Abre el archivo de requerimientos iniciales para definir el alcance, roles y funcionalidades clave.
+    </p>
+    <div class="path-box">docs/requirements/initial_requirements.md</div>
+  </div>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
