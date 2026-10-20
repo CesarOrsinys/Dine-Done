@@ -53,7 +53,8 @@
     "terms": "Términos y Condiciones",
     "privacy": "Política de Privacidad",
     "cookies": "Política de Cookies",
-    "legalNotice": "Aviso Legal"
+    "legalNotice": "Aviso Legal",
+    "viewCartMobile": "Ver Pedido"
   },
   "en": {
     "menuTitle": "Digital Menu & Dining",
@@ -109,7 +110,8 @@
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
     "cookies": "Cookie Policy",
-    "legalNotice": "Legal Notice"
+    "legalNotice": "Legal Notice",
+    "viewCartMobile": "View Order"
   },
   "fr": {
     "menuTitle": "Carte & Menu Digital",
@@ -165,7 +167,8 @@
     "terms": "Conditions Générales",
     "privacy": "Politique de Confidentialité",
     "cookies": "Politique de Cookies",
-    "legalNotice": "Mentions Légales"
+    "legalNotice": "Mentions Légales",
+    "viewCartMobile": "Voir la Commande"
   },
   "de": {
     "menuTitle": "Digitale Speisekarte",
@@ -221,6 +224,7 @@
     "terms": "Allgemeine Geschäftsbedingungen",
     "privacy": "Datenschutzerklärung",
     "cookies": "Cookie-Richtlinie",
-    "legalNotice": "Impressum"
+    "legalNotice": "Impressum",
+    "viewCartMobile": "Bestellung Ansehen"
   }
 }

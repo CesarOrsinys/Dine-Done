@@ -5,6 +5,16 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.0] - 2026-10-20
+### Added
+- **Diseño Totalmente Responsive para Móviles y Tablets (HU-18):**
+  - Barra flotante inferior de comanda (`#mobile-cart-bar`) en dispositivos móviles y tablets que muestra el número de ítems y el importe total en vivo con botón para desplegar la comanda.
+  - Cajón deslizable hacia arriba (Bottom Sheet Drawer) para el carrito de compras, permitiendo revisar platos, ajustar empaques y finalizar pagos sin abandonar la vista del menú.
+  - Soporte de gestos táctiles y desplazamiento horizontal suave (`scroll-snap`) para categorías, chips dietéticos y selector de alérgenos.
+  - Ajuste de cabecera compacta para pantallas pequeñas (< 768px y < 400px) evitando desbordamientos de texto.
+  - Tableros de Camarero y Cocina KDS optimizados para visualización en tablets (2 columnas) y teléfonos (1 columna).
+  - Tablas de control gerencial con desplazamiento táctil horizontal seguro.
+
 ## [1.2.0] - 2026-10-20
 ### Added
 - **Acceso Exclusivo de Personal (Staff Login) (HU-12):**

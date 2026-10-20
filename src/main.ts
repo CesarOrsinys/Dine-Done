@@ -157,7 +157,8 @@ function setLanguage(lang: Language) {
     'footer-link-terms': t.terms,
     'footer-link-privacy': t.privacy,
     'footer-link-cookies': t.cookies,
-    'footer-link-legal': t.legalNotice
+    'footer-link-legal': t.legalNotice,
+    'txt-view-cart-mobile': t.viewCartMobile || 'Ver Pedido'
   };
 
   for (const [id, val] of Object.entries(elMap)) {
@@ -290,6 +291,18 @@ async function switchRole(role: UserRole) {
     [UserRole.MANAGER]: 'view-manager'
   };
   document.getElementById(viewMap[role])?.classList.add('active-view');
+
+  // Responsive mobile cart bar visibility
+  const mobileCartBar = document.getElementById('mobile-cart-bar');
+  if (mobileCartBar) {
+    const totalCount = currentCart.reduce((acc, c) => acc + c.quantity, 0);
+    mobileCartBar.style.display = (role === UserRole.CUSTOMER && totalCount > 0) ? 'flex' : 'none';
+  }
+  const cartPanel = document.getElementById('cart-panel');
+  const backdrop = document.getElementById('cart-backdrop');
+  cartPanel?.classList.remove('mobile-drawer-open');
+  backdrop?.classList.remove('active');
+  document.body.style.overflow = '';
 
   // Trigger role-specific rendering
   if (role === UserRole.CUSTOMER) {
@@ -642,6 +655,25 @@ function updateBillTotals(subtotal: number) {
 
   const totalEl = document.getElementById('bill-total');
   if (totalEl) totalEl.innerText = `${total.toFixed(2)} €`;
+
+  // Update floating mobile cart bar (Responsive Phone / Tablet UX)
+  const mobileCountEl = document.getElementById('mobile-cart-count');
+  const totalCount = currentCart.reduce((acc, c) => acc + c.quantity, 0);
+  if (mobileCountEl) {
+    mobileCountEl.innerText = totalCount.toString();
+  }
+  const mobileTotalEl = document.getElementById('mobile-cart-total');
+  if (mobileTotalEl) {
+    mobileTotalEl.innerText = `${total.toFixed(2)} €`;
+  }
+  const mobileCartBar = document.getElementById('mobile-cart-bar');
+  if (mobileCartBar) {
+    if (totalCount > 0 && currentUser.role === UserRole.CUSTOMER) {
+      mobileCartBar.style.display = 'flex';
+    } else {
+      mobileCartBar.style.display = 'none';
+    }
+  }
 }
 
 function setupCartControls() {
@@ -703,6 +735,30 @@ function setupCartControls() {
   document.getElementById('btn-place-order')?.addEventListener('click', handlePlaceOrder);
 }
 
+// 10. Feature: Mobile Slide-Up Cart Drawer (Touch & Phone-First UX)
+function setupMobileCartDrawer() {
+  const btnOpen = document.getElementById('btn-view-cart-mobile');
+  const btnClose = document.getElementById('btn-close-cart-mobile');
+  const backdrop = document.getElementById('cart-backdrop');
+  const cartPanel = document.getElementById('cart-panel');
+
+  function openDrawer() {
+    cartPanel?.classList.add('mobile-drawer-open');
+    backdrop?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    cartPanel?.classList.remove('mobile-drawer-open');
+    backdrop?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  btnOpen?.addEventListener('click', openDrawer);
+  btnClose?.addEventListener('click', closeDrawer);
+  backdrop?.addEventListener('click', closeDrawer);
+}
+
 async function handlePlaceOrder() {
   if (currentCart.length === 0) {
     showToast('Por favor añade al menos un plato a la comanda.', 'warning');
@@ -757,6 +813,13 @@ async function handlePlaceOrder() {
     // Reset Cart
     currentCart = [];
     updateCartUI();
+
+    // Close mobile cart drawer if open
+    const cartPanel = document.getElementById('cart-panel');
+    const backdrop = document.getElementById('cart-backdrop');
+    cartPanel?.classList.remove('mobile-drawer-open');
+    backdrop?.classList.remove('active');
+    document.body.style.overflow = '';
 
     // Reload menu to show updated stock
     menuCatalog = await services.menuRepo.getAll();
@@ -1141,6 +1204,7 @@ async function initApp() {
   setupCategoryFilters();
   setupDietaryAndAllergenFilters();
   setupCartControls();
+  setupMobileCartDrawer();
   setupExportReport();
 
   renderMenu();

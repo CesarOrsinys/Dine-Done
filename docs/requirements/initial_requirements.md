@@ -36,6 +36,7 @@ created_at: "2026-10-20"
 - **Feature 15 (Nuevo):** Cumplimiento estricto de la normativa española para bolsas y plásticos (R.D. 293/2018 y Ley 7/2022 de residuos): desglose con cobro legal de bolsas y envases de un solo uso.
 - **Feature 16 (Nuevo):** Branding desacoplado: Encabezado superior exclusivo del Restaurante; mención a Dine & Done trasladada al Footer completo con redes sociales, cookies, términos y condiciones legales.
 - **Feature 17 (Nuevo):** Selector multi-idioma (i18n) arriba a la derecha que traduce toda la web y la carta del restaurante (ES, EN, FR, DE).
+- **Feature 18 (Nuevo):** Diseño Mobile-First totalmente responsive: optimizado para pedidos desde smartphones y tablets con barra flotante de comanda (`mobile-cart-bar`), drawer deslizante para el carrito, gestos táctiles horizontales y cabecera adaptable.
 
 ### 2.3. Business Rules & Edge Cases (Reglas de Negocio)
 - [Regla 1: Identificación de mesa] El comensal debe tener siempre una mesa asociada antes de confirmar el pedido, detectada automáticamente por URL o configurada manualmente.

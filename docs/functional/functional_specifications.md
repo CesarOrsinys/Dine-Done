@@ -257,3 +257,26 @@
   - **When** el usuario selecciona "EN", "FR" o "DE"
   - **Then** todos los títulos, botones, filtros, opciones de empaque y nombres/ingredientes de la carta se actualizan instantáneamente al idioma seleccionado.
 
+---
+
+### HU-18: Experiencia Totalmente Responsive para Móviles y Tablets (Mobile-First UX)
+**Como** Comensal que pide desde su teléfono móvil o camarero/cocinero que utiliza una tablet  
+**Quiero** una interfaz táctil, ágil y adaptada ergonómicamente a cualquier tamaño de pantalla  
+**Para** realizar pedidos con una sola mano, navegar fluidamente y gestionar comandas sin desbordamientos visuales.
+
+- **Criterio 18.1: Barra flotante inferior de comanda en móviles y tablets**
+  - **Given** un comensal agregando platos desde un dispositivo móvil o tablet (<= 1024px)
+  - **When** la comanda contiene al menos 1 ítem
+  - **Then** aparece una barra flotante inferior con el total y un botón destacado "Ver Pedido".
+
+- **Criterio 18.2: Cajón deslizable (Bottom Sheet Drawer) para el carrito**
+  - **Given** la barra flotante activa en móvil
+  - **When** el usuario pulsa "Ver Pedido"
+  - **Then** el panel de comanda se despliega suavemente desde la parte inferior con fondo difuminado, permitiendo revisar platos, ajustar empaques y confirmar el pedido cómodamente.
+
+- **Criterio 18.3: Desplazamiento horizontal táctil y cuadrículas responsivas**
+  - **Given** filtros de categoría, chips dietéticos y selector de alérgenos
+  - **When** se navega desde un teléfono inteligente
+  - **Then** los elementos permiten desplazamiento horizontal táctil suave sin saltos de línea molestos ni desbordamientos horizontales.
+
+
