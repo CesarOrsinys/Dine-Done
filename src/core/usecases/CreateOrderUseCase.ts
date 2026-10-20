@@ -45,8 +45,10 @@ export class CreateOrderUseCase {
       dto.items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity }))
     );
 
-    // 2. Subtotal and packaging calculation (Spanish Law: R.D. 293/2018 and Ley 7/2022)
+    // 2. Subtotal, IVA (21%) and packaging calculation (Spanish Law: R.D. 293/2018 and Ley 7/2022)
     const subtotal = dto.items.reduce((acc, curr) => acc + (curr.unitPrice * curr.quantity), 0);
+    const vatAmount = parseFloat((subtotal * 0.21).toFixed(2));
+    const subtotalNet = parseFloat((subtotal - vatAmount).toFixed(2));
     const packagingCost = (dto.packaging.bags ? 0.10 : 0) +
                           (dto.packaging.plasticContainers ? 0.15 : 0) +
                           (dto.packaging.cutleryCount > 0 ? dto.packaging.cutleryCount * 0.10 : 0);
@@ -81,6 +83,8 @@ export class CreateOrderUseCase {
       paymentStatus: paymentStatus,
       paymentMethod: dto.paymentMethod,
       subtotal: parseFloat(subtotal.toFixed(2)),
+      subtotalNet: subtotalNet,
+      vatAmount: vatAmount,
       packagingCost: parseFloat(packagingCost.toFixed(2)),
       tipAmount: parseFloat(tip.toFixed(2)),
       total: total,

@@ -281,6 +281,7 @@ function setLanguage(lang: string) {
     'txt-tip-note': t.tipNote || '100% íntegro para el equipo de sala',
     'txt-pay-label': t.paymentMethod,
     'txt-bill-subtotal-label': t.subtotalDishes,
+    'txt-bill-vat-label': t.vatLabel || 'IVA (21%):',
     'txt-bill-pack-label': t.packagingTotal,
     'txt-bill-tip-label': t.tipAmount,
     'txt-bill-total-label': t.totalToPay,
@@ -1004,12 +1005,19 @@ function updateCartUI() {
     const trans = (item.menuItem.translations as any)?.[currentLanguage];
     const displayName = trans?.name || item.menuItem.name;
 
+    // A todos los productos en el apartado de pago se les quita el 21% (precio base sin IVA)
+    const netUnitPrice = parseFloat((item.menuItem.price * 0.79).toFixed(2));
+    const netLine = parseFloat((netUnitPrice * item.quantity).toFixed(2));
+
     const row = document.createElement('div');
     row.className = 'cart-item';
     row.innerHTML = `
       <div class="cart-item-info">
         <div class="cart-item-name">${displayName}</div>
-        <div class="cart-item-price">${(item.menuItem.price * item.quantity).toFixed(2)} € (${item.menuItem.price.toFixed(2)} €/ud)</div>
+        <div class="cart-item-price">
+          <span>${netLine.toFixed(2)} €</span>
+          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-left:4px;">(${netUnitPrice.toFixed(2)} €/ud sin IVA)</span>
+        </div>
       </div>
       <div class="cart-qty-ctrl">
         <button class="btn-qty btn-minus" data-idx="${index}">-</button>
@@ -1053,13 +1061,20 @@ function calculatePackagingCost(): number {
   return parseFloat(packCost.toFixed(2));
 }
 
-function updateBillTotals(subtotal: number) {
+function updateBillTotals(rawSubtotal: number) {
+  // A todos los productos se les quita el 21% (Base Imponible) y luego se suma como IVA (21%)
+  const vatAmount = parseFloat((rawSubtotal * 0.21).toFixed(2));
+  const subtotalNet = parseFloat((rawSubtotal - vatAmount).toFixed(2));
+
   const packagingAmount = calculatePackagingCost();
-  const tipAmount = parseFloat((subtotal * currentTipPercent).toFixed(2));
-  const total = parseFloat((subtotal + packagingAmount + tipAmount).toFixed(2));
+  const tipAmount = parseFloat((rawSubtotal * currentTipPercent).toFixed(2));
+  const total = parseFloat((subtotalNet + vatAmount + packagingAmount + tipAmount).toFixed(2));
 
   const subtotalEl = document.getElementById('bill-subtotal');
-  if (subtotalEl) subtotalEl.innerText = `${subtotal.toFixed(2)} €`;
+  if (subtotalEl) subtotalEl.innerText = `${subtotalNet.toFixed(2)} €`;
+
+  const vatEl = document.getElementById('bill-vat');
+  if (vatEl) vatEl.innerText = `+${vatAmount.toFixed(2)} €`;
 
   const packEl = document.getElementById('bill-packaging');
   if (packEl) packEl.innerText = `${packagingAmount.toFixed(2)} €`;

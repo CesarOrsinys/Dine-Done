@@ -74,6 +74,8 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     });
 
     assert.strictEqual(order.subtotal, 17.00);
+    assert.strictEqual(order.vatAmount, 3.57);
+    assert.strictEqual(order.subtotalNet, 13.43);
     assert.strictEqual(order.packagingCost, 0.45);
     assert.strictEqual(order.tipAmount, 2.00);
     assert.strictEqual(order.total, 19.45);

@@ -15,6 +15,8 @@ export interface Order {
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
   subtotal: number;
+  subtotalNet?: number;
+  vatAmount?: number;
   packagingCost?: number;
   tipAmount: number;
   total: number;

@@ -43,7 +43,7 @@
     "paymentMethod": "Método de cobro:",
     "payCard": "💳 Tarjeta (Stripe)",
     "payCash": "💵 Efectivo en mesa",
-    "subtotalDishes": "Subtotal platos:",
+    "subtotalDishes": "Subtotal productos (sin IVA):",
     "packagingTotal": "Empaque y bolsas (Ley 7/2022):",
     "tipAmount": "Propina:",
     "totalToPay": "Total a Pagar:",
@@ -100,7 +100,8 @@
     "footerRestaurantDesc": "Restauración gastronómica con producto local, servicio ágil y tecnología digital de vanguardia.",
     "lblLoginUser": "Usuario o Email:",
     "lblLoginPass": "Contraseña:",
-    "loginSubmit": "🔐 Iniciar Sesión"
+    "loginSubmit": "🔐 Iniciar Sesión",
+    "vatLabel": "IVA (21%):"
   },
   "en": {
     "menuTitle": "Digital Menu & Dining",
@@ -146,7 +147,7 @@
     "paymentMethod": "Payment method:",
     "payCard": "💳 Card (Stripe)",
     "payCash": "💵 Cash at table",
-    "subtotalDishes": "Dishes subtotal:",
+    "subtotalDishes": "Dishes subtotal (excl. VAT):",
     "packagingTotal": "Packaging & bags (Law 7/2022):",
     "tipAmount": "Tip:",
     "totalToPay": "Total to Pay:",
@@ -203,7 +204,8 @@
     "footerRestaurantDesc": "Gastronomic dining with local fresh ingredients, agile service and modern digital ordering.",
     "lblLoginUser": "Username or Email:",
     "lblLoginPass": "Password:",
-    "loginSubmit": "🔐 Log In"
+    "loginSubmit": "🔐 Log In",
+    "vatLabel": "VAT (21%):"
   },
   "fr": {
     "menuTitle": "Carte & Menu Digital",
@@ -249,7 +251,7 @@
     "paymentMethod": "Mode de paiement :",
     "payCard": "💳 Carte (Stripe)",
     "payCash": "💵 Espèces à table",
-    "subtotalDishes": "Sous-total plats :",
+    "subtotalDishes": "Sous-total plats (HT) :",
     "packagingTotal": "Emballage et sacs (Loi 7/2022) :",
     "tipAmount": "Pourboire :",
     "totalToPay": "Total à Payer :",
@@ -306,7 +308,8 @@
     "footerRestaurantDesc": "Restauration gastronomique avec produits locaux, service agile et commande numérique de pointe.",
     "lblLoginUser": "Utilisateur ou E-mail :",
     "lblLoginPass": "Mot de passe :",
-    "loginSubmit": "🔐 Se connecter"
+    "loginSubmit": "🔐 Se connecter",
+    "vatLabel": "TVA (21%) :"
   },
   "de": {
     "menuTitle": "Digitale Speisekarte",
@@ -352,7 +355,7 @@
     "paymentMethod": "Zahlungsart:",
     "payCard": "💳 Karte (Stripe)",
     "payCash": "💵 Bar am Tisch",
-    "subtotalDishes": "Zwischensumme Gerichte:",
+    "subtotalDishes": "Zwischensumme Gerichte (ohne MwSt.):",
     "packagingTotal": "Verpackung & Tüten (Gesetz 7/2022):",
     "tipAmount": "Trinkgeld:",
     "totalToPay": "Gesamtbetrag:",
@@ -409,7 +412,8 @@
     "footerRestaurantDesc": "Kulinarische Gastronomie mit regionalen Produkten, schnellem Service und modernem digitalem Bestellen.",
     "lblLoginUser": "Benutzername oder E-Mail:",
     "lblLoginPass": "Passwort:",
-    "loginSubmit": "🔐 Anmelden"
+    "loginSubmit": "🔐 Anmelden",
+    "vatLabel": "MwSt. (21%):"
   },
   "zh": {
     "menuTitle": "数字菜单与点餐",
@@ -455,7 +459,7 @@
     "paymentMethod": "支付方式：",
     "payCard": "💳 刷卡支付 (Stripe)",
     "payCash": "💵 现金结算",
-    "subtotalDishes": "菜品小计：",
+    "subtotalDishes": "菜品小计（不含增值税）：",
     "packagingTotal": "环保包装费 (7/2022法案)：",
     "tipAmount": "小费：",
     "totalToPay": "应付总额：",
@@ -512,7 +516,8 @@
     "footerRestaurantDesc": "严选本地新鲜食材的美食餐厅，提供便捷敏捷的服务与前沿的数字化点餐体验。",
     "lblLoginUser": "用户名或邮箱：",
     "lblLoginPass": "密码：",
-    "loginSubmit": "🔐 登录"
+    "loginSubmit": "🔐 登录",
+    "vatLabel": "增值税 (21%)："
   },
   "ko": {
     "menuTitle": "디지털 메뉴 & 주문",
@@ -558,7 +563,7 @@
     "paymentMethod": "결제 방식:",
     "payCard": "💳 카드 결제 (Stripe)",
     "payCash": "💵 테이블 현금 결제",
-    "subtotalDishes": "요리 소계:",
+    "subtotalDishes": "요리 소계 (부가세 별도):",
     "packagingTotal": "포장 및 봉투 (법률 7/2022):",
     "tipAmount": "팁:",
     "totalToPay": "총 결제 금액:",
@@ -615,7 +620,8 @@
     "footerRestaurantDesc": "신선한 로컬 식재료, 신속한 서비스 및 최첨단 디지털 스마트 오더를 제공하는 프리미엄 다이닝.",
     "lblLoginUser": "사용자 이름 또는 이메일:",
     "lblLoginPass": "비밀번호:",
-    "loginSubmit": "🔐 로그인"
+    "loginSubmit": "🔐 로그인",
+    "vatLabel": "부가가치세 (21%):"
   },
   "uk": {
     "menuTitle": "Цифрове Меню та Замовлення",
@@ -661,7 +667,7 @@
     "paymentMethod": "Спосіб оплати:",
     "payCard": "💳 Картка (Stripe)",
     "payCash": "💵 Готівкою за столом",
-    "subtotalDishes": "Сума за страви:",
+    "subtotalDishes": "Сума за страви (без ПДВ):",
     "packagingTotal": "Упаковка та пакети (Закон 7/2022):",
     "tipAmount": "Чайові:",
     "totalToPay": "Всього до Сплати:",
@@ -718,7 +724,8 @@
     "footerRestaurantDesc": "Гастрономічний ресторан зі свіжими локальними продуктами, швидким сервісом та інноваційним замовленням.",
     "lblLoginUser": "Користувач або Email:",
     "lblLoginPass": "Пароль:",
-    "loginSubmit": "🔐 Увійти"
+    "loginSubmit": "🔐 Увійти",
+    "vatLabel": "ПДВ (21%):"
   },
   "pt": {
     "menuTitle": "Ementa & Menu Digital",
@@ -764,7 +771,7 @@
     "paymentMethod": "Método de pagamento:",
     "payCard": "💳 Cartão (Stripe)",
     "payCash": "💵 Dinheiro na mesa",
-    "subtotalDishes": "Subtotal pratos:",
+    "subtotalDishes": "Subtotal pratos (sem IVA):",
     "packagingTotal": "Embalagens e sacos (Lei 7/2022):",
     "tipAmount": "Gorjeta:",
     "totalToPay": "Total a Pagar:",
@@ -821,7 +828,8 @@
     "footerRestaurantDesc": "Restauração gastronómica com produtos locais frescos, serviço ágil e tecnologia digital inovadora.",
     "lblLoginUser": "Usuário ou E-mail:",
     "lblLoginPass": "Senha:",
-    "loginSubmit": "🔐 Entrar"
+    "loginSubmit": "🔐 Entrar",
+    "vatLabel": "IVA (21%):"
   },
   "ja": {
     "menuTitle": "デジタルメニュー＆ご注文",
@@ -867,7 +875,7 @@
     "paymentMethod": "お支払い方法：",
     "payCard": "💳 クレジットカード (Stripe)",
     "payCash": "💵 テーブルにて現金精算",
-    "subtotalDishes": "お料理小計：",
+    "subtotalDishes": "お料理小計（税抜）：",
     "packagingTotal": "容器・レジ袋代 (法第7/2022号)：",
     "tipAmount": "チップ：",
     "totalToPay": "お支払い総額：",
@@ -924,7 +932,8 @@
     "footerRestaurantDesc": "地元の旬の厳選素材、スムーズなおもてなし、最新のデジタルモバイルオーダー体験を提供します。",
     "lblLoginUser": "ユーザー名またはメール:",
     "lblLoginPass": "パスワード:",
-    "loginSubmit": "🔐 ログイン"
+    "loginSubmit": "🔐 ログイン",
+    "vatLabel": "消費税 (21%)："
   },
   "ar": {
     "menuTitle": "قائمة الطعام الرقمية والطلب",
@@ -970,7 +979,7 @@
     "paymentMethod": "طريقة الدفع:",
     "payCard": "💳 بطاقة بنكية (Stripe)",
     "payCash": "💵 نقداً عند الطاولة",
-    "subtotalDishes": "مجموع الأطباق:",
+    "subtotalDishes": "مجموع الأطباق (بدون ضريبة):",
     "packagingTotal": "رسوم الأكياس والتغليف (قانون 7/2022):",
     "tipAmount": "الإكرامية:",
     "totalToPay": "المجموع الكلي للدفع:",
@@ -1027,7 +1036,8 @@
     "footerRestaurantDesc": "تجربة طعام راقية بمكونات محلية طازجة، خدمة استثنائية وسريعة ونظام طلب رقمي فائق التطور.",
     "lblLoginUser": "اسم المستخدم أو البريد:",
     "lblLoginPass": "كلمة المرور:",
-    "loginSubmit": "🔐 تسجيل الدخول"
+    "loginSubmit": "🔐 تسجيل الدخول",
+    "vatLabel": "ضريبة القيمة المضافة (21%):"
   },
   "ca": {
     "menuTitle": "Carta & Menú Digital",
@@ -1074,7 +1084,7 @@
     "payCard": "💳 Targeta (Stripe)",
     "payCash": "💵 Efectiu a taula",
     "payBizum": "📱 Bizum",
-    "subtotalDishes": "Subtotal plats:",
+    "subtotalDishes": "Subtotal plats (sense IVA):",
     "packagingTotal": "Envasos i bosses (Llei 7/2022):",
     "tipAmount": "Propina:",
     "totalToPay": "Total a Pagar:",
@@ -1130,7 +1140,8 @@
     "footerRestaurantDesc": "Restauració gastronòmica amb producte local fresc, servei àgil i tecnologia digital d'avantguarda.",
     "lblLoginUser": "Usuari o Correu:",
     "lblLoginPass": "Contrasenya:",
-    "loginSubmit": "🔐 Iniciar Sessió"
+    "loginSubmit": "🔐 Iniciar Sessió",
+    "vatLabel": "IVA (21%):"
   },
   "va": {
     "menuTitle": "Carta & Menú Digital",
@@ -1177,7 +1188,7 @@
     "payCard": "💳 Targeta (Stripe)",
     "payCash": "💵 Efectiu en taula",
     "payBizum": "📱 Bizum",
-    "subtotalDishes": "Subtotal plats:",
+    "subtotalDishes": "Subtotal plats (sense IVA):",
     "packagingTotal": "Envasos i bosses (Llei 7/2022):",
     "tipAmount": "Propina:",
     "totalToPay": "Total a Pagar:",
@@ -1233,7 +1244,8 @@
     "footerRestaurantDesc": "Restauració gastronòmica amb producte local fresc, servici àgil i tecnologia digital d'avantguarda.",
     "lblLoginUser": "Usuari o Correu:",
     "lblLoginPass": "Contrasenya:",
-    "loginSubmit": "🔐 Iniciar Sessió"
+    "loginSubmit": "🔐 Iniciar Sessió",
+    "vatLabel": "IVA (21%):"
   },
   "eu": {
     "menuTitle": "Menu Digitala eta Eskaerak",
@@ -1280,7 +1292,7 @@
     "payCard": "💳 Txartela (Stripe)",
     "payCash": "💵 Eskudirutan mahaian",
     "payBizum": "📱 Bizum",
-    "subtotalDishes": "Plateren azpitotala:",
+    "subtotalDishes": "Plateren azpitotala (BEZik gabe):",
     "packagingTotal": "Ontziak eta poltsak (7/2022 Legea):",
     "tipAmount": "Propina:",
     "totalToPay": "Ordaintzeko Guztira:",
@@ -1336,7 +1348,8 @@
     "footerRestaurantDesc": "Tokiko produktu freskoko gastronomia, zerbitzu bizkorra eta punta-puntako teknologia digitala.",
     "lblLoginUser": "Erabiltzailea edo Posta:",
     "lblLoginPass": "Pasahitza:",
-    "loginSubmit": "🔐 Saioa Hasi"
+    "loginSubmit": "🔐 Saioa Hasi",
+    "vatLabel": "BEZ (%21):"
   },
   "gl": {
     "menuTitle": "Carta & Menú Dixital",
@@ -1383,7 +1396,7 @@
     "payCard": "💳 Tarxeta (Stripe)",
     "payCash": "💵 Efectivo en mesa",
     "payBizum": "📱 Bizum",
-    "subtotalDishes": "Subtotal pratos:",
+    "subtotalDishes": "Subtotal pratos (sen IVE):",
     "packagingTotal": "Envases e bolsas (Lei 7/2022):",
     "tipAmount": "Propina:",
     "totalToPay": "Total a Pagar:",
@@ -1439,6 +1452,7 @@
     "footerRestaurantDesc": "Restauración gastronómica con produto local de tempada, servizo áxil e tecnoloxía dixital de vangarda.",
     "lblLoginUser": "Usuario ou Correo:",
     "lblLoginPass": "Contrasinal:",
-    "loginSubmit": "🔐 Iniciar Sesión"
+    "loginSubmit": "🔐 Iniciar Sesión",
+    "vatLabel": "IVE (21%):"
   }
 }

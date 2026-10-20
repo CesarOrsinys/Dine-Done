@@ -5,6 +5,14 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.2] - 2026-10-20
+### Added
+- **Desglose de IVA al 21% en el Apartado de Pago:**
+  - En las líneas de pedido del carrito se le descuenta el 21% a cada producto, visualizándose la Base Imponible unitaria y por línea sin IVA.
+  - Se añade la fila independiente **IVA (21%)** (`#bill-vat`) en el resumen de la cuenta, totalizando la cuota de IVA del 21% que se suma a la base imponible de los productos.
+  - Coherencia total con los importes finales del pedido, empaques ecológicos (Ley 7/2022) y pasarelas de pago (Stripe / Efectivo).
+  - Soporte multi-idioma de la etiqueta fiscal para las 14 lenguas oficiales y regionales integradas.
+
 ## [1.6.1] - 2026-10-20
 ### Added
 - **Traducción Automática a los 14 Idiomas Soportados:**

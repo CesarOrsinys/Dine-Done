@@ -93,6 +93,10 @@ created_at: "2026-10-20"
   - Modal de nuevo producto ampliado con inputs cómodos a todo el ancho para nombre y descripción.
   - Soporte de imágenes multi-dispositivo: subida de archivo local (`FileReader`), URL directa, previsualización en tiempo real y ajuste independiente para 📱 Móvil (240x240), 💻 Tablet (600x380) y 🖥️ Desktop (900x550).
   - Traducción automática integrada a los 14 idiomas soportados (`es`, `en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`) con panel de inspección y edición, asegurando disponibilidad universal en el selector de idiomas.
+- [Regla 20: Desglose de IVA al 21% en el apartado de pago y comanda]
+  - En el apartado de pago y carrito, a todos los productos se les quita el 21% de su importe para presentar su Base Imponible neta tanto por unidad como en el subtotal de platos.
+  - En el desglose de la cuenta se añade la fila explícita **IVA (21%)**, sumando la cuota tributaria correspondiente a los productos antes de agregar empaques regulados (Ley 7/2022) y propinas.
+  - Soporte multi-idioma completo para la fila fiscal en las 14 lenguas disponibles en la plataforma.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
