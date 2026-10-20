@@ -5,6 +5,14 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.5] - 2026-10-20
+### Added
+- **Tarjetas de Perfil Compactas para Gestión de Personal (Vista de Gerente):**
+  - Transformación del listado plano de usuarios en una cuadrícula moderna de tarjetas de perfil (`user-profile-card`) compactas, estéticas y altamente informativas.
+  - Inclusión de foto/avatar de alta resolución con halo temático y punto luminoso de estado activo (`🟢`) o inactivo (`🔴`).
+  - Presentación clara de nombre completo, badge distintivo de cargo (Gerente 🛡️, Cocinero 👨‍🍳, Camarero 🏃), dirección de correo electrónico, identificador de usuario para logueo (`🔑 Login: usuario`) e ID interno del sistema.
+  - Soporte para avatar personalizado al registrar nuevos empleados en el formulario modal administrativo.
+
 ## [1.6.4] - 2026-10-20
 ### Added
 - **Edición Integral de Productos Existentes en Carta:**

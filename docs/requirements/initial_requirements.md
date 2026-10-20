@@ -107,6 +107,11 @@ created_at: "2026-10-20"
   - **Edición directa desde la Carta Digital:** Cuando un usuario con rol Gerente visualiza el menú, cada tarjeta de plato incluye un botón de acceso directo `✏️ Editar` para corregir rápidamente erratas, precios o descripciones sin tener que navegar al panel administrativo.
   - **Re-traducción y personalización multilingüe:** Posibilidad de regenerar automáticamente con un clic las traducciones a los 14 idiomas a partir de los datos corregidos en español, o afinar manualmente traducciones individuales.
 
+- [Regla 23: Tarjetas de perfil compactas para la gestión de usuarios y personal]
+  - **Reemplazo de tabla por tarjetas de perfil:** La sección de control de usuarios en la vista de Gerente sustituye la tabla tradicional por una cuadrícula de tarjetas de perfil (`user-profile-card`) compactas, intuitivas y elegantes.
+  - **Información relevante y visible:** Cada tarjeta incluye foto/avatar circular con reborde temático según rol (Gerente, Cocinero, Camarero), indicador luminoso de estado (`ACTIVO` / `INACTIVO`), nombre completo, insignia de cargo, correo electrónico, y las credenciales de acceso (`🔑 Login: usuario` e ID interno).
+  - **Privacidad mantenida:** Se preserva la exclusión total de comensales para cumplir estrictamente con la normativa de privacidad y protección de datos.
+
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
 - **Frontend / UI:** Vite + TypeScript + Vanilla CSS (Arquitectura limpia y alto rendimiento)

@@ -1674,25 +1674,74 @@ async function renderManagerDashboard() {
     stockTbody.appendChild(tr);
   });
 
-  // User Management Table (Requirement 4: Exclude customer role to protect guest privacy)
-  const userTbody = document.getElementById('users-tbody')!;
-  userTbody.innerHTML = '';
-  const staffOnly = allUsers.filter(u => u.role !== UserRole.CUSTOMER);
-  staffOnly.forEach(u => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">${u.id}</td>
-      <td><strong>${u.name}</strong></td>
-      <td style="color:var(--text-muted);">${u.email}</td>
-      <td><span class="badge-tag tag-direct">${u.role}</span></td>
-      <td>
-        <span class="badge-tag ${u.active ? 'tag-stock' : 'tag-cooking'}">
-          ${u.active ? 'ACTIVO' : 'INACTIVO'}
-        </span>
-      </td>
-    `;
-    userTbody.appendChild(tr);
-  });
+  // User Management Cards (Compact Profile Cards: Foto, Nombre, Cargo, Estado, Email, ID/Login)
+  const usersGrid = document.getElementById('users-cards-grid');
+  if (usersGrid) {
+    usersGrid.innerHTML = '';
+    const staffOnly = allUsers.filter(u => u.role !== UserRole.CUSTOMER);
+    staffOnly.forEach(u => {
+      // Role details and colors
+      let roleLabel = 'Personal';
+      let roleTagClass = 'tag-direct';
+      let roleBorder = '#3b82f6';
+      let defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+
+      if (u.role === UserRole.MANAGER) {
+        roleLabel = '🛡️ Gerente';
+        roleTagClass = 'tag-stock';
+        roleBorder = '#10b981';
+        defaultAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
+      } else if (u.role === UserRole.CHEF) {
+        roleLabel = '👨‍🍳 Cocinero';
+        roleTagClass = 'tag-cooking';
+        roleBorder = '#ef4444';
+        defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
+      } else if (u.role === UserRole.WAITER) {
+        roleLabel = '🏃 Camarero';
+        roleTagClass = 'tag-direct';
+        roleBorder = '#3b82f6';
+        defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+      }
+
+      const avatarSrc = u.avatarUrl || defaultAvatar;
+
+      const card = document.createElement('div');
+      card.className = 'user-profile-card';
+      card.innerHTML = `
+        <div class="user-card-header">
+          <div class="user-avatar-wrap">
+            <img src="${avatarSrc}" alt="${u.name}" class="user-avatar-img" style="border-color:${roleBorder};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=334155&color=fff&bold=true'">
+            <span class="user-status-dot ${u.active ? 'active' : 'inactive'}" title="${u.active ? 'Usuario Activo' : 'Usuario Inactivo'}"></span>
+          </div>
+          <div class="user-card-info">
+            <h4 class="user-card-name" title="${u.name}">${u.name}</h4>
+            <div class="user-card-meta">
+              <span class="badge-tag ${roleTagClass}" style="font-size:0.72rem; padding:2px 7px;">${roleLabel}</span>
+              <span class="badge-tag ${u.active ? 'tag-stock' : 'tag-cooking'}" style="font-size:0.68rem; padding:1px 6px;">
+                ${u.active ? 'ACTIVO' : 'INACTIVO'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-card-details">
+          <div class="user-detail-row">
+            <span style="font-size:0.85rem;">✉️</span>
+            <span style="color:var(--text-main); font-weight:500;">${u.email}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:2px;">
+            <div style="display:flex; align-items:center; gap:5px; color:var(--text-muted);">
+              <span>🔑</span>
+              <span>Login:</span>
+              <span class="user-login-badge">${u.username || u.id}</span>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-muted); opacity:0.8;" title="ID Interno">${u.id}</span>
+          </div>
+        </div>
+      `;
+      usersGrid.appendChild(card);
+    });
+  }
   // Operational Settings (Requisito 3)
   const chkSkip = document.getElementById('chk-skip-staff-assignment') as HTMLInputElement;
   if (chkSkip) {
@@ -1752,6 +1801,15 @@ function setupManagerModals() {
       return;
     }
 
+    const avatarInput = (document.getElementById('new-user-avatar') as HTMLInputElement)?.value.trim();
+    let defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+    if (roleVal === UserRole.MANAGER) {
+      defaultAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
+    } else if (roleVal === UserRole.CHEF) {
+      defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
+    }
+    const avatarUrl = avatarInput || defaultAvatar;
+
     const newUser: User = {
       id: `usr_${Date.now()}`,
       name,
@@ -1759,7 +1817,8 @@ function setupManagerModals() {
       email,
       role: roleVal as UserRole,
       password,
-      active: true
+      active: true,
+      avatarUrl
     };
 
     try {
