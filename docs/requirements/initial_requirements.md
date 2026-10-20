@@ -127,7 +127,11 @@ created_at: "2026-10-20"
     - Espacio generoso con scroll para revisar todos los platos pedidos con detalle de cantidades y precios base.
     - Desglose económico completo (Base imponible neta, IVA al 21%, empaques Ley 7/2022, propinas y total).
     - Encabezado oficial con datos del restaurante y datos fiscales del cliente si solicitó factura.
-    - Botones integrados de **🖨️ Imprimir** (formato térmico / fiscal limpio) y **📥 Descargar** (archivo de comprobante .JSON).
+- [Regla 27: Soporte universal y resolución de iconos gráficos de alérgenos en todos los idiomas]
+  - **Mapeo multilingüe de alérgenos:** La tabla de iconos `ALLERGEN_ICON_MAP` y la función de resolución `getAllergenIcon` incorporan todas las traducciones y variantes léxicas de los 14 alérgenos de declaración obligatoria de la Unión Europea para los 14 idiomas oficiales del sistema (`es`, `en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`).
+  - **Doble resolución por nombre e índice canónico:** La visualización de alérgenos resuelve el icono específico (`🌾`, `🥛`, `🥚`, `🐟`, `🦐`, `🥜`, `🌱`, `🌰`, `🌿`, `🌭`, `🥯`, `🍷`, `🦪`) cotejando tanto el término traducido como el alérgeno canónico del plato original, evitando que alérgenos en inglés, chino, francés, alemán, etc., caigan en iconos genéricos o desaparezcan.
+  - **Iconos en badges y precio:** Los iconos gráficos se renderizan fidedignamente tanto en las insignias de alérgenos de la vista detallada como en los iconos en miniatura junto al precio en las tarjetas compactas y de cuadrícula.
+  - **Traducción de etiqueta sin alérgenos:** La píldora informativa cuando un plato está libre de alérgenos muestra la etiqueta traducida dinámicamente (`✅ Allergen Free`, `✅ Sans allergènes`, `✅ 无过敏原`, `✅ Libre de alérgenos`, etc.) en lugar de un texto fijo en español.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

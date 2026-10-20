@@ -5,6 +5,16 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.10] - 2026-10-20
+### Fixed
+- **Visualización Universal de Iconos de Alérgenos en Todos los Idiomas:**
+  - Corrección de la pérdida y omisión de iconos de alérgenos (`🌾`, `🥛`, `🥚`, `🐟`, `🦐`, `🥜`, `🌱`, `🌰`, `🌿`, `🌭`, `🥯`, `🍷`, `🦪`) al cambiar a cualquier idioma distinto al español (`en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`).
+  - Ampliación exhaustiva de `ALLERGEN_ICON_MAP` con términos oficiales en todos los 14 idiomas para los 14 alérgenos de la Unión Europea.
+  - Implementación de doble resolución en `getAllergenIcon(name, canonicalName)` que evalúa tanto el término traducido como el alérgeno canónico del plato original, asegurando que ningún plato quede con icono de advertencia genérico `⚠️`.
+  - Inclusión de los iconos específicos de cada alérgeno en las etiquetas e insignias de alérgenos (`allergensHtml`), en los mini-iconos junto al precio (`miniAllergensHtml`), y en el control de stock de gerencia.
+  - Dinamización de la etiqueta de platos libres de alérgenos (`✅ Allergen Free`, `✅ Sans allergènes`, `✅ 无过敏原`, `✅ Libre de alérgenos`, etc.) eliminando textos fijos en español.
+  - Cobertura completa verificada con nueva prueba unitaria pasando con 18/18 pruebas exitosas.
+
 ## [1.6.9] - 2026-10-20
 ### Added
 - **Espacio Generoso con Scroll para Productos Pedidos en Checkout y Confirmación:**

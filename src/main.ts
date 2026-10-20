@@ -820,43 +820,201 @@ function getResponsiveImages(item: MenuItem): { thumbnail: string; medium: strin
   };
 }
 
-// Helper: Identificación y mapeo de iconos gráficos de alérgenos
+// Helper: Identificación y mapeo de iconos gráficos de alérgenos en todos los idiomas soportados (14 alérgenos oficiales UE)
 const ALLERGEN_ICON_MAP: Record<string, string> = {
-  gluten: '🌾',
-  trigo: '🌾',
-  cebada: '🌾',
-  avena: '🌾',
-  lácteos: '🥛',
-  lacteos: '🥛',
-  leche: '🥛',
-  queso: '🥛',
-  huevos: '🥚',
-  huevo: '🥚',
-  pescado: '🐟',
-  crustáceos: '🦐',
-  crustaceos: '🦐',
-  marisco: '🦐',
-  cacahuetes: '🥜',
+  // 1. Gluten: 🌾
+  gluten: '🌾', trigo: '🌾', cebada: '🌾', avena: '🌾', centeno: '🌾',
+  wheat: '🌾', barley: '🌾', oats: '🌾', rye: '🌾',
+  blé: '🌾', orge: '🌾', avoine: '🌾',
+  weizen: '🌾', gerste: '🌾', hafer: '🌾',
+  麸质: '🌾', 小麦: '🌾',
+  '小麦(グルテン)': '🌾', グルテン: '🌾',
+  글루텐: '🌾', 밀: '🌾',
+  глютен: '🌾', пшениця: '🌾',
+  glúten: '🌾',
+  غلوتين: '🌾', قمح: '🌾',
+  glutena: '🌾', glute: '🌾', blat: '🌾',
+
+  // 2. Crustáceos: 🦐
+  crustáceos: '🦐', crustaceos: '🦐', marisco: '🦐', gambas: '🦐', langostinos: '🦐',
+  crustaceans: '🦐', shellfish: '🦐', shrimp: '🦐', prawns: '🦐', lobster: '🦐', crab: '🦐',
+  crustacés: '🦐', crevettes: '🦐',
+  krebstiere: '🦐', garnelen: '🦐',
+  甲壳类: '🦐', 甲壳动物: '🦐', 虾: '🦐', 蟹: '🦐',
+  甲殻類: '🦐', エビ: '🦐', カニ: '🦐',
+  갑각류: '🦐', 새우: '🦐', 게: '🦐',
+  ракоподібні: '🦐', креветки: '🦐',
+  قشريات: '🦐', جمبري: '🦐',
+  crustacis: '🦐', krustazeoak: '🦐',
+
+  // 3. Huevos: 🥚
+  huevos: '🥚', huevo: '🥚',
+  eggs: '🥚', egg: '🥚',
+  oeufs: '🥚', oeuf: '🥚',
+  eier: '🥚', ei: '🥚',
+  蛋类: '🥚', 鸡蛋: '🥚', 蛋: '🥚',
+  卵: '🥚', たまご: '🥚', 玉子: '🥚',
+  계란: '🥚', 달걀: '🥚',
+  яйця: '🥚', яйце: '🥚',
+  ovos: '🥚', ovo: '🥚',
+  بيض: '🥚', بيضة: '🥚',
+  ous: '🥚', ou: '🥚',
+  arrautzak: '🥚', arrautza: '🥚',
+
+  // 4. Pescado: 🐟
+  pescado: '🐟', pez: '🐟', atún: '🐟', salmón: '🐟',
+  fish: '🐟', tuna: '🐟', salmon: '🐟',
+  poisson: '🐟',
+  fisch: '🐟',
+  鱼类: '🐟', 鱼: '🐟',
+  魚介類: '🐟', 魚: '🐟', さかな: '🐟',
+  생선: '🐟', 물고기: '🐟',
+  риба: '🐟',
+  peixe: '🐟',
+  أسماك: '🐟', سمك: '🐟',
+  peix: '🐟',
+  arraina: '🐟',
+
+  // 5. Cacahuetes: 🥜
+  cacahuetes: '🥜', cacahuate: '🥜', maní: '🥜', mani: '🥜',
+  peanuts: '🥜', peanut: '🥜',
+  arachides: '🥜', arachide: '🥜',
+  erdnüsse: '🥜', erdnuss: '🥜',
+  花生: '🥜', 落花生: '🥜',
+  ピーナッツ: '🥜',
+  땅콩: '🥜',
+  арахіс: '🥜',
+  amendoins: '🥜', amendoim: '🥜',
+  'فول سوداني': '🥜',
+  cacauets: '🥜', cacauet: '🥜',
+  kakahueteak: '🥜',
+
+  // 6. Soja: 🌱
   soja: '🌱',
-  'frutos de cáscara': '🌰',
-  'frutos de cascara': '🌰',
-  nueces: '🌰',
-  almendras: '🌰',
-  avellanas: '🌰',
-  pistachos: '🌰',
+  soy: '🌱', soya: '🌱', soybean: '🌱',
+  大豆: '🌱',
+  '大豆(ソイ)': '🌱',
+  대두: '🌱', 콩: '🌱',
+  соя: '🌱',
+  soia: '🌱',
+  صويا: '🌱',
+
+  // 7. Lácteos: 🥛
+  lácteos: '🥛', lacteos: '🥛', leche: '🥛', queso: '🥛', mantequilla: '🥛', nata: '🥛', yogur: '🥛',
+  dairy: '🥛', milk: '🥛', cheese: '🥛', butter: '🥛', cream: '🥛', yogurt: '🥛',
+  lactose: '🥛', lait: '🥛', fromage: '🥛', beurre: '🥛', crème: '🥛',
+  laktose: '🥛', milch: '🥛', käse: '🥛', sahne: '🥛',
+  乳制品: '🥛', 牛奶: '🥛', 奶酪: '🥛', 乳: '🥛',
+  乳製品: '🥛', ミルク: '🥛', チーズ: '🥛', 牛乳: '🥛',
+  유제품: '🥛', 우유: '🥛', 치즈: '🥛',
+  лактоза: '🥛', молоко: '🥛', сир: '🥛',
+  laticínios: '🥛', laticinios: '🥛', leite: '🥛', queijo: '🥛',
+  'مشتقات الحليب': '🥛', حليب: '🥛', جبن: '🥛',
+  lactis: '🥛', làctics: '🥛', lactics: '🥛', llet: '🥛', formatge: '🥛',
+  esnekiak: '🥛', esnea: '🥛', gazta: '🥛',
+
+  // 8. Frutos de cáscara: 🌰
+  'frutos de cáscara': '🌰', 'frutos de cascara': '🌰', nueces: '🌰', almendras: '🌰', avellanas: '🌰', pistachos: '🌰', anacardos: '🌰',
+  nuts: '🌰', 'tree nuts': '🌰', walnuts: '🌰', almonds: '🌰', hazelnuts: '🌰', cashews: '🌰', pistachios: '🌰',
+  'fruits à coque': '🌰', 'fruits a coque': '🌰', noix: '🌰', amandes: '🌰', noisettes: '🌰', pistaches: '🌰',
+  schalenfrüchte: '🌰', schalenfruechte: '🌰', nüsse: '🌰', nuesse: '🌰', mandeln: '🌰', haselnüsse: '🌰',
+  坚果: '🌰', 核桃: '🌰', 杏仁: '🌰', 榛子: '🌰',
+  ナッツ: '🌰', くるみ: '🌰', アーモンド: '🌰',
+  견과류: '🌰', 호두: '🌰', 아몬드: '🌰',
+  горіхи: '🌰', мигдаль: '🌰', фундук: '🌰',
+  nozes: '🌰', amêndoas: '🌰', avelãs: '🌰',
+  مكسرات: '🌰', جوز: '🌰', لوز: '🌰',
+  'fruits de closca': '🌰', 'fruits de corfa': '🌰', nous: '🌰', ametlles: '🌰',
+  'fruitu lehorrak': '🌰', intxaurrak: '🌰',
+  'froitos de casca': '🌰',
+
+  // 9. Apio: 🌿
   apio: '🌿',
+  celery: '🌿',
+  céleri: '🌿', celeri: '🌿',
+  sellerie: '🌿',
+  芹菜: '🌿',
+  セロリ: '🌿',
+  샐러리: '🌿',
+  селера: '🌿',
+  aipo: '🌿',
+  كرفس: '🌿',
+  api: '🌿',
+  ziazerba: '🌿',
+
+  // 10. Mostaza: 🌭
   mostaza: '🌭',
-  sésamo: '🥯',
-  sesamo: '🥯',
-  sulfitos: '🍷',
-  altramuces: '🌾',
-  moluscos: '🦪'
+  mustard: '🌭',
+  moutarde: '🌭',
+  senf: '🌭',
+  芥末: '🌭',
+  マスタード: '🌭', からし: '🌭',
+  겨자: '🌭', 머스터드: '🌭',
+  гірчиця: '🌭',
+  mostarda: '🌭',
+  خردل: '🌭',
+  mostassa: '🌭',
+  mustarda: '🌭',
+
+  // 11. Sésamo: 🥯
+  sésamo: '🥯', sesamo: '🥯',
+  sesame: '🥯',
+  sésame: '🥯',
+  sesam: '🥯',
+  芝麻: '🥯',
+  ゴマ: '🥯', 胡麻: '🥯', ごま: '🥯',
+  참깨: '🥯', 깨: '🥯',
+  кунжут: '🥯',
+  سمسم: '🥯',
+  sèsam: '🥯',
+  sesamoa: '🥯',
+
+  // 12. Sulfitos: 🍷
+  sulfitos: '🍷', sulfito: '🍷',
+  sulphites: '🍷', sulfites: '🍷', sulphite: '🍷', sulfite: '🍷',
+  亚硫酸盐: '🍷',
+  亜硫酸塩: '🍷',
+  아황산염: '🍷',
+  сульфіти: '🍷', сульфиты: '🍷',
+  كبريتات: '🍷',
+  sulfits: '🍷',
+  sulfitoak: '🍷',
+
+  // 13. Altramuces: 🌾
+  altramuces: '🌾', altramuz: '🌾',
+  lupin: '🌾', lupine: '🌾', lupins: '🌾',
+  羽扇豆: '🌾',
+  ルピナス: '🌾',
+  루핀: '🌾',
+  люпин: '🌾',
+  tremoço: '🌾', tremoços: '🌾', tremoce: '🌾',
+  ترمس: '🌾',
+  llobí: '🌾', llobins: '🌾',
+  lupinuak: '🌾',
+
+  // 14. Moluscos: 🦪
+  moluscos: '🦪', molusco: '🦪',
+  molluscs: '🦪', mollusks: '🦪', mollusc: '🦪', mollusk: '🦪',
+  mollusques: '🦪',
+  weichtiere: '🦪',
+  软体动物: '🦪',
+  軟体動物: '🦪',
+  연체동물: '🦪',
+  молюски: '🦪',
+  رخويات: '🦪',
+  'mol·luscs': '🦪',
+  moluskuak: '🦪'
 };
 
-function getAllergenIcon(name: string): string {
-  const lower = name.toLowerCase();
-  for (const [key, icon] of Object.entries(ALLERGEN_ICON_MAP)) {
-    if (lower.includes(key)) return icon;
+function getAllergenIcon(name: string, canonicalName?: string): string {
+  const norm = (str?: string) => (str || '').toLowerCase().trim();
+  const searchCandidates = [norm(name), norm(canonicalName)].filter(Boolean);
+
+  for (const s of searchCandidates) {
+    if (ALLERGEN_ICON_MAP[s]) return ALLERGEN_ICON_MAP[s];
+    for (const [key, icon] of Object.entries(ALLERGEN_ICON_MAP)) {
+      if (s.includes(key)) return icon;
+    }
   }
   return '⚠️';
 }
@@ -945,7 +1103,10 @@ function renderMenu() {
     const noAllergenLabel = t.allergenFree || 'Libre de alérgenos';
     const allergensHtml = displayAllergens.length > 0 ? `
       <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px;">
-        ${displayAllergens.map((a: string) => `<span class="badge-tag" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:0.67rem;">⚠️ ${a}</span>`).join('')}
+        ${displayAllergens.map((a: string, idx: number) => {
+          const icon = getAllergenIcon(a, item.allergens?.[idx]);
+          return `<span class="badge-tag" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:0.67rem;">${icon} ${a}</span>`;
+        }).join('')}
       </div>
     ` : `
       <div style="margin-bottom:12px;">
@@ -955,14 +1116,14 @@ function renderMenu() {
 
     const miniAllergensHtml = displayAllergens.length > 0 ? `
       <div class="menu-mini-allergens">
-        ${displayAllergens.map((a: string) => {
-          const icon = getAllergenIcon(a);
+        ${displayAllergens.map((a: string, idx: number) => {
+          const icon = getAllergenIcon(a, item.allergens?.[idx]);
           return `<span class="allergen-mini-icon" title="${a}">${icon}</span>`;
         }).join('')}
       </div>
     ` : `
       <div class="menu-mini-allergens">
-        <span class="allergen-mini-pill" title="${noAllergenLabel}">✅ Sin alérgenos</span>
+        <span class="allergen-mini-pill" title="${noAllergenLabel}">✅ ${noAllergenLabel}</span>
       </div>
     `;
 
@@ -1856,6 +2017,7 @@ function renderChefOrders() {
 // 12. Gerente: KPIs, Precios y Stock
 async function renderManagerDashboard() {
   const report = await kpiUseCase.execute();
+  const t = translations[currentLanguage] || translations['es'];
 
   document.getElementById('kpi-revenue')!.innerText = `${report.totalRevenue.toFixed(2)} €`;
   document.getElementById('kpi-tips')!.innerText = `${report.totalTips.toFixed(2)} €`;
@@ -1888,7 +2050,7 @@ async function renderManagerDashboard() {
           <strong class="stock-item-name">${item.name}</strong>
           <span class="badge-tag tag-direct stock-inline-category">${item.category}</span>
         </div>
-        ${item.allergens && item.allergens.length > 0 ? `<div class="stock-item-allergens" style="font-size:0.72rem; color:#f472b6; margin-top:3px;">🌾 Alérgenos: ${item.allergens.join(', ')}</div>` : ''}
+        ${item.allergens && item.allergens.length > 0 ? `<div class="stock-item-allergens" style="font-size:0.72rem; color:#f472b6; margin-top:3px;">⚠️ ${t.allergens || 'Alérgenos'}: ${item.allergens.map((a: string) => `${getAllergenIcon(a)} ${a}`).join(', ')}</div>` : ''}
       </td>
       <td class="stock-td-category-desktop"><span class="badge-tag tag-direct">${item.category}</span></td>
       <td class="stock-td-price">

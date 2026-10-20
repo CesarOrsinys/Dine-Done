@@ -101,7 +101,8 @@
     "lblLoginUser": "Usuario o Email:",
     "lblLoginPass": "Contraseña:",
     "loginSubmit": "🔐 Iniciar Sesión",
-    "vatLabel": "IVA (21%):"
+    "vatLabel": "IVA (21%):",
+    "allergens": "Alérgenos"
   },
   "en": {
     "menuTitle": "Digital Menu & Dining",
@@ -205,7 +206,8 @@
     "lblLoginUser": "Username or Email:",
     "lblLoginPass": "Password:",
     "loginSubmit": "🔐 Log In",
-    "vatLabel": "VAT (21%):"
+    "vatLabel": "VAT (21%):",
+    "allergens": "Allergens"
   },
   "fr": {
     "menuTitle": "Carte & Menu Digital",
@@ -309,7 +311,8 @@
     "lblLoginUser": "Utilisateur ou E-mail :",
     "lblLoginPass": "Mot de passe :",
     "loginSubmit": "🔐 Se connecter",
-    "vatLabel": "TVA (21%) :"
+    "vatLabel": "TVA (21%) :",
+    "allergens": "Allergènes"
   },
   "de": {
     "menuTitle": "Digitale Speisekarte",
@@ -413,7 +416,8 @@
     "lblLoginUser": "Benutzername oder E-Mail:",
     "lblLoginPass": "Passwort:",
     "loginSubmit": "🔐 Anmelden",
-    "vatLabel": "MwSt. (21%):"
+    "vatLabel": "MwSt. (21%):",
+    "allergens": "Allergene"
   },
   "zh": {
     "menuTitle": "数字菜单与点餐",
@@ -517,7 +521,8 @@
     "lblLoginUser": "用户名或邮箱：",
     "lblLoginPass": "密码：",
     "loginSubmit": "🔐 登录",
-    "vatLabel": "增值税 (21%)："
+    "vatLabel": "增值税 (21%)：",
+    "allergens": "过敏原"
   },
   "ko": {
     "menuTitle": "디지털 메뉴 & 주문",
@@ -621,7 +626,8 @@
     "lblLoginUser": "사용자 이름 또는 이메일:",
     "lblLoginPass": "비밀번호:",
     "loginSubmit": "🔐 로그인",
-    "vatLabel": "부가가치세 (21%):"
+    "vatLabel": "부가가치세 (21%):",
+    "allergens": "알레르기 유발 물질"
   },
   "uk": {
     "menuTitle": "Цифрове Меню та Замовлення",
@@ -725,7 +731,8 @@
     "lblLoginUser": "Користувач або Email:",
     "lblLoginPass": "Пароль:",
     "loginSubmit": "🔐 Увійти",
-    "vatLabel": "ПДВ (21%):"
+    "vatLabel": "ПДВ (21%):",
+    "allergens": "Алергени"
   },
   "pt": {
     "menuTitle": "Ementa & Menu Digital",
@@ -829,7 +836,8 @@
     "lblLoginUser": "Usuário ou E-mail:",
     "lblLoginPass": "Senha:",
     "loginSubmit": "🔐 Entrar",
-    "vatLabel": "IVA (21%):"
+    "vatLabel": "IVA (21%):",
+    "allergens": "Alérgenos"
   },
   "ja": {
     "menuTitle": "デジタルメニュー＆ご注文",
@@ -933,7 +941,8 @@
     "lblLoginUser": "ユーザー名またはメール:",
     "lblLoginPass": "パスワード:",
     "loginSubmit": "🔐 ログイン",
-    "vatLabel": "消費税 (21%)："
+    "vatLabel": "消費税 (21%)：",
+    "allergens": "アレルゲン"
   },
   "ar": {
     "menuTitle": "قائمة الطعام الرقمية والطلب",
@@ -1037,7 +1046,8 @@
     "lblLoginUser": "اسم المستخدم أو البريد:",
     "lblLoginPass": "كلمة المرور:",
     "loginSubmit": "🔐 تسجيل الدخول",
-    "vatLabel": "ضريبة القيمة المضافة (21%):"
+    "vatLabel": "ضريبة القيمة المضافة (21%):",
+    "allergens": "مسببات الحساسية"
   },
   "ca": {
     "menuTitle": "Carta & Menú Digital",
@@ -1141,7 +1151,8 @@
     "lblLoginUser": "Usuari o Correu:",
     "lblLoginPass": "Contrasenya:",
     "loginSubmit": "🔐 Iniciar Sessió",
-    "vatLabel": "IVA (21%):"
+    "vatLabel": "IVA (21%):",
+    "allergens": "Al·lèrgens"
   },
   "va": {
     "menuTitle": "Carta & Menú Digital",
@@ -1245,7 +1256,8 @@
     "lblLoginUser": "Usuari o Correu:",
     "lblLoginPass": "Contrasenya:",
     "loginSubmit": "🔐 Iniciar Sessió",
-    "vatLabel": "IVA (21%):"
+    "vatLabel": "IVA (21%):",
+    "allergens": "Al·lèrgens"
   },
   "eu": {
     "menuTitle": "Menu Digitala eta Eskaerak",
@@ -1349,7 +1361,8 @@
     "lblLoginUser": "Erabiltzailea edo Posta:",
     "lblLoginPass": "Pasahitza:",
     "loginSubmit": "🔐 Saioa Hasi",
-    "vatLabel": "BEZ (%21):"
+    "vatLabel": "BEZ (%21):",
+    "allergens": "Alergenoak"
   },
   "gl": {
     "menuTitle": "Carta & Menú Dixital",
@@ -1453,6 +1466,7 @@
     "lblLoginUser": "Usuario ou Correo:",
     "lblLoginPass": "Contrasinal:",
     "loginSubmit": "🔐 Iniciar Sesión",
-    "vatLabel": "IVE (21%):"
+    "vatLabel": "IVE (21%):",
+    "allergens": "Alérxenos"
   }
 }
