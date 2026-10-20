@@ -49,11 +49,11 @@ created_at: "2026-10-20"
 - [Regla 7: Internacionalización total] El cambio de idioma conmuta instantáneamente todas las etiquetas, descripciones de platos, alérgenos y filtros al idioma seleccionado sin recargar la página.
 - [Regla 8: Imágenes multi-dimensión responsivas] Las fotos de los platos deben descargarse y presentarse en las dimensiones adecuadas al dispositivo (`thumbnail` para móviles estrechos en tarjeta horizontal, `medium` para tablets y `large` para escritorios), garantizando cero desbordamiento horizontal (`scrollWidth <= innerWidth`).
 - [Regla 9: Barra de filtros mobile-first perfectamente alineada] La botonera de filtros en pantallas móviles organiza las categorías en carrusel táctil horizontal sin barra de scroll visible, los 3 filtros dietéticos (Vegano, Vegetariano, 0% Alcohol) en un grid equilibrado de 3 columnas de igual ancho, y el selector de alérgenos junto al conmutador de modo de visualización en controles de ancho completo (100%), garantizando simetría perfecta y ergonomía táctil.
-- [Regla 10: Desacoplamiento estricto del i18n de la aplicación y del menú con 10 idiomas y RTL]
-  - Soporte de 10 idiomas globales: Español (`es`), Inglés (`en`), Francés (`fr`), Alemán (`de`), Chino (`zh`), Coreano (`ko`), Ucraniano (`uk`), Portugués (`pt`), Japonés (`ja`) y Árabe (`ar`).
+- [Regla 10: Desacoplamiento estricto del i18n de la aplicación y del menú con 14 idiomas y RTL]
+  - Soporte de 14 idiomas globales y cooficiales: Español (`es`), Inglés (`en`), Francés (`fr`), Alemán (`de`), Chino (`zh`), Coreano (`ko`), Ucraniano (`uk`), Portugués (`pt`), Japonés (`ja`), Árabe (`ar`), Catalán (`ca`), Valenciano (`va`), Euskera (`eu`) y Gallego (`gl`).
   - Soporte RTL (Right-to-Left) automático para Árabe (`dir="rtl"`).
   - Regla de desacoplamiento de catálogo: El selector de idiomas solo expone los idiomas presentes en el catálogo activo de platos del menú. Si un idioma no está disponible en el menú, queda automáticamente oculto del selector.
-  - Traducción integral de toda la interfaz (incluyendo selector de alérgenos, tarjetas de mesa, estados de comanda en vivo, opciones de empaque y cobro).
+  - Traducción integral de toda la interfaz: selector de alérgenos, tarjetas de mesa, estados de comanda en vivo, opciones de empaque y cobro, y footer completo (columnas de Restaurante, Normativa & Legal, Sostenibilidad, enlaces y Powered by Dine & Done).
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

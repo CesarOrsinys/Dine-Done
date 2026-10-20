@@ -17,8 +17,8 @@ import { ManageStockUseCase } from './core/usecases/ManageStockUseCase.js';
 import { ProcessCashPaymentUseCase } from './core/usecases/ProcessCashPaymentUseCase.js';
 import { UpdateOrderStatusUseCase } from './core/usecases/UpdateOrderStatusUseCase.js';
 
-// Types for i18n supporting all 10 international languages
-export type Language = 'es' | 'en' | 'fr' | 'de' | 'zh' | 'ko' | 'uk' | 'pt' | 'ja' | 'ar' | string;
+// Types for i18n supporting all 14 international and regional languages
+export type Language = 'es' | 'en' | 'fr' | 'de' | 'zh' | 'ko' | 'uk' | 'pt' | 'ja' | 'ar' | 'ca' | 'va' | 'eu' | 'gl' | string;
 const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('DND_SELECTED_LANG') : null;
 let currentLanguage: Language = savedLang || 'es';
 const translations: Record<string, any> = translationsData as Record<string, any>;
@@ -34,7 +34,11 @@ const LANGUAGE_META: Record<string, { flag: string; label: string; name: string 
   uk: { flag: '🇺🇦', label: 'UK', name: 'Українська' },
   pt: { flag: '🇵🇹', label: 'PT', name: 'Português' },
   ja: { flag: '🇯🇵', label: 'JA', name: '日本語' },
-  ar: { flag: '🇸🇦', label: 'AR', name: 'العربية' }
+  ar: { flag: '🇸🇦', label: 'AR', name: 'العربية' },
+  ca: { flag: '🟡🔴', label: 'CA', name: 'Català' },
+  va: { flag: '🔵🔴', label: 'VA', name: 'Valencià' },
+  eu: { flag: '🟢🔴', label: 'EU', name: 'Euskara' },
+  gl: { flag: '🔵⚪', label: 'GL', name: 'Galego' }
 };
 
 // Decoupled i18n rule: only languages available across the menu items catalog appear in the selector
@@ -244,6 +248,19 @@ function setLanguage(lang: string) {
     'footer-link-privacy': t.privacy,
     'footer-link-cookies': t.cookies,
     'footer-link-legal': t.legalNotice,
+    'footer-col-restaurant': t.footerColRestaurant,
+    'footer-link-menu': t.footerLinkMenu,
+    'footer-link-allergens': t.footerLinkAllergens,
+    'footer-link-hours': t.footerLinkHours,
+    'footer-link-contact': t.footerLinkContact,
+    'footer-col-legal': t.footerColLegal,
+    'footer-col-sustainability': t.footerColSustainability,
+    'footer-link-bags-law': t.footerLinkBagsLaw,
+    'footer-link-waste-law': t.footerLinkWasteLaw,
+    'footer-link-compostable': t.footerLinkCompostable,
+    'footer-link-circular': t.footerLinkCircular,
+    'footer-powered-by': t.footerPoweredBy,
+    'footer-restaurant-desc': t.footerRestaurantDesc,
     'txt-view-cart-mobile': t.viewCartMobile || 'Ver Pedido',
     'txt-view-compact': t.viewCompact || '📱 Compacta',
     'txt-view-grid': t.viewGrid || '🖼️ Galería',

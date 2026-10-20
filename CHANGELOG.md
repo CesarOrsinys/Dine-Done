@@ -5,6 +5,22 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.1] - 2026-10-20
+### Added
+- **Idiomas Cooficiales Españoles (Catalán, Valenciano, Euskera y Gallego):**
+  - Incorporación de 4 nuevos idiomas autonómicos tanto en la interfaz de la aplicación (`translations.json`) como en las fichas gastronómicas del menú (`menu.json`), alcanzando un total de 14 idiomas soportados:
+    - Catalán (`ca` - 🟡🔴 Català)
+    - Valenciano (`va` - 🔵🔴 Valencià)
+    - Euskera (`eu` - 🟢🔴 Euskara)
+    - Gallego (`gl` - 🔵⚪ Galego)
+  - Disponibilidad total de los 14 idiomas en el selector de la carta cumpliendo la regla de desacoplamiento de catálogo.
+- **Traducción Integral del Footer:**
+  - Internacionalización reactiva de todas las columnas y enlaces del pie de página:
+    - Encabezados: "Restaurante", "Normativa & Legal", "Sostenibilidad".
+    - Enlaces: "Carta Digital", "Información Alérgenos", "Horarios y Reservas", "Ubicación y Contacto".
+    - Normativa y sostenibilidad: "R.D. 293/2018 (Bolsas)", "Ley 7/2022 (Residuos)", "Envases Compostables", "Economía Circular".
+    - Marca y pie: "Powered by Dine & Done © 2026" y descripción del restaurante.
+
 ## [1.4.0] - 2026-10-20
 ### Added
 - **Alineación Perfecta de Controles de Filtro en Móvil:**

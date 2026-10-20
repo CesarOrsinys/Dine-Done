@@ -200,13 +200,13 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(reloaded?.stock, 40);
   });
 
-  it('HU-12: Should verify all 10 languages in menu and enforce menu-driven language selector decoupling rule', async () => {
+  it('HU-12: Should verify all 14 languages in menu and enforce menu-driven language selector decoupling rule', async () => {
     const allItems = await menuRepo.getAll();
     assert.ok(allItems.length >= 10);
 
-    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar'];
+    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
 
-    // Every item must support all 10 languages
+    // Every item must support all 14 languages
     for (const item of allItems) {
       assert.ok(item.name, 'Item must have base Spanish name');
       assert.ok(item.translations, `Item ${item.id} must have translations dictionary`);
@@ -230,12 +230,12 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
       return available;
     }
 
-    const appLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'it'];
+    const appLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl', 'it'];
     const availableLangs = filterAvailableLanguages(allItems, appLanguages);
 
     // 'it' was in appLanguages but NOT in menu items, so it MUST NOT be available
     assert.ok(!availableLangs.includes('it'), 'Language not in menu must not be available');
-    // All 10 supported menu languages MUST be available
+    // All 14 supported menu languages MUST be available
     for (const lang of requiredLanguages) {
       assert.ok(availableLangs.includes(lang), `Language ${lang} should be available`);
     }

@@ -172,6 +172,70 @@
           "مشتقات الحليب",
           "بيض"
         ]
+      },
+      "ca": {
+        "name": "Tequeños Artesanals de Formatge (5 uts)",
+        "description": "Cruixents dits de formatge blanc acompanyats de salsa tàrtara casolana.",
+        "ingredients": [
+          "Farina de blat",
+          "Formatge blanc llanero",
+          "Mantega",
+          "Ou",
+          "Salsa tàrtara"
+        ],
+        "allergens": [
+          "Gluten",
+          "Lactis",
+          "Ous"
+        ]
+      },
+      "va": {
+        "name": "Tequeños Artesanals de Formatge (5 uts)",
+        "description": "Cruixents dits de formatge blanc acompanyats de salsa tàrtara casolana.",
+        "ingredients": [
+          "Farina de blat",
+          "Formatge blanc llanero",
+          "Mantega",
+          "Ou",
+          "Salsa tàrtara"
+        ],
+        "allergens": [
+          "Gluten",
+          "Làctics",
+          "Ous"
+        ]
+      },
+      "eu": {
+        "name": "Etxeko Gazta Tequeñoak (5 ale)",
+        "description": "Gazta zuriz betetako kurruskariak, etxeko saltsa tartaroarekin zerbitzatuak.",
+        "ingredients": [
+          "Gari-irina",
+          "Llanero gazta zuria",
+          "Gozogintzako gurina",
+          "Arrautza",
+          "Tartaro saltsa"
+        ],
+        "allergens": [
+          "Glutena",
+          "Esnekiak",
+          "Arrautzak"
+        ]
+      },
+      "gl": {
+        "name": "Tequeños Artesanais de Queixo (5 uds)",
+        "description": "Dedos crocantes de queixo branco acompañados de salsa tártara caseira.",
+        "ingredients": [
+          "Fariña de trigo",
+          "Queixo branco llanero",
+          "Manteiga",
+          "Ovo",
+          "Salsa tártara"
+        ],
+        "allergens": [
+          "Glute",
+          "Lácteos",
+          "Ovos"
+        ]
       }
     }
   },
@@ -352,6 +416,74 @@
           "غلوتين",
           "أسماك"
         ]
+      },
+      "ca": {
+        "name": "Amanida Cèsar amb Pollastre Cruixent",
+        "description": "Enciam romà fresc amb encenalls de parmesà, crostons d'herbes i pit de pollastre arrebossat.",
+        "ingredients": [
+          "Enciam romà",
+          "Pit de pollastre",
+          "Formatge Parmigiano",
+          "Crostons de pa",
+          "Salsa Cèsar"
+        ],
+        "allergens": [
+          "Gluten",
+          "Lactis",
+          "Ous",
+          "Peix"
+        ]
+      },
+      "va": {
+        "name": "Ensalada Cèsar amb Pollastre Cruixent",
+        "description": "Lletuga romana fresca amb encenalls de parmesà, crostons d'herbes i pit de pollastre arrebossat.",
+        "ingredients": [
+          "Lletuga romana",
+          "Pit de pollastre",
+          "Formatge Parmigiano",
+          "Crostons de pa",
+          "Salsa Cèsar"
+        ],
+        "allergens": [
+          "Gluten",
+          "Làctics",
+          "Ous",
+          "Peix"
+        ]
+      },
+      "eu": {
+        "name": "Zesar Entsalada Oilo Kurruskariarekin",
+        "description": "Letxuga erromatar freskoa, parmesano birrindua, ogi-txigortuak eta oilasko bularki kurruskaria.",
+        "ingredients": [
+          "Letxuga erromatarra",
+          "Oilasko bularkia",
+          "Parmigiano gazta",
+          "Ogi-txigortuak",
+          "Zesar saltsa"
+        ],
+        "allergens": [
+          "Glutena",
+          "Esnekiak",
+          "Arrautzak",
+          "Arraina"
+        ]
+      },
+      "gl": {
+        "name": "Ensalada César con Polo Crocante",
+        "description": "Leituga romana fresca con labras de parmesano, crostóns de herbas e peituga de polo empanada.",
+        "ingredients": [
+          "Leituga romana",
+          "Peituga de polo",
+          "Queixo Parmigiano",
+          "Crostóns de pan",
+          "Salsa César"
+        ],
+        "allergens": [
+          "Glute",
+          "Lácteos",
+          "Ovos",
+          "Peixe"
+        ]
       }
     }
   },
@@ -528,6 +660,70 @@
           "مشتقات الحليب",
           "بيض"
         ]
+      },
+      "ca": {
+        "name": "Hamburguesa Trufada Angus Premium",
+        "description": "200g de carn d'Angus certificada, formatge cheddar madurat, maionesa de tòfona negra i ceba caramel·litzada en pa brioix.",
+        "ingredients": [
+          "Carn de bou Angus",
+          "Pa brioix",
+          "Formatge Cheddar",
+          "Maionesa de tòfona",
+          "Ceba caramel·litzada"
+        ],
+        "allergens": [
+          "Gluten",
+          "Lactis",
+          "Ous"
+        ]
+      },
+      "va": {
+        "name": "Hamburguesa Trufada Angus Premium",
+        "description": "200g de carn d'Angus certificada, formatge cheddar madurat, maionesa de tòfona negra i ceba caramel·litzada en pa brioix.",
+        "ingredients": [
+          "Carn de bou Angus",
+          "Pa brioix",
+          "Formatge Cheddar",
+          "Maionesa de tòfona",
+          "Ceba caramel·litzada"
+        ],
+        "allergens": [
+          "Gluten",
+          "Làctics",
+          "Ous"
+        ]
+      },
+      "eu": {
+        "name": "Angus Premium Trufadun Hanburgesa",
+        "description": "200g ziurtatutako Angus haragia, cheddar ondua, boilur-maionesa eta tipula karamelizatua brioche ogian.",
+        "ingredients": [
+          "Angus txahal-haragia",
+          "Brioche ogia",
+          "Cheddar gazta",
+          "Boilur-maionesa",
+          "Tipula karamelizatua"
+        ],
+        "allergens": [
+          "Glutena",
+          "Esnekiak",
+          "Arrautzak"
+        ]
+      },
+      "gl": {
+        "name": "Hamburguesa Trufada Angus Premium",
+        "description": "200g de carne de boi Angus certificada, queixo cheddar curado, maionesa de trufa negra e cebola caramelizada en pan brioche.",
+        "ingredients": [
+          "Carne de boi Angus",
+          "Pan brioche",
+          "Queixo Cheddar",
+          "Maionesa de trufa",
+          "Cebola caramelizada"
+        ],
+        "allergens": [
+          "Glute",
+          "Lácteos",
+          "Ovos"
+        ]
       }
     }
   },
@@ -683,6 +879,62 @@
         ],
         "allergens": [
           "مشتقات الحليب"
+        ]
+      },
+      "ca": {
+        "name": "Salmó Noruec a la Planxa amb Verdures",
+        "description": "Llom de salmó fresc marcat a foc viu amb espàrrecs verds, carbassó i emulsió cítrica d'anet.",
+        "ingredients": [
+          "Salmó noruec",
+          "Espàrrecs verds",
+          "Carbassó",
+          "Oli d'oliva verge",
+          "Anet fresc"
+        ],
+        "allergens": [
+          "Peix"
+        ]
+      },
+      "va": {
+        "name": "Salmó Noruec a la Planxa amb Verdures",
+        "description": "Llom de salmó fresc marcat a foc viu amb espàrrecs verds, carabasseta i emulsió cítrica d'anet.",
+        "ingredients": [
+          "Salmó noruec",
+          "Espàrrecs verds",
+          "Carabasseta",
+          "Oli d'oliva verge",
+          "Anet fresc"
+        ],
+        "allergens": [
+          "Peix"
+        ]
+      },
+      "eu": {
+        "name": "Norvegiako Izokina Plantxan Barazkiekin",
+        "description": "Izokin-solomo freskoa su bizian egina, zainzuri berdeekin, kalabazinarekin eta aneta-emultsioarekin.",
+        "ingredients": [
+          "Norvegiako izokina",
+          "Zainzuri berdeak",
+          "Kalabazina",
+          "Oliba olio birjina",
+          "Aneto freskoa"
+        ],
+        "allergens": [
+          "Arraina"
+        ]
+      },
+      "gl": {
+        "name": "Salmón Noruegués á Prancha con Verduras",
+        "description": "Lombo de salmón fresco á grella con espárragos verdes, cabaciña e emulsión cítrica de eneldo.",
+        "ingredients": [
+          "Salmón noruegués",
+          "Espárragos verdes",
+          "Cabaciña",
+          "Aceite de oliva virxe",
+          "Eneldo fresco"
+        ],
+        "allergens": [
+          "Peixe"
         ]
       }
     }
@@ -843,6 +1095,66 @@
         ],
         "allergens": [
           "أسماك"
+        ]
+      },
+      "ca": {
+        "name": "Pizza Napolitana Margarita D.O.P.",
+        "description": "Massa fermentada 48 hores, tomàquet San Marzano, mozzarella di bufala campana i alfàbrega fresca.",
+        "ingredients": [
+          "Farina de força",
+          "Tomàquet San Marzano",
+          "Mozzarella di Bufala",
+          "Alfàbrega",
+          "Oli d'oliva"
+        ],
+        "allergens": [
+          "Gluten",
+          "Lactis"
+        ]
+      },
+      "va": {
+        "name": "Pizza Napolitana Margarita D.O.P.",
+        "description": "Massa fermentada 48 hores, tomaca San Marzano, mozzarella di bufala campana i alfàbega fresca.",
+        "ingredients": [
+          "Farina de força",
+          "Tomaca San Marzano",
+          "Mozzarella di Bufala",
+          "Alfàbega",
+          "Oli d'oliva"
+        ],
+        "allergens": [
+          "Gluten",
+          "Làctics"
+        ]
+      },
+      "eu": {
+        "name": "Margarita Pizza Napolitarra J.B.D.",
+        "description": "48 orduz hartzitutako masa, San Marzano tomatea, bufala mozzarella eta albahaka freskoa.",
+        "ingredients": [
+          "Ogi-irina",
+          "San Marzano tomatea",
+          "Mozzarella di Bufala",
+          "Albahaka freskoa",
+          "Oliba olioa"
+        ],
+        "allergens": [
+          "Glutena",
+          "Esnekiak"
+        ]
+      },
+      "gl": {
+        "name": "Pizza Napolitana Margarita D.O.P.",
+        "description": "Masa fermentada 48 horas, tomate San Marzano, mozzarella di bufala campá e alfábrega fresca.",
+        "ingredients": [
+          "Fariña de forza",
+          "Tomate San Marzano",
+          "Mozzarella di Bufala",
+          "Alfábrega",
+          "Aceite de oliva"
+        ],
+        "allergens": [
+          "Glute",
+          "Lácteos"
         ]
       }
     }
@@ -1020,6 +1332,74 @@
           "بيض",
           "غلوتين"
         ]
+      },
+      "ca": {
+        "name": "Pastís de Formatge Fluid al Forn",
+        "description": "Elaborat amb formatge Idiazábal i formatge crema, amb cor melós i base de galeta d'ametlla.",
+        "ingredients": [
+          "Formatge crema",
+          "Formatge Idiazábal",
+          "Nata fresca",
+          "Ous",
+          "Galeta d'ametlla"
+        ],
+        "allergens": [
+          "Gluten",
+          "Lactis",
+          "Ous",
+          "Fruits de closca"
+        ]
+      },
+      "va": {
+        "name": "Pastís de Formatge Fluid al Forn",
+        "description": "Elaborat amb formatge Idiazábal i formatge crema, amb cor melós i base de galeta d'ametla.",
+        "ingredients": [
+          "Formatge crema",
+          "Formatge Idiazábal",
+          "Nata fresca",
+          "Ous",
+          "Galeta d'ametla"
+        ],
+        "allergens": [
+          "Gluten",
+          "Làctics",
+          "Ous",
+          "Fruits de corfa"
+        ]
+      },
+      "eu": {
+        "name": "Labean Erretako Gazta Tarta Euria",
+        "description": "Idiazabal eta krema-gaztarekin egina, barnealde krematsua eta almendra-bixkotx oinarria duena.",
+        "ingredients": [
+          "Krema gazta",
+          "Idiazabal gazta",
+          "Esne-gain freskoa",
+          "Arrautzak",
+          "Almendra gaileta"
+        ],
+        "allergens": [
+          "Glutena",
+          "Esnekiak",
+          "Arrautzak",
+          "Fruitu lehorrak"
+        ]
+      },
+      "gl": {
+        "name": "Torta de Queixo Fluída ao Forno",
+        "description": "Elaborada con queixo Idiazábal e queixo crema, con corazón meloso e base de galleta de améndoa.",
+        "ingredients": [
+          "Queixo crema",
+          "Queixo Idiazábal",
+          "Nata fresca",
+          "Ovos",
+          "Galleta de améndoa"
+        ],
+        "allergens": [
+          "Glute",
+          "Lácteos",
+          "Ovos",
+          "Froitos de casca"
+        ]
       }
     }
   },
@@ -1188,6 +1568,62 @@
           "بيض",
           "غلوتين"
         ]
+      },
+      "ca": {
+        "name": "Brownie Vegà de Xocolata Belga amb Nous",
+        "description": "Brownie 100% vegetal amb cacau pur 70%, nous de Califòrnia i gelat artesà de vainilla bourbon vegana.",
+        "ingredients": [
+          "Cacau belga 70%",
+          "Farina d'avena",
+          "Nous de Califòrnia",
+          "Oli de coco",
+          "Beguda d'ametlla"
+        ],
+        "allergens": [
+          "Fruits de closca"
+        ]
+      },
+      "va": {
+        "name": "Brownie Vegà de Xocolata Belga amb Nous",
+        "description": "Brownie 100% vegetal amb cacau pur 70%, nous de Califòrnia i gelat artesà de vainilla bourbon vegana.",
+        "ingredients": [
+          "Cacau belga 70%",
+          "Farina de civada",
+          "Nous de Califòrnia",
+          "Oli de coco",
+          "Beguda d'ametla"
+        ],
+        "allergens": [
+          "Fruits de corfa"
+        ]
+      },
+      "eu": {
+        "name": "Belgikar Txokolatezko Brownie Beganoa fruituekin",
+        "description": "%100 landare-jatorrikoa %70 kakao puruarekin, Kaliforniako intxaurrekin eta banilla izozki beganoarekin.",
+        "ingredients": [
+          "%70 Belgikar kakaoa",
+          "Olo-irina",
+          "Kaliforniako intxaurrak",
+          "Koko olioa",
+          "Almendra edaria"
+        ],
+        "allergens": [
+          "Fruitu lehorrak"
+        ]
+      },
+      "gl": {
+        "name": "Brownie Vegano de Chocolate Belga con Noces",
+        "description": "Brownie 100% vexetal con cacao puro 70%, noces de California e xeado artesán de vainilla bourbon vegana.",
+        "ingredients": [
+          "Cacao belga 70%",
+          "Fariña de avea",
+          "Noces de California",
+          "Aceite de coco",
+          "Bebida de améndoa"
+        ],
+        "allergens": [
+          "Froitos de casca"
+        ]
       }
     }
   },
@@ -1334,6 +1770,62 @@
         "allergens": [
           "غلوتين"
         ]
+      },
+      "ca": {
+        "name": "Cervesa Artesana IPA Madrid (33cl)",
+        "description": "Cervesa d'alta fermentació amb llúpol aromàtic Citra i Mosaic. Notes cítriques i amargor equilibrada.",
+        "ingredients": [
+          "Aigua de la serra",
+          "Malt d'ordi",
+          "Llúpol Citra",
+          "Llúpol Mosaic",
+          "Llevat"
+        ],
+        "allergens": [
+          "Gluten"
+        ]
+      },
+      "va": {
+        "name": "Cervesa Artesana IPA Madrid (33cl)",
+        "description": "Cervesa d'alta fermentació amb llúpol aromàtic Citra i Mosaic. Notes cítriques i amargor equilibrada.",
+        "ingredients": [
+          "Aigua de la serra",
+          "Malt d'ordi",
+          "Llúpol Citra",
+          "Llúpol Mosaic",
+          "Llevat"
+        ],
+        "allergens": [
+          "Gluten"
+        ]
+      },
+      "eu": {
+        "name": "Eskulangile IPA Garagardoa Madrid (33cl)",
+        "description": "Hartzidura altuko garagardoa, Citra eta Mosaic lupulu usaintsuekin. Ohar zitrikoak eta mikatz orekatua.",
+        "ingredients": [
+          "Mendiko ura",
+          "Garagar-malta",
+          "Citra lupulua",
+          "Mosaic lupulua",
+          "Legamia"
+        ],
+        "allergens": [
+          "Glutena"
+        ]
+      },
+      "gl": {
+        "name": "Cervexa Artesanal IPA Madrid (33cl)",
+        "description": "Cervexa de alta fermentación con lúpulo aromático Citra e Mosaic. Notas cítricas e amargor equilibrado.",
+        "ingredients": [
+          "Auga da serra",
+          "Malte de cebada",
+          "Lúpulo Citra",
+          "Lúpulo Mosaic",
+          "Fermento"
+        ],
+        "allergens": [
+          "Glute"
+        ]
       }
     }
   },
@@ -1456,6 +1948,50 @@
         "allergens": [
           "كبريتات"
         ]
+      },
+      "ca": {
+        "name": "Copa de Vi Negre Ribera del Duero",
+        "description": "Ull de Llebre 100% collita seleccionada amb 12 mesos de criança en bóta de roure francès.",
+        "ingredients": [
+          "Raïm Ull de Llebre (Tempranillo)",
+          "Sulfits de fermentació"
+        ],
+        "allergens": [
+          "Sulfits"
+        ]
+      },
+      "va": {
+        "name": "Copa de Vi Negre Ribera del Duero",
+        "description": "Ull de Llebre 100% collita seleccionada amb 12 mesos de criança en bóta de roure francès.",
+        "ingredients": [
+          "Raïm Tempranillo",
+          "Sulfits de fermentació"
+        ],
+        "allergens": [
+          "Sulfits"
+        ]
+      },
+      "eu": {
+        "name": "Ardo Beltz Kopa Ribera del Duero",
+        "description": "%100 Tempranillo hautatua, 12 hilabetez haritz frantziar upelatan ondua.",
+        "ingredients": [
+          "Tempranillo mahatsa",
+          "Hartzidura-sulfitoak"
+        ],
+        "allergens": [
+          "Sulfitoak"
+        ]
+      },
+      "gl": {
+        "name": "Copa de Viño Tinto Ribera del Duero",
+        "description": "Tempranillo 100% colleita seleccionada con 12 meses de crianza en barrica de carballo francés.",
+        "ingredients": [
+          "Uva Tempranillo",
+          "Sulfitos de fermentación"
+        ],
+        "allergens": [
+          "Sulfitos"
+        ]
       }
     }
   },
@@ -1556,6 +2092,38 @@
         "ingredients": [
           "مياه معدنية نقية",
           "غاز طبيعي"
+        ],
+        "allergens": []
+      },
+      "ca": {
+        "name": "Aigua Mineral Natural Sierra (50cl)",
+        "description": "Aigua d'origen subterrani protegit, de mineralització feble en ampolla de vidre reciclable.",
+        "ingredients": [
+          "Aigua mineral natural"
+        ],
+        "allergens": []
+      },
+      "va": {
+        "name": "Aigua Mineral Natural Sierra (50cl)",
+        "description": "Aigua d'origen subterrani protegit, de mineralització dèbil en botella de vidre reciclable.",
+        "ingredients": [
+          "Aigua mineral natural"
+        ],
+        "allergens": []
+      },
+      "eu": {
+        "name": "Sierra Ur Mineral Naturala (50cl)",
+        "description": "Lurpeko jatorri babestuko ura, mineralizazio ahulekoa beirazko botila birziklagarrian.",
+        "ingredients": [
+          "Ur mineral naturala"
+        ],
+        "allergens": []
+      },
+      "gl": {
+        "name": "Auga Mineral Natural Sierra (50cl)",
+        "description": "Auga de orixe subterránea protexida, de mineralización feble en botella de vidro reciclable.",
+        "ingredients": [
+          "Auga mineral natural"
         ],
         "allergens": []
       }
