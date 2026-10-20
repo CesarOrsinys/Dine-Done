@@ -41,6 +41,24 @@ const LANGUAGE_META: Record<string, { flag: string; label: string; name: string 
   gl: { flag: '🔵⚪', label: 'GL', name: 'Galego' }
 };
 
+// Role translation helper across all views, cards, badges and notifications
+export function getTranslatedRole(role: UserRole | string, t?: any): string {
+  const curT = t || translations[currentLanguage] || translations['es'];
+  const r = (role || '').toString().toLowerCase();
+  if (r === 'waiter' || r === 'camarero') return curT.roleWaiter || 'Camarero';
+  if (r === 'chef' || r === 'cocinero') return curT.roleChef || 'Cocinero';
+  if (r === 'manager' || r === 'gerente') return curT.roleManager || 'Gerente';
+  if (r === 'customer' || r === 'cliente') return curT.roleCustomer || 'Cliente';
+  return role;
+}
+
+// Table display formatting helper
+export function formatTableDisplay(tableStr: string, t?: any): string {
+  const curT = t || translations[currentLanguage] || translations['es'];
+  const prefix = curT.tablePrefix || 'Mesa';
+  return (tableStr || '').replace(/^Mesa\s*/i, `${prefix} `);
+}
+
 // Decoupled i18n rule: only languages available across the menu items catalog appear in the selector
 function getAvailableMenuLanguages(): string[] {
   if (!menuCatalog || menuCatalog.length === 0) return ['es'];
@@ -346,12 +364,124 @@ function setLanguage(lang: string) {
     'th-stock-price': t.thPrice || 'Precio (€)',
     'th-stock-qty': t.thStock || 'Stock Actual',
     'th-stock-actions': t.thActions || 'Acciones',
-    'txt-users-section-title': t.managerUsersTitle || '👥 Control de Usuarios y Personal'
+    'txt-users-section-title': t.managerUsersTitle || '👥 Control de Usuarios y Personal',
+
+    // Cart receipt & invoice choices
+    'txt-receipt-label': t.receiptSelectionLabel || 'Tipo de Comprobante:',
+    'txt-btn-type-ticket': t.btnSelectTicket || '🧾 Ticket de Pago',
+    'txt-btn-type-invoice': t.btnSelectInvoice || '📑 Solicitar Factura',
+    'txt-inv-title': t.fiscalDataTitle || '📋 Datos Fiscales para Factura (Empresas / Autónomos)',
+    'txt-mobile-cart-label': t.cartTitleShort || 'Tu Pedido',
+
+    // Theme selector options
+    'opt-theme-dark': t.themeDark || '🌑 Modo Oscuro',
+    'opt-theme-light': t.themeLight || '☀️ Modo Claro',
+    'opt-theme-food': t.themeFood || '🍔 Foodie Warm',
+    'opt-theme-retro': t.themeRetro || '📻 Retro Bistro',
+    'opt-theme-pastel': t.themePastel || '🧁 Pastel Café',
+
+    // Staff Login Modal Demo Credentials
+    'txt-demo-creds-title': t.demoCredsTitle || 'Credenciales de Demostración:',
+    'txt-demo-waiter-label': t.demoWaiterLabel || 'Camarero:',
+    'txt-demo-chef-label': t.demoChefLabel || 'Cocinero:',
+    'txt-demo-manager-label': t.demoManagerLabel || 'Gerente:',
+
+    // Add / Edit User Modal
+    'lbl-new-user-name': t.lblFullName || 'Nombre Completo del Empleado:',
+    'lbl-new-user-username': t.lblUsername || 'Nombre de Usuario (Login):',
+    'lbl-new-user-email': t.lblEmail || 'Correo Electrónico Corporativo:',
+    'lbl-new-user-role': t.lblStaffRole || 'Cargo / Rol en el Restaurante:',
+    'opt-new-user-waiter': t.roleWaiter || 'Camarero',
+    'opt-new-user-chef': t.roleChef || 'Cocinero',
+    'opt-new-user-manager': t.roleManager || 'Gerente',
+    'lbl-new-user-avatar': t.lblAvatarUrl || 'URL Foto de Perfil (Opcional):',
+    'lbl-edit-user-active': t.lblActiveEmployee || 'Empleado Activo (Permite Iniciar Sesión)',
+    'txt-btn-cancel-add-user': t.btnCancel || 'Cancelar',
+
+    // Add / Edit Product Modal
+    'lbl-new-product-name': t.lblDishName || 'Nombre del Plato (en Español):',
+    'lbl-new-product-desc': t.lblDishDesc || 'Descripción Detallada:',
+    'txt-btn-auto-translate': t.btnAutoTranslate || '✨ Traducir Automáticamente a 14 Idiomas',
+    'summary-details-translations': t.summaryTranslations || '🌐 Ver / Editar Traducciones en los 14 Idiomas (Opcional)',
+    'lbl-new-product-category': t.lblDishCategory || 'Categoría del Menú:',
+    'opt-cat-starter': t.optCatStarter || 'Entrante',
+    'opt-cat-main': t.optCatMain || 'Plato Principal',
+    'opt-cat-dessert': t.optCatDessert || 'Postre',
+    'opt-cat-beverage': t.optCatBeverage || 'Bebida',
+    'opt-cat-side': t.optCatSide || 'Guarnición',
+    'lbl-new-product-price': t.lblDishPrice || 'Precio de Venta (€):',
+    'lbl-new-product-stock': t.lblDishStock || 'Stock Inicial Disponible:',
+    'lbl-new-product-cooking': t.lblRequiresCooking || 'Requiere Cocción / Elaboración en Cocina (KDS)',
+    'lbl-product-images-title': t.lblProductImagesTitle || '🖼️ Fotografía del Plato Multi-Dispositivo',
+    'lbl-product-images-sub': t.lblProductImagesSub || 'Sube un archivo o proporciona URL optimizada para móvil, tablet y escritorio.',
+    'lbl-new-product-file': t.lblUploadFile || 'Subir Archivo de Imagen desde este equipo:',
+    'lbl-new-product-image-url': t.lblDirectUrl || 'O ingresa URL Directa de Imagen Principal:',
+    'summary-per-device-images': t.summaryPerDevice || '📐 URLs Personalizadas por Dispositivo (Móvil / Tablet / Escritorio)',
+    'lbl-new-product-img-thumb': t.lblDeviceMobileThumb || 'Móvil (Miniatura 240x240):',
+    'lbl-new-product-img-medium': t.lblDeviceMedium || 'Tablet (Media 600x380):',
+    'lbl-new-product-img-large': t.lblDeviceLarge || 'Escritorio (Grande 900x550):',
+    'lbl-dietary-props-title': t.lblDietaryPropsTitle || 'Propiedades Dietéticas Especiales:',
+    'txt-prop-vegan': t.txtPropVegan || 'Vegano',
+    'txt-prop-veg': t.txtPropVeg || 'Vegetariano',
+    'txt-prop-0alc': t.txtProp0alc || '0,0% Sin Alcohol',
+    'lbl-allergens-title': t.lblAllergensTitle || 'Ficha de Alérgenos (Reglamento UE 1169/2011):',
+    'txt-btn-cancel-add-product': t.btnCancel || 'Cancelar',
+
+    // Order Confirmed Modal
+    'txt-conf-title': t.orderConfirmedTitle || '¡Pedido Confirmado!',
+    'txt-conf-sub': t.orderConfirmedSub || 'Comanda enviada a sala y cocina',
+    'txt-conf-order-num-label': t.lblOrderNumber || 'Número de Comanda',
+    'txt-conf-table-label': t.lblTable || 'Mesa',
+    'txt-conf-receipt-label': t.lblReceiptType || 'Comprobante',
+    'txt-conf-items-title': t.lblRequestedProducts || '📋 Productos Solicitados:',
+    'txt-conf-inv-title': t.lblFiscalInvoiceIssued || '📑 Factura Fiscal Emitida',
+    'txt-conf-inv-nif-lbl': `${t.lblTaxId || 'NIF/CIF'}:`,
+    'txt-conf-inv-name-lbl': `${t.lblLegalName || 'Razón Social'}:`,
+    'txt-conf-inv-address-lbl': `${t.lblFiscalAddress || 'Dirección'}:`,
+    'txt-conf-inv-email-lbl': `${t.lblFiscalEmail || 'Email'}:`,
+    'txt-conf-net-label': `${t.lblNetBase || 'Base Imponible (sin IVA)'}:`,
+    'txt-conf-vat-label': `${t.lblVat21 || 'IVA (21%)'}:`,
+    'txt-conf-pack-label': `${t.lblPackagingFees || 'Empaque y bolsas (Ley 7/2022)'}:`,
+    'txt-conf-tip-label': `${t.lblTip || 'Propina'}:`,
+    'txt-conf-total-label': `${t.lblTotal || 'Total'}:`,
+    'txt-btn-print-receipt': t.btnPrint || 'Imprimir',
+    'txt-btn-download-receipt': t.btnDownload || 'Descargar',
+    'txt-btn-dismiss-confirmed-modal': t.btnAccept || 'Aceptar'
   };
 
   for (const [id, val] of Object.entries(elMap)) {
     const el = document.getElementById(id);
     if (el && val) el.innerHTML = val;
+  }
+
+  // Update input placeholders
+  const phMap: Record<string, string> = {
+    'login-username': t.phLoginUser || 'p. ej. david.garcia',
+    'login-password': t.phLoginPass || '••••••••',
+    'inv-nif': t.phNif || 'B-12345678',
+    'inv-name': t.phLegalName || 'Nombre de Empresa S.L.',
+    'inv-address': t.phFiscalAddress || 'Calle Mayor 12, Madrid',
+    'inv-email': t.phFiscalEmail || 'facturacion@empresa.com',
+    'new-user-name': t.phFullName || 'p. ej. Carlos Martínez',
+    'new-user-username': t.phUsername || 'p. ej. carlos.m',
+    'new-user-email': t.phEmail || 'carlos@restaurante.es',
+    'new-user-avatar': t.phAvatarUrl || 'https://images.unsplash.com/...',
+    'new-product-name': t.phDishName || 'p. ej. Tacos de Pastor Especiales',
+    'new-product-desc': t.phDishDesc || 'Descripción con ingredientes frescos...',
+    'new-product-image-url': t.phDirectUrl || 'https://...',
+    'new-product-img-thumb': t.phDeviceMobileThumb || 'https://...',
+    'new-product-img-medium': t.phDeviceMedium || 'https://...',
+    'new-product-img-large': t.phDeviceLarge || 'https://...'
+  };
+  for (const [id, val] of Object.entries(phMap)) {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement;
+    if (el && val) el.placeholder = val;
+  }
+
+  // Update Theme Selector title
+  const themeSelector = document.getElementById('theme-selector');
+  if (themeSelector) {
+    themeSelector.setAttribute('title', t.themeSelectorTitle || 'Tema Visual');
   }
 
   // Update add buttons tooltip attributes
@@ -462,6 +592,7 @@ function setLanguage(lang: string) {
     renderManagerDashboard();
   }
   updateCartUI();
+  updateTableUI();
 }
 
 // 5. Feature 1 & Requirement 3: Login de Personal Manual (Usuario y Contraseña)
@@ -521,10 +652,15 @@ function setupStaffAuth() {
       updateRoleSwitcherVisibility();
       switchRole(staffUser.role);
       updateTableControlsVisibility();
-      showToast(`¡Bienvenido, ${staffUser.name}! Acceso verificado como ${staffUser.role}.`, 'success');
+      const curT = translations[currentLanguage] || translations['es'];
+      const welcomeMsg = (curT.toastStaffWelcome || '¡Bienvenido, {name}! Acceso verificado como {role}.')
+        .replace('{name}', staffUser.name)
+        .replace('{role}', getTranslatedRole(staffUser.role, curT));
+      showToast(welcomeMsg, 'success');
     } else {
       if (errorMsg) {
-        errorMsg.innerText = '❌ Credenciales no válidas. Revisa usuario y contraseña.';
+        const curT = translations[currentLanguage] || translations['es'];
+        errorMsg.innerText = curT.errInvalidCredentials || '❌ Credenciales no válidas. Revisa usuario y contraseña.';
         errorMsg.style.display = 'block';
       }
     }
@@ -536,9 +672,10 @@ function setupStaffAuth() {
     btnLogout.style.display = 'none';
     btnLogin.style.display = 'flex';
 
+    const curT = translations[currentLanguage] || translations['es'];
     currentUser = {
       id: 'guest_customer',
-      name: 'Comensal en Sala',
+      name: curT.roleCustomer || 'Comensal en Sala',
       email: 'comensal@restaurante.local',
       role: UserRole.CUSTOMER,
       active: true
@@ -546,7 +683,7 @@ function setupStaffAuth() {
 
     switchRole(UserRole.CUSTOMER);
     updateTableControlsVisibility();
-    showToast('Sesión de empleado cerrada. Has vuelto al modo comensal.', 'info');
+    showToast(curT.toastStaffLogout || 'Sesión de empleado cerrada. Has vuelto al modo comensal.', 'info');
   });
 }
 
@@ -596,18 +733,19 @@ function updateRoleSwitcherVisibility() {
 }
 
 async function switchRole(role: UserRole) {
+  const curT = translations[currentLanguage] || translations['es'];
   // Authorization check (RBAC Security)
   if (role !== UserRole.CUSTOMER) {
     if (!authenticatedStaffUser) {
-      showToast('Acceso denegado: debes iniciar sesión como personal.', 'danger');
+      showToast(curT.toastAccessDeniedStaff || 'Acceso denegado: debes iniciar sesión como personal.', 'danger');
       return;
     }
     if (authenticatedStaffUser.role === UserRole.WAITER && role !== UserRole.WAITER) {
-      showToast('Acceso restringido: los camareros solo tienen acceso a su panel de sala.', 'warning');
+      showToast(curT.toastAccessRestrictedWaiters || 'Acceso restringido: los camareros solo tienen acceso a su panel de sala.', 'warning');
       return;
     }
     if (authenticatedStaffUser.role === UserRole.CHEF && role !== UserRole.CHEF) {
-      showToast('Acceso restringido: los cocineros no tienen acceso a la pestaña de camarero ni de gerente.', 'warning');
+      showToast(curT.toastAccessRestrictedChefs || 'Acceso restringido: los cocineros no tienen acceso a la pestaña de camarero ni de gerente.', 'warning');
       return;
     }
     // Gerente (MANAGER) tiene acceso a todo
@@ -617,7 +755,7 @@ async function switchRole(role: UserRole) {
   const foundUser = (role === UserRole.CUSTOMER)
     ? {
         id: 'guest_customer',
-        name: 'Comensal en Sala',
+        name: curT.roleCustomer || 'Comensal en Sala',
         email: 'comensal@restaurante.local',
         role: UserRole.CUSTOMER,
         active: true
@@ -626,7 +764,7 @@ async function switchRole(role: UserRole) {
       ? authenticatedStaffUser
       : allUsers.find(u => u.role === role) || {
           id: `usr_${role.toLowerCase()}`,
-          name: role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
+          name: role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Antonio Martín' : 'César Orsinys',
           email: `${role.toLowerCase()}@dinedone.com`,
           role: role,
           active: true
@@ -638,7 +776,7 @@ async function switchRole(role: UserRole) {
   const uNameEl = document.getElementById('header-user-name');
   if (uNameEl) uNameEl.innerText = currentUser.name;
   const uRoleEl = document.getElementById('header-user-role');
-  if (uRoleEl) uRoleEl.innerText = `Rol: ${currentUser.role}`;
+  if (uRoleEl) uRoleEl.innerText = `${curT.roleLabel || 'Rol'}: ${getTranslatedRole(currentUser.role, curT)}`;
 
   // Buttons state
   document.querySelectorAll('.role-btn').forEach(b => {
@@ -774,7 +912,7 @@ function setupTableIdentification() {
       badgeEl.setAttribute('data-origin', 'manual');
       badgeEl.innerText = curT.manualTable || 'Configurada por Personal';
       badgeEl.className = 'badge-tag tag-cooking';
-      showToast(`${curT.manualTableSet || 'Mesa actualizada a'} "${currentAssignedTable}".`, 'success');
+      showToast(`${curT.manualTableSet || 'Mesa actualizada a'} "${formatTableDisplay(currentAssignedTable, curT)}".`, 'success');
     }
     quickSelect.style.display = 'none';
     if (editBtn) {
@@ -787,11 +925,13 @@ function setupTableIdentification() {
 }
 
 function updateTableUI() {
+  const t = translations[currentLanguage] || translations['es'];
+  const formatted = formatTableDisplay(currentAssignedTable, t);
   const displayEl = document.getElementById('current-table-display');
-  if (displayEl) displayEl.innerText = currentAssignedTable;
+  if (displayEl) displayEl.innerText = formatted;
 
   const cartTableInput = document.getElementById('cart-table-input') as HTMLInputElement;
-  if (cartTableInput) cartTableInput.value = currentAssignedTable;
+  if (cartTableInput) cartTableInput.value = formatted;
 }
 
 // 8. Features 2 & 3: Filtros de Categorías, Dietas (Vegano, Vegetariano, 0 Alcohol) y Alérgenos
@@ -1255,15 +1395,21 @@ function renderMenu() {
 }
 
 function addToCart(item: MenuItem) {
+  const t = translations[currentLanguage] || translations['es'];
+  const trans = (item.translations as any)?.[currentLanguage];
+  const displayName = trans?.name || item.name;
+
   if (item.stock <= 0) {
-    showToast(`El plato "${item.name}" está agotado.`, 'warning');
+    showToast((t.toastItemSoldOut || 'El plato "{name}" está agotado.').replace('{name}', displayName), 'warning');
     return;
   }
 
   const existing = currentCart.find(c => c.menuItem.id === item.id);
   if (existing) {
     if (existing.quantity >= item.stock) {
-      showToast(`No puedes añadir más unidades de "${item.name}". Stock máximo alcanzado (${item.stock}).`, 'warning');
+      showToast((t.toastMaxStockReached || 'No puedes añadir más unidades de "{name}". Stock máximo alcanzado ({stock}).')
+        .replace('{name}', displayName)
+        .replace('{stock}', item.stock.toString()), 'warning');
       return;
     }
     existing.quantity++;
@@ -1271,7 +1417,7 @@ function addToCart(item: MenuItem) {
     currentCart.push({ menuItem: item, quantity: 1 });
   }
 
-  showToast(`Añadido "${item.name}" a tu comanda.`, 'success');
+  showToast((t.toastAddedToCart || 'Añadido "{name}" a tu comanda.').replace('{name}', displayName), 'success');
   updateCartUI();
 }
 
@@ -1342,7 +1488,8 @@ function updateCartUI() {
 
     row.querySelector('.btn-plus')?.addEventListener('click', () => {
       if (item.quantity >= item.menuItem.stock) {
-        showToast(`Stock máximo disponible para este plato: ${item.menuItem.stock}`, 'warning');
+        showToast((t.toastMaxStockForDish || 'Stock máximo disponible para este plato: {stock}')
+          .replace('{stock}', item.menuItem.stock.toString()), 'warning');
         return;
       }
       item.quantity++;
@@ -1522,19 +1669,20 @@ function showOrderConfirmedModal(order: Order) {
   const modal = document.getElementById('order-confirmed-modal');
   if (!modal) return;
   lastConfirmedOrder = order;
+  const t = translations[currentLanguage] || translations['es'];
 
   (document.getElementById('conf-order-number') as HTMLElement).innerText = `#${order.orderNumber}`;
-  (document.getElementById('conf-order-table') as HTMLElement).innerText = order.tableNumber;
-  (document.getElementById('conf-order-date') as HTMLElement).innerText = new Date(order.createdAt).toLocaleString('es-ES', { 
+  (document.getElementById('conf-order-table') as HTMLElement).innerText = formatTableDisplay(order.tableNumber, t);
+  (document.getElementById('conf-order-date') as HTMLElement).innerText = new Date(order.createdAt).toLocaleString(currentLanguage === 'en' ? 'en-US' : 'es-ES', { 
     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' 
   });
 
   const payStatusEl = document.getElementById('conf-payment-status') as HTMLElement;
   if (order.paymentMethod === PaymentMethod.STRIPE_CARD) {
-    payStatusEl.innerHTML = '💳 Pagado con Tarjeta (Pasarela Stripe)';
+    payStatusEl.innerHTML = t.lblPaidCardStripe || '💳 Pagado con Tarjeta (Pasarela Stripe)';
     payStatusEl.style.color = 'var(--accent-emerald)';
   } else {
-    payStatusEl.innerHTML = '💵 Pago en Efectivo (A cobrar en mesa)';
+    payStatusEl.innerHTML = t.lblPendingCashTable || '💵 Pago en Efectivo (A cobrar en mesa)';
     payStatusEl.style.color = 'var(--accent-amber)';
   }
 
@@ -1543,15 +1691,15 @@ function showOrderConfirmedModal(order: Order) {
 
   if (order.receiptType === 'INVOICE' && order.invoiceDetails) {
     receiptBadge.className = 'badge-tag tag-cooking';
-    receiptBadge.innerText = '📑 Factura Fiscal';
+    receiptBadge.innerText = t.receiptInvoice || '📑 Factura Fiscal';
     invoiceBox.style.display = 'block';
     (document.getElementById('conf-inv-nif') as HTMLElement).innerText = order.invoiceDetails.nifCif;
     (document.getElementById('conf-inv-name') as HTMLElement).innerText = order.invoiceDetails.legalName;
-    (document.getElementById('conf-inv-address') as HTMLElement).innerText = order.invoiceDetails.address || 'No indicada';
-    (document.getElementById('conf-inv-email') as HTMLElement).innerText = order.invoiceDetails.email || 'No indicado';
+    (document.getElementById('conf-inv-address') as HTMLElement).innerText = order.invoiceDetails.address || (t.notSpecified || 'No indicada');
+    (document.getElementById('conf-inv-email') as HTMLElement).innerText = order.invoiceDetails.email || (t.notSpecified || 'No indicado');
   } else {
     receiptBadge.className = 'badge-tag tag-stock';
-    receiptBadge.innerText = '🧾 Ticket de Pago';
+    receiptBadge.innerText = t.receiptTicket || '🧾 Ticket de Pago';
     invoiceBox.style.display = 'none';
   }
 
@@ -1560,9 +1708,12 @@ function showOrderConfirmedModal(order: Order) {
   const itemsCountEl = document.getElementById('conf-items-count') as HTMLElement;
   itemsContainer.innerHTML = '';
   const totalItems = order.items.reduce((acc, i) => acc + i.quantity, 0);
-  itemsCountEl.innerText = `${totalItems} productos en comanda`;
+  itemsCountEl.innerText = `${totalItems} ${t.itemsCountSuffix || 'productos en comanda'}`;
 
   order.items.forEach(i => {
+    const itemCatalog = menuCatalog.find(m => m.id === i.menuItemId);
+    const itemTrans = (itemCatalog?.translations as any)?.[currentLanguage];
+    const itemName = itemTrans?.name || i.name;
     const netUnit = parseFloat((i.unitPrice * 0.79).toFixed(2));
     const lineTotal = parseFloat((i.unitPrice * i.quantity).toFixed(2));
     const itemRow = document.createElement('div');
@@ -1578,7 +1729,7 @@ function showOrderConfirmedModal(order: Order) {
     itemRow.innerHTML = `
       <div style="min-width:0; flex:1; padding-right:8px;">
         <div style="font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          <span style="color:var(--accent-orange); margin-right:4px;">${i.quantity}x</span> ${i.name}
+          <span style="color:var(--accent-orange); margin-right:4px;">${i.quantity}x</span> ${itemName}
         </div>
         <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">
           ${netUnit.toFixed(2)} €/ud base • ${i.unitPrice.toFixed(2)} € PVP
@@ -1714,6 +1865,7 @@ function setupConfirmedOrderModal() {
 
   btnDownload?.addEventListener('click', () => {
     if (!lastConfirmedOrder) return;
+    const curT = translations[currentLanguage] || translations['es'];
     const isInvoice = lastConfirmedOrder.receiptType === 'INVOICE';
     const content = JSON.stringify(lastConfirmedOrder, null, 2);
     const blob = new Blob([content], { type: 'application/json' });
@@ -1723,19 +1875,20 @@ function setupConfirmedOrderModal() {
     a.download = `${isInvoice ? 'Factura' : 'Ticket'}_${lastConfirmedOrder.orderNumber}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast(`Comprobante ${lastConfirmedOrder.orderNumber} descargado con éxito.`, 'success');
+    showToast((curT.toastReceiptDownloaded || 'Comprobante {orderNumber} descargado con éxito.').replace('{orderNumber}', lastConfirmedOrder.orderNumber), 'success');
   });
 }
 
 async function handlePlaceOrder() {
+  const t = translations[currentLanguage] || translations['es'];
   if (currentCart.length === 0) {
-    showToast('Por favor añade al menos un plato a la comanda.', 'warning');
+    showToast(t.toastCartEmptyWarning || 'Por favor añade al menos un plato a la comanda.', 'warning');
     return;
   }
 
   const tableInput = (document.getElementById('cart-table-input') as HTMLInputElement).value.trim() || currentAssignedTable;
   if (!tableInput) {
-    showToast('Por favor introduce el número o nombre de mesa.', 'warning');
+    showToast(t.toastTableRequired || 'Por favor introduce el número o nombre de mesa.', 'warning');
     return;
   }
 
@@ -1750,7 +1903,7 @@ async function handlePlaceOrder() {
     const email = (document.getElementById('inv-email') as HTMLInputElement)?.value.trim();
 
     if (!nif || !name) {
-      showToast('Por favor completa al menos el NIF/CIF y Razón Social para emitir la factura.', 'warning');
+      showToast(t.toastInvoiceFieldsRequired || 'Por favor completa al menos el NIF/CIF y Razón Social para emitir la factura.', 'warning');
       return;
     }
     invoiceDetails = { nifCif: nif, legalName: name, address, email };
@@ -1769,7 +1922,7 @@ async function handlePlaceOrder() {
   const tipAmount = parseFloat((subtotal * currentTipPercent).toFixed(2));
 
   try {
-    showToast('Procesando pedido y verificando existencias...', 'info');
+    showToast(t.toastOrderProcessing || 'Procesando pedido y verificando existencias...', 'info');
 
     const createdOrder = await createOrderUseCase.execute({
       tableNumber: tableInput,
@@ -1788,11 +1941,16 @@ async function handlePlaceOrder() {
     });
 
     const payMsg = createdOrder.paymentMethod === PaymentMethod.STRIPE_CARD
-      ? '¡Pago con tarjeta verificado mediante Stripe!'
-      : 'Cobro marcado en efectivo. El camarero cobrará en mesa.';
+      ? (t.orderPaidCardMsg || '¡Pago con tarjeta verificado mediante Stripe!')
+      : (t.orderPendingCashMsg || 'Cobro marcado en efectivo. El camarero cobrará en mesa.');
 
-    const packNotice = createdOrder.packagingCost ? ` (Empaque Ley 7/2022: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
-    showToast(`🎉 ¡Comanda ${createdOrder.orderNumber} confirmada para la ${createdOrder.tableNumber}!${packNotice} ${payMsg}`, 'success');
+    const packNotice = createdOrder.packagingCost ? ` (${t.servicePackaging}: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
+    const confToast = (t.toastOrderConfirmed || '🎉 ¡Comanda {orderNumber} confirmada para la {table}!{packaging} {payment}')
+      .replace('{orderNumber}', createdOrder.orderNumber)
+      .replace('{table}', formatTableDisplay(createdOrder.tableNumber, t))
+      .replace('{packaging}', packNotice)
+      .replace('{payment}', payMsg);
+    showToast(confToast, 'success');
 
     // Reset Cart
     currentCart = [];
@@ -1813,7 +1971,7 @@ async function handlePlaceOrder() {
     renderMenu();
     allOrders = await services.orderRepo.findAll();
   } catch (error: any) {
-    showToast(`❌ Error al procesar el pedido: ${error.message}`, 'danger');
+    showToast((t.toastOrderError || '❌ Error al procesar el pedido: {error}').replace('{error}', error.message), 'danger');
   }
 }
 
@@ -1935,24 +2093,24 @@ function renderWaiterOrders() {
         waiterId: currentUser.id,
         waiterName: currentUser.name
       });
-      showToast(`Te has asignado como camarero de la ${order.tableNumber}.`, 'success');
+      showToast((t.toastAssignedWaiter || 'Te has asignado como camarero de la {table}.').replace('{table}', formatTableDisplay(order.tableNumber, t)), 'success');
       refreshAll();
     });
 
     card.querySelector('.btn-mark-delivered')?.addEventListener('click', async () => {
       // Requisito 3: Bloqueo estricto de entrega si pendiente en efectivo
       if (order.paymentStatus === PaymentStatus.PENDING_CASH) {
-        showToast('⚠️ No se puede entregar a la mesa: la comanda tiene pendiente el cobro en efectivo.', 'warning');
+        showToast(t.toastDeliveryPendingCash || '⚠️ No se puede entregar a la mesa: la comanda tiene pendiente el cobro en efectivo.', 'warning');
         return;
       }
       await updateStatusUseCase.execute(order.id, OrderStatus.DELIVERED);
-      showToast(`Comanda ${order.orderNumber} entregada a la ${order.tableNumber}.`, 'success');
+      showToast((t.toastOrderDelivered || 'Comanda {orderNumber} entregada a la {table}.').replace('{orderNumber}', order.orderNumber).replace('{table}', formatTableDisplay(order.tableNumber, t)), 'success');
       refreshAll();
     });
 
     card.querySelector('.btn-confirm-cash')?.addEventListener('click', async () => {
       await processCashUseCase.execute(order.id);
-      showToast(`Cobro en efectivo confirmado para comanda ${order.orderNumber}.`, 'success');
+      showToast((t.toastCashConfirmed || 'Cobro en efectivo confirmado para comanda {orderNumber}.').replace('{orderNumber}', order.orderNumber), 'success');
       refreshAll();
     });
 
@@ -1990,7 +2148,7 @@ function renderChefOrders() {
       <div class="order-header">
         <div>
           <div class="order-num" style="color:#ef4444;">${order.orderNumber}</div>
-          <div style="font-size:0.8rem; color:var(--text-muted);">${order.tableNumber} • ${t.kdsCreatedJustNow || 'Creado hace instantes'}</div>
+          <div style="font-size:0.8rem; color:var(--text-muted);">${formatTableDisplay(order.tableNumber, t)} • ${t.kdsCreatedJustNow || 'Creado hace instantes'}</div>
         </div>
         <span class="badge-tag tag-cooking">${getTranslatedStatus(order.status, t)}</span>
       </div>
@@ -2050,24 +2208,24 @@ function renderChefOrders() {
         chefId: currentUser.id,
         chefName: currentUser.name
       });
-      showToast(`Te has asignado como cocinero de la orden ${order.orderNumber}.`, 'success');
+      showToast((t.toastAssignedChef || 'Te has asignado como cocinero de la orden {orderNumber}.').replace('{orderNumber}', order.orderNumber), 'success');
       refreshAll();
     });
 
     card.querySelector('.btn-start-cook')?.addEventListener('click', async () => {
       // Requisito 3: Bloqueo estricto de inicio de preparación si pendiente en efectivo
       if (order.paymentStatus === PaymentStatus.PENDING_CASH) {
-        showToast('⚠️ No se puede iniciar la preparación: El pedido debe ser cobrado previamente en efectivo por el camarero.', 'warning');
+        showToast(t.toastCookingPendingCash || '⚠️ No se puede iniciar la preparación: El pedido debe ser cobrado previamente en efectivo por el camarero.', 'warning');
         return;
       }
       await updateStatusUseCase.execute(order.id, OrderStatus.IN_KITCHEN);
-      showToast(`Comanda ${order.orderNumber} en cocción.`, 'info');
+      showToast((t.toastOrderCooking || 'Comanda {orderNumber} en cocción.').replace('{orderNumber}', order.orderNumber), 'info');
       refreshAll();
     });
 
     card.querySelector('.btn-ready-cook')?.addEventListener('click', async () => {
       await updateStatusUseCase.execute(order.id, OrderStatus.READY_TO_SERVE);
-      showToast(`Comanda ${order.orderNumber} marcada como lista. Notificando a sala.`, 'success');
+      showToast((t.toastOrderReady || 'Comanda {orderNumber} marcada como lista. Notificando a sala.').replace('{orderNumber}', order.orderNumber), 'success');
       refreshAll();
     });
 
@@ -2163,11 +2321,11 @@ async function renderManagerDashboard() {
       const newPrice = parseFloat(priceInput.value);
 
       if (isNaN(newStock) || newStock < 0) {
-        showToast('El stock debe ser un número entero mayor o igual a cero.', 'warning');
+        showToast(t.toastStockPositiveInteger || 'El stock debe ser un número entero mayor o igual a cero.', 'warning');
         return;
       }
       if (isNaN(newPrice) || newPrice < 0) {
-        showToast('El precio debe ser un número mayor o igual a cero.', 'warning');
+        showToast(t.toastPriceNonNegative || 'El precio debe ser un número mayor o igual a cero.', 'warning');
         return;
       }
 
@@ -2177,7 +2335,11 @@ async function renderManagerDashboard() {
         stock: newStock
       });
 
-      showToast(`Plato "${updated.name}" actualizado: ${newPrice.toFixed(2)} € | Stock: ${newStock}.`, 'success');
+      const updatedName = (updated.translations as any)?.[currentLanguage]?.name || updated.name;
+      showToast((t.toastStockQuickUpdated || 'Plato "{name}" actualizado: {price} € | Stock: {stock}.')
+        .replace('{name}', updatedName)
+        .replace('{price}', newPrice.toFixed(2))
+        .replace('{stock}', newStock.toString()), 'success');
       menuCatalog = await services.menuRepo.getAll();
       renderManagerDashboard();
     });
@@ -2198,17 +2360,17 @@ async function renderManagerDashboard() {
       let defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
 
       if (u.role === UserRole.MANAGER) {
-        roleLabel = t.roleManagerBadge || '🛡️ Gerente';
+        roleLabel = `🛡️ ${t.roleManager || 'Gerente'}`;
         roleTagClass = 'tag-stock';
         roleBorder = '#10b981';
         defaultAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
       } else if (u.role === UserRole.CHEF) {
-        roleLabel = t.roleChefBadge || '👨‍🍳 Cocinero';
+        roleLabel = `👨‍🍳 ${t.roleChef || 'Cocinero'}`;
         roleTagClass = 'tag-cooking';
         roleBorder = '#ef4444';
         defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
       } else if (u.role === UserRole.WAITER) {
-        roleLabel = t.roleWaiterBadge || '🏃 Camarero';
+        roleLabel = `🏃 ${t.roleWaiter || 'Camarero'}`;
         roleTagClass = 'tag-direct';
         roleBorder = '#3b82f6';
         defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
@@ -2275,8 +2437,8 @@ async function renderManagerDashboard() {
       localStorage.setItem('DND_SKIP_STAFF_ASSIGN', skipStaffAssignment ? 'true' : 'false');
       showToast(
         skipStaffAssignment 
-          ? 'Flujo operativo: asignación obligatoria a personal omitida.'
-          : 'Flujo operativo: asignación obligatoria a personal requerida.',
+          ? (t.toastFlowSkipStaff || 'Flujo operativo: asignación obligatoria a personal omitida.')
+          : (t.toastFlowRequireStaff || 'Flujo operativo: asignación obligatoria a personal requerida.'),
         'info'
       );
       if (currentUser.role === UserRole.WAITER) renderWaiterOrders();
@@ -2308,13 +2470,14 @@ function setupManagerModals() {
 
   openUserEditorModal = (user?: User) => {
     formAddUser.reset();
+    const t = translations[currentLanguage] || translations['es'];
     if (user) {
       if (editUserIdInput) editUserIdInput.value = user.id;
-      if (userModalTitle) userModalTitle.textContent = `✏️ Editar Empleado: ${user.name}`;
+      if (userModalTitle) userModalTitle.textContent = `${t.modalEditUserTitle || '✏️ Editar Empleado'}: ${user.name}`;
       if (userModalSubtitle) {
-        userModalSubtitle.textContent = 'Modifica los datos del empleado. Deja la contraseña en blanco si deseas conservar la actual.';
+        userModalSubtitle.textContent = t.modalEditUserSub || 'Modifica los datos del empleado. Deja la contraseña en blanco si deseas conservar la actual.';
       }
-      if (btnSubmitUser) btnSubmitUser.textContent = '💾 Guardar Cambios';
+      if (btnSubmitUser) btnSubmitUser.textContent = t.btnUpdateUser || '💾 Guardar Cambios';
 
       (document.getElementById('new-user-name') as HTMLInputElement).value = user.name;
       (document.getElementById('new-user-username') as HTMLInputElement).value = user.username || '';
@@ -2326,25 +2489,25 @@ function setupManagerModals() {
       if (editUserActive) editUserActive.checked = user.active !== false;
 
       passwordInput.required = false;
-      passwordInput.placeholder = '•••••••• (Dejar en blanco para conservar actual)';
+      passwordInput.placeholder = t.phPasswordOptional || '•••••••• (Dejar en blanco para conservar actual)';
       if (passwordLabel) {
-        passwordLabel.textContent = 'Contraseña de Acceso (opcional para mantener):';
+        passwordLabel.textContent = t.lblAccessPasswordOptional || 'Contraseña de Acceso (opcional para mantener):';
       }
     } else {
       if (editUserIdInput) editUserIdInput.value = '';
-      if (userModalTitle) userModalTitle.textContent = '👤 Registrar Nuevo Empleado';
+      if (userModalTitle) userModalTitle.textContent = t.modalNewUserTitle || '👤 Registrar Nuevo Empleado';
       if (userModalSubtitle) {
-        userModalSubtitle.textContent = 'Añade un nuevo miembro al equipo interno del restaurante. Por política estricta de privacidad (RGPD), no se admiten roles de cliente.';
+        userModalSubtitle.textContent = t.modalNewUserSub || 'Añade un nuevo miembro al equipo interno del restaurante. Por política estricta de privacidad (RGPD), no se admiten roles de cliente.';
       }
-      if (btnSubmitUser) btnSubmitUser.textContent = '💾 Guardar Empleado';
+      if (btnSubmitUser) btnSubmitUser.textContent = t.btnSaveUser || '💾 Guardar Empleado';
 
       if (userActiveWrap) userActiveWrap.style.display = 'none';
       if (editUserActive) editUserActive.checked = true;
 
       passwordInput.required = true;
-      passwordInput.placeholder = '••••••••';
+      passwordInput.placeholder = t.phPasswordRequired || '••••••••';
       if (passwordLabel) {
-        passwordLabel.textContent = 'Contraseña de Acceso:';
+        passwordLabel.textContent = t.lblAccessPassword || 'Contraseña de Acceso:';
       }
     }
     modalAddUser.style.display = 'flex';
@@ -2359,6 +2522,7 @@ function setupManagerModals() {
 
   formAddUser?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const t = translations[currentLanguage] || translations['es'];
     const isEditing = Boolean(editUserIdInput && editUserIdInput.value.trim());
     const targetUserId = isEditing ? editUserIdInput.value.trim() : '';
 
@@ -2370,18 +2534,18 @@ function setupManagerModals() {
     const isActive = editUserActive ? editUserActive.checked : true;
 
     if (!name || !username || !email) {
-      showToast('Por favor completa los campos obligatorios del empleado.', 'warning');
+      showToast(t.toastUserFieldsRequired || 'Por favor completa los campos obligatorios del empleado.', 'warning');
       return;
     }
 
     if (!isEditing && !password) {
-      showToast('Por favor ingresa una contraseña para el nuevo empleado.', 'warning');
+      showToast(t.toastUserPasswordRequired || 'Por favor ingresa una contraseña para el nuevo empleado.', 'warning');
       return;
     }
 
     // Role check: Only internal staff allowed (RGPD Privacy)
     if (roleVal !== UserRole.WAITER && roleVal !== UserRole.CHEF && roleVal !== UserRole.MANAGER) {
-      showToast('Rol no permitido: solo se pueden registrar empleados internos.', 'danger');
+      showToast(t.toastUserRoleNotAllowed || 'Rol no permitido: solo se pueden registrar empleados internos.', 'danger');
       return;
     }
 
@@ -2397,7 +2561,7 @@ function setupManagerModals() {
       if (isEditing) {
         const existingUser = allUsers.find(u => u.id === targetUserId);
         if (!existingUser) {
-          showToast('No se encontró el empleado a editar.', 'danger');
+          showToast(t.toastUserNotFound || 'No se encontró el empleado a editar.', 'danger');
           return;
         }
 
@@ -2422,7 +2586,7 @@ function setupManagerModals() {
 
         renderManagerDashboard();
         closeAddUserModal();
-        showToast(`¡Empleado ${updatedUser.name} actualizado con éxito!`, 'success');
+        showToast((t.toastUserUpdated || '¡Empleado {name} actualizado con éxito!').replace('{name}', updatedUser.name), 'success');
       } else {
         const avatarUrl = avatarInput || defaultAvatar;
         const newUser: User = {
@@ -2440,10 +2604,10 @@ function setupManagerModals() {
         allUsers = await services.userRepo.getAll();
         renderManagerDashboard();
         closeAddUserModal();
-        showToast(`¡Empleado ${newUser.name} registrado con éxito como ${newUser.role}!`, 'success');
+        showToast((t.toastUserCreated || '¡Empleado {name} registrado con éxito como {role}!').replace('{name}', newUser.name).replace('{role}', getTranslatedRole(newUser.role, t)), 'success');
       }
     } catch (err: any) {
-      showToast(`Error al guardar empleado: ${err.message}`, 'danger');
+      showToast((t.toastUserError || 'Error al guardar empleado: {error}').replace('{error}', err.message), 'danger');
     }
   });
 
@@ -2553,13 +2717,14 @@ function setupManagerModals() {
     const descVal = (document.getElementById('new-product-desc') as HTMLTextAreaElement).value.trim();
     const detailsEl = document.getElementById('details-translations') as HTMLDetailsElement;
 
+    const t = translations[currentLanguage] || translations['es'];
     if (!nameVal) {
-      showToast('Por favor escribe el nombre en español antes de solicitar la traducción.', 'warning');
+      showToast(t.toastDishNameRequiredForTrans || 'Por favor escribe el nombre en español antes de solicitar la traducción.', 'warning');
       return;
     }
 
     if (transStatusEl) {
-      transStatusEl.innerText = '⏳ Traduciendo a 14 idiomas...';
+      transStatusEl.innerText = t.transTranslating14 || '⏳ Traduciendo a 14 idiomas...';
       transStatusEl.style.color = 'var(--accent-orange)';
     }
 
@@ -2576,13 +2741,13 @@ function setupManagerModals() {
       await Promise.all(promises);
 
       if (transStatusEl) {
-        transStatusEl.innerText = '✅ ¡14 idiomas traducidos!';
+        transStatusEl.innerText = t.transDone14 || '✅ ¡14 idiomas traducidos!';
         transStatusEl.style.color = '#34d399';
       }
       if (detailsEl) detailsEl.open = true;
-      showToast('¡Nombre y descripción traducidos con éxito a los 14 idiomas!', 'success');
+      showToast(t.toastDishTranslatedSuccess || '¡Nombre y descripción traducidos con éxito a los 14 idiomas!', 'success');
     } catch {
-      if (transStatusEl) transStatusEl.innerText = '⚠️ Error parcial al conectar con el traductor.';
+      if (transStatusEl) transStatusEl.innerText = t.transErrorPartial || '⚠️ Error parcial al conectar con el traductor.';
     }
   });
 
@@ -2590,13 +2755,16 @@ function setupManagerModals() {
     formAddProduct.reset();
     uploadedDishDataUrl = '';
     if (fileImgInput) fileImgInput.value = '';
+    const t = translations[currentLanguage] || translations['es'];
 
     if (item) {
       // Modo Edición
       if (editProductIdInput) editProductIdInput.value = item.id;
-      if (productModalTitle) productModalTitle.innerText = `✏️ Editar Producto: ${item.name}`;
-      if (productModalSubtitle) productModalSubtitle.innerText = 'Modifica los datos, descripciones, traducciones a los 14 idiomas, alérgenos, categoría o imágenes del plato seleccionado.';
-      if (btnSubmitProduct) btnSubmitProduct.innerText = '💾 Guardar Cambios';
+      const transObjCurrent = (item.translations as any)?.[currentLanguage];
+      const displayName = transObjCurrent?.name || item.name;
+      if (productModalTitle) productModalTitle.innerText = `${t.modalEditProductTitle || '✏️ Editar Producto'}: ${displayName}`;
+      if (productModalSubtitle) productModalSubtitle.innerText = t.modalEditProductSub || 'Modifica los datos, descripciones, traducciones a los 14 idiomas, alérgenos, categoría o imágenes del plato seleccionado.';
+      if (btnSubmitProduct) btnSubmitProduct.innerText = t.btnSaveProductChanges || '💾 Guardar Cambios';
 
       (document.getElementById('new-product-name') as HTMLInputElement).value = item.name;
       (document.getElementById('new-product-desc') as HTMLTextAreaElement).value = item.description;
@@ -2633,15 +2801,15 @@ function setupManagerModals() {
       });
 
       if (transStatusEl) {
-        transStatusEl.innerText = 'Traducciones cargadas para edición.';
+        transStatusEl.innerText = t.transLoadedForEdit || 'Traducciones cargadas para edición.';
         transStatusEl.style.color = 'var(--text-muted)';
       }
     } else {
       // Modo Añadir Nuevo
       if (editProductIdInput) editProductIdInput.value = '';
-      if (productModalTitle) productModalTitle.innerText = '🍽️ Añadir Nuevo Producto / Plato';
-      if (productModalSubtitle) productModalSubtitle.innerText = 'Incorpora un nuevo plato a la carta con stock inicial, traducción automática a los 14 idiomas soportados, imágenes optimizadas para móvil/tablet/escritorio y ficha de alérgenos.';
-      if (btnSubmitProduct) btnSubmitProduct.innerText = '💾 Incorporar a Carta';
+      if (productModalTitle) productModalTitle.innerText = t.modalNewProductTitle || '🍽️ Añadir Nuevo Producto / Plato';
+      if (productModalSubtitle) productModalSubtitle.innerText = t.modalNewProductSub || 'Incorpora un nuevo plato a la carta con stock inicial, traducción automática a los 14 idiomas soportados, imágenes optimizadas para móvil/tablet/escritorio y ficha de alérgenos.';
+      if (btnSubmitProduct) btnSubmitProduct.innerText = t.btnSaveProduct || '💾 Incorporar a Carta';
 
       if (previewImg) previewImg.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240';
       if (urlImgInput) urlImgInput.value = '';
@@ -2676,6 +2844,7 @@ function setupManagerModals() {
 
   formAddProduct?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const t = translations[currentLanguage] || translations['es'];
     const isEditing = Boolean(editProductIdInput && editProductIdInput.value.trim());
     const editingId = editProductIdInput ? editProductIdInput.value.trim() : '';
 
@@ -2690,7 +2859,7 @@ function setupManagerModals() {
     const isAlcoholFree = (document.getElementById('new-product-0alcohol') as HTMLInputElement).checked;
 
     if (!name || isNaN(price) || price < 0 || isNaN(stock) || stock < 0) {
-      showToast('Por favor introduce datos válidos para el producto (precio y stock no negativos).', 'warning');
+      showToast(t.toastProductInvalidData || 'Por favor introduce datos válidos para el producto (precio y stock no negativos).', 'warning');
       return;
     }
 
@@ -2739,7 +2908,7 @@ function setupManagerModals() {
     if (isEditing) {
       const existing = menuCatalog.find(i => i.id === editingId);
       if (!existing) {
-        showToast('Error: No se encontró el plato para editar.', 'danger');
+        showToast(t.toastProductNotFound || 'Error: No se encontró el plato para editar.', 'danger');
         return;
       }
       const updatedDish: MenuItem = {
@@ -2765,9 +2934,9 @@ function setupManagerModals() {
         renderManagerDashboard();
         renderMenu();
         closeAddProductModal();
-        showToast(`¡Plato "${updatedDish.name}" actualizado con éxito!`, 'success');
+        showToast((t.toastProductUpdated || '¡Plato "{name}" actualizado con éxito!').replace('{name}', updatedDish.name), 'success');
       } catch (err: any) {
-        showToast(`Error al actualizar el plato: ${err.message}`, 'danger');
+        showToast((t.toastProductUpdateError || 'Error al actualizar el plato: {error}').replace('{error}', err.message), 'danger');
       }
     } else {
       const newDish: MenuItem = {
@@ -2794,9 +2963,9 @@ function setupManagerModals() {
         renderManagerDashboard();
         renderMenu();
         closeAddProductModal();
-        showToast(`¡Plato "${newDish.name}" incorporado con éxito con traducción a 14 idiomas e imágenes adaptadas!`, 'success');
+        showToast((t.toastProductCreated || '¡Plato "{name}" incorporado con éxito con traducción a 14 idiomas e imágenes adaptadas!').replace('{name}', newDish.name), 'success');
       } catch (err: any) {
-        showToast(`Error al crear producto: ${err.message}`, 'danger');
+        showToast((t.toastProductCreateError || 'Error al crear producto: {error}').replace('{error}', err.message), 'danger');
       }
     }
   });
@@ -2840,12 +3009,14 @@ function setupExportReport() {
     a.download = `${restaurantConfig.businessName.replace(/\s+/g, '_')}_InformeGerencial_${new Date().toISOString().substring(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('Informe gerencial descargado con éxito.', 'success');
+    const t = translations[currentLanguage] || translations['es'];
+    showToast(t.toastReportDownloaded || 'Informe gerencial descargado con éxito.', 'success');
   });
 
   document.getElementById('btn-refresh-waiter')?.addEventListener('click', () => {
     refreshAll();
-    showToast('Comandas de sala sincronizadas.', 'info');
+    const t = translations[currentLanguage] || translations['es'];
+    showToast(t.toastOrdersSynced || 'Comandas de sala sincronizadas.', 'info');
   });
 }
 

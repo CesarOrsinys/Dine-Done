@@ -2500,13 +2500,13 @@
     <!-- ROLE SWITCHER (Only shown when staff is authenticated) -->
     <div class="role-switcher-container" id="staff-role-switcher">
       <button class="role-btn role-waiter" data-role="WAITER">
-        <span>🏃 Camarero</span>
+        <span id="txt-role-btn-waiter">🏃 Camarero</span>
       </button>
       <button class="role-btn role-chef" data-role="CHEF">
-        <span>👨‍🍳 Cocina (KDS)</span>
+        <span id="txt-role-btn-chef">👨‍🍳 Cocina (KDS)</span>
       </button>
       <button class="role-btn role-manager" data-role="MANAGER">
-        <span>📊 Gerente</span>
+        <span id="txt-role-btn-manager">📊 Gerente</span>
       </button>
     </div>
 
@@ -2514,11 +2514,11 @@
     <div class="header-actions">
       <!-- Feature 20: Color Palette Selector -->
       <select class="theme-select" id="theme-selector" title="Paleta de Colores">
-        <option value="dark">🌙 Oscura</option>
-        <option value="light">☀️ Clara</option>
-        <option value="food">🥘 Comida</option>
-        <option value="retro">📻 Retro</option>
-        <option value="pastel">🌸 Pastel</option>
+        <option value="dark" id="opt-theme-dark">🌙 Oscura</option>
+        <option value="light" id="opt-theme-light">☀️ Clara</option>
+        <option value="food" id="opt-theme-food">🥘 Comida</option>
+        <option value="retro" id="opt-theme-retro">📻 Retro</option>
+        <option value="pastel" id="opt-theme-pastel">🌸 Pastel</option>
       </select>
 
       <!-- Feature 6: Language Selector -->
@@ -2531,12 +2531,12 @@
 
       <!-- Feature 1: Staff Login Button -->
       <button class="btn-staff-auth" id="btn-staff-login">
-        <span>🔐 Acceso Empleados</span>
+        <span id="txt-btn-staff-login">🔐 Acceso Empleados</span>
       </button>
 
       <!-- Logout Staff Button (Hidden by default) -->
       <button class="btn-staff-auth btn-staff-logout" id="btn-staff-logout" style="display:none;">
-        <span>🚪 Salir (Comensal)</span>
+        <span id="txt-btn-staff-logout">🚪 Salir (Comensal)</span>
       </button>
     </div>
   </header>
@@ -2718,21 +2718,21 @@
 
           <!-- Comprobante / Factura Selection -->
           <div class="receipt-selection-box" style="margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 14px;">
-            <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-main); margin-bottom:8px;">
+            <label id="txt-receipt-label" style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-main); margin-bottom:8px;">
               🧾 Comprobante de Pago:
             </label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
               <button type="button" class="btn-receipt-type active" id="btn-type-ticket" data-type="TICKET" style="padding:8px 6px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-dark); color:var(--text-main); font-size:0.78rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; transition:all 0.2s;">
-                <span>🧾 Ticket de Pago</span>
+                <span id="txt-btn-type-ticket">🧾 Ticket de Pago</span>
               </button>
               <button type="button" class="btn-receipt-type" id="btn-type-invoice" data-type="INVOICE" style="padding:8px 6px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-dark); color:var(--text-muted); font-size:0.78rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; transition:all 0.2s;">
-                <span>📑 Solicitar Factura</span>
+                <span id="txt-btn-type-invoice">📑 Solicitar Factura</span>
               </button>
             </div>
 
             <!-- Formulario desplegable para Factura Fiscal -->
             <div id="invoice-fields-container" style="display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle); flex-direction:column; gap:8px;">
-              <span style="font-size:0.75rem; color:var(--accent-orange); font-weight:600;">📋 Datos Fiscales para la Factura:</span>
+              <span id="txt-inv-title" style="font-size:0.75rem; color:var(--accent-orange); font-weight:600;">📋 Datos Fiscales para la Factura:</span>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <input type="text" id="inv-nif" placeholder="NIF / CIF (ej. B12345678)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
                 <input type="text" id="inv-name" placeholder="Razón Social / Nombre" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
@@ -2777,7 +2777,7 @@
       <div class="mobile-cart-summary">
         <span class="mobile-cart-pill" id="mobile-cart-count">0</span>
         <div class="mobile-cart-texts">
-          <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Comanda</span>
+          <span id="txt-mobile-cart-label" style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Comanda</span>
           <span style="font-weight:700; color:#fff; font-size:1.05rem;" id="mobile-cart-total">0.00 €</span>
         </div>
       </div>
@@ -2983,11 +2983,11 @@
         </button>
 
         <details style="margin-top:6px; font-size:0.75rem; color:var(--text-dim); background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-          <summary style="cursor:pointer; font-weight:600;">ℹ️ Credenciales de Demostración (Mock Staff)</summary>
+          <summary id="txt-demo-creds-title" style="cursor:pointer; font-weight:600;">ℹ️ Credenciales de Demostración (Mock Staff)</summary>
           <div style="margin-top:6px; line-height:1.6;">
-            <div><strong>Camarero:</strong> <code>camarero</code> / <code>camarero123</code></div>
-            <div><strong>Cocinero:</strong> <code>cocinero</code> / <code>cocina123</code></div>
-            <div><strong>Gerente:</strong> <code>gerente</code> / <code>gerente123</code></div>
+            <div><strong id="txt-demo-waiter-label">Camarero:</strong> <code>camarero</code> / <code>camarero123</code></div>
+            <div><strong id="txt-demo-chef-label">Cocinero:</strong> <code>cocinero</code> / <code>cocina123</code></div>
+            <div><strong id="txt-demo-manager-label">Gerente:</strong> <code>gerente</code> / <code>gerente123</code></div>
           </div>
         </details>
       </form>
@@ -3008,37 +3008,37 @@
       <form id="add-user-form" style="display:flex; flex-direction:column; gap:14px;">
         <input type="hidden" id="edit-user-id" value="">
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-user-name" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Nombre y Apellidos:</label>
+          <label for="new-user-name" id="lbl-new-user-name" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Nombre y Apellidos:</label>
           <input type="text" id="new-user-name" placeholder="ej. María Morales" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-user-username" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Usuario / Alias:</label>
+          <label for="new-user-username" id="lbl-new-user-username" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Usuario / Alias:</label>
           <input type="text" id="new-user-username" placeholder="ej. mmorales" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-user-email" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Correo Electrónico:</label>
+          <label for="new-user-email" id="lbl-new-user-email" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Correo Electrónico:</label>
           <input type="email" id="new-user-email" placeholder="ej. maria.morales@granvia.com" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-user-role" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Rol de Personal:</label>
+          <label for="new-user-role" id="lbl-new-user-role" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Rol de Personal:</label>
           <select id="new-user-role" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; cursor:pointer;">
-            <option value="WAITER">🏃 Camarero / Servicio de Sala</option>
-            <option value="CHEF">👨‍🍳 Cocinero / Cocina (KDS)</option>
-            <option value="MANAGER">📊 Gerente / Administración</option>
+            <option value="WAITER" id="opt-new-user-waiter">🏃 Camarero / Servicio de Sala</option>
+            <option value="CHEF" id="opt-new-user-chef">👨‍🍳 Cocinero / Cocina (KDS)</option>
+            <option value="MANAGER" id="opt-new-user-manager">📊 Gerente / Administración</option>
           </select>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-user-avatar" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Foto / Avatar URL (Opcional):</label>
+          <label for="new-user-avatar" id="lbl-new-user-avatar" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Foto / Avatar URL (Opcional):</label>
           <input type="url" id="new-user-avatar" placeholder="https://images.unsplash.com/... (opcional)" style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
         </div>
 
         <div id="user-active-wrap" style="display:none; align-items:center; gap:8px;">
           <input type="checkbox" id="edit-user-active" checked style="width:18px; height:18px; cursor:pointer; accent-color:var(--accent-emerald);">
-          <label for="edit-user-active" style="font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer;">Empleado Activo en el Restaurante</label>
+          <label for="edit-user-active" id="lbl-edit-user-active" style="font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer;">Empleado Activo en el Restaurante</label>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
@@ -3048,10 +3048,10 @@
 
         <div style="display:flex; gap:10px; margin-top:8px;">
           <button type="button" id="btn-cancel-add-user" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
-            Cancelar
+            <span id="txt-btn-cancel-add-user">Cancelar</span>
           </button>
           <button type="submit" id="btn-submit-user" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
-            💾 Guardar Empleado
+            <span id="txt-btn-submit-user">💾 Guardar Empleado</span>
           </button>
         </div>
       </form>
@@ -3073,16 +3073,16 @@
         <input type="hidden" id="edit-product-id" value="">
         <!-- Nombre Principal (ES) -->
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-product-name" style="font-size:0.85rem; font-weight:600; color:var(--text-main);">
-            🇪🇸 Nombre del Plato / Bebida:
+          <label for="new-product-name" id="lbl-new-product-name" style="font-size:0.85rem; font-weight:600; color:var(--text-main);">
+            Nombre del Plato / Bebida:
           </label>
           <input type="text" id="new-product-name" placeholder="ej. Gazpacho Andaluz Tradicional" required style="width:100%; padding:12px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.95rem; outline:none; transition:border-color 0.2s;">
         </div>
 
         <!-- Descripción Principal (ES) -->
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-product-desc" style="font-size:0.85rem; font-weight:600; color:var(--text-main);">
-            🇪🇸 Descripción e Ingredientes:
+          <label for="new-product-desc" id="lbl-new-product-desc" style="font-size:0.85rem; font-weight:600; color:var(--text-main);">
+            Descripción e Ingredientes:
           </label>
           <textarea id="new-product-desc" rows="3" placeholder="ej. Sopa fría de tomate, pepino, pimiento y aceite de oliva virgen extra servida con picatostes y hierbabuena fresca." required style="width:100%; padding:12px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; resize:vertical; line-height:1.4;"></textarea>
         </div>
@@ -3092,7 +3092,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="display:flex; align-items:center; gap:8px;">
               <button type="button" id="btn-auto-translate-dish" class="btn-action" style="background:var(--bg-surface); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:8px 14px; border-radius:var(--radius-sm); font-size:0.84rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
-                <span>✨</span> <span>Traducir automáticamente (14 idiomas)</span>
+                <span>✨</span> <span id="txt-btn-auto-translate">Traducir automáticamente (14 idiomas)</span>
               </button>
               <span id="translation-status" style="font-size:0.78rem; color:var(--text-muted);"></span>
             </div>
@@ -3101,7 +3101,7 @@
 
           <!-- Acordeón para inspeccionar / editar traducciones -->
           <details id="details-translations" style="font-size:0.82rem;">
-            <summary style="color:var(--text-main); font-weight:600; cursor:pointer; user-select:none; padding:4px 0;">
+            <summary id="summary-details-translations" style="color:var(--text-main); font-weight:600; cursor:pointer; user-select:none; padding:4px 0;">
               🌐 Ver / Personalizar traducciones en los 14 idiomas
             </summary>
             <div id="translations-inputs-container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:10px; max-height:260px; overflow-y:auto; padding-right:4px;">
@@ -3113,18 +3113,18 @@
         <!-- Categoría y Precio -->
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
           <div style="display:flex; flex-direction:column; gap:6px;">
-            <label for="new-product-category" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Categoría:</label>
+            <label for="new-product-category" id="lbl-new-product-category" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Categoría:</label>
             <select id="new-product-category" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none; cursor:pointer;">
-              <option value="STARTER">🥗 Entrante</option>
-              <option value="MAIN">🥩 Plato Principal</option>
-              <option value="DESSERT">🍰 Postre</option>
-              <option value="BEVERAGE">🍷 Bebida</option>
-              <option value="SIDE">🍟 Guarnición</option>
+              <option value="STARTER" id="opt-cat-starter">🥗 Entrante</option>
+              <option value="MAIN" id="opt-cat-main">🥩 Plato Principal</option>
+              <option value="DESSERT" id="opt-cat-dessert">🍰 Postre</option>
+              <option value="BEVERAGE" id="opt-cat-beverage">🍷 Bebida</option>
+              <option value="SIDE" id="opt-cat-side">🍟 Guarnición</option>
             </select>
           </div>
 
           <div style="display:flex; flex-direction:column; gap:6px;">
-            <label for="new-product-price" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Precio (€):</label>
+            <label for="new-product-price" id="lbl-new-product-price" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Precio (€):</label>
             <input type="number" step="0.10" min="0" id="new-product-price" placeholder="ej. 8.50" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none;">
           </div>
         </div>
@@ -3132,30 +3132,30 @@
         <!-- Stock y Requiere Cocina -->
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
           <div style="display:flex; flex-direction:column; gap:6px;">
-            <label for="new-product-stock" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Stock Inicial:</label>
+            <label for="new-product-stock" id="lbl-new-product-stock" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Stock Inicial:</label>
             <input type="number" step="1" min="0" id="new-product-stock" placeholder="ej. 25" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none;">
           </div>
 
           <div style="display:flex; align-items:center; gap:8px; margin-top:24px;">
             <input type="checkbox" id="new-product-cooking" checked style="width:18px; height:18px; cursor:pointer; accent-color:var(--accent-orange);">
-            <label for="new-product-cooking" style="font-size:0.82rem; font-weight:600; color:var(--text-main); cursor:pointer;">Requiere Cocina (KDS)</label>
+            <label for="new-product-cooking" id="lbl-new-product-cooking" style="font-size:0.82rem; font-weight:600; color:var(--text-main); cursor:pointer;">Requiere Cocina (KDS)</label>
           </div>
         </div>
 
         <!-- Imágenes Multi-Dispositivo (Móvil, Tablet, Escritorio) -->
         <div style="background:rgba(255,255,255,0.02); padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-            <label style="font-size:0.85rem; font-weight:700; color:var(--text-main);">📸 Imágenes del Plato (Multi-Dispositivo):</label>
-            <span style="font-size:0.75rem; color:var(--text-muted);">📱 Móvil (240x240) | 💻 Tablet (600x380) | 🖥️ Desktop (900x550)</span>
+            <label id="lbl-product-images-title" style="font-size:0.85rem; font-weight:700; color:var(--text-main);">📸 Imágenes del Plato (Multi-Dispositivo):</label>
+            <span id="lbl-product-images-sub" style="font-size:0.75rem; color:var(--text-muted);">📱 Móvil (240x240) | 💻 Tablet (600x380) | 🖥️ Desktop (900x550)</span>
           </div>
 
           <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
             <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:6px;">
-              <label for="new-product-file" style="font-size:0.78rem; color:var(--text-muted);">Subir imagen desde archivo (PC / Móvil):</label>
+              <label for="new-product-file" id="lbl-new-product-file" style="font-size:0.78rem; color:var(--text-muted);">Subir imagen desde archivo (PC / Móvil):</label>
               <input type="file" id="new-product-file" accept="image/*" style="padding:6px 8px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.82rem; cursor:pointer;">
             </div>
             <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:6px;">
-              <label for="new-product-image-url" style="font-size:0.78rem; color:var(--text-muted);">O URL de la imagen principal:</label>
+              <label for="new-product-image-url" id="lbl-new-product-image-url" style="font-size:0.78rem; color:var(--text-muted);">O URL de la imagen principal:</label>
               <input type="url" id="new-product-image-url" placeholder="https://..." style="padding:8px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.82rem; outline:none;">
             </div>
             <div id="new-product-img-preview-box" style="width:58px; height:58px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-dark); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -3164,18 +3164,18 @@
           </div>
 
           <details style="margin-top:4px; font-size:0.78rem;">
-            <summary style="color:var(--accent-orange); cursor:pointer; font-weight:600; padding:2px 0;">⚙️ Personalizar imagen específica por dispositivo (Opcional)</summary>
+            <summary id="summary-per-device-images" style="color:var(--accent-orange); cursor:pointer; font-weight:600; padding:2px 0;">⚙️ Personalizar imagen específica por dispositivo (Opcional)</summary>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:8px;">
               <div>
-                <label for="new-product-img-thumb" style="display:block; margin-bottom:4px; color:var(--text-muted);">📱 Móvil (Thumbnail 240x240):</label>
+                <label for="new-product-img-thumb" id="lbl-new-product-img-thumb" style="display:block; margin-bottom:4px; color:var(--text-muted);">📱 Móvil (Thumbnail 240x240):</label>
                 <input type="text" id="new-product-img-thumb" placeholder="URL específica para móvil..." style="width:100%; padding:6px 8px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.75rem;">
               </div>
               <div>
-                <label for="new-product-img-medium" style="display:block; margin-bottom:4px; color:var(--text-muted);">💻 Tablet (Medio 600x380):</label>
+                <label for="new-product-img-medium" id="lbl-new-product-img-medium" style="display:block; margin-bottom:4px; color:var(--text-muted);">💻 Tablet (Medio 600x380):</label>
                 <input type="text" id="new-product-img-medium" placeholder="URL específica para tablet..." style="width:100%; padding:6px 8px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.75rem;">
               </div>
               <div>
-                <label for="new-product-img-large" style="display:block; margin-bottom:4px; color:var(--text-muted);">🖥️ Desktop (Grande 900x550):</label>
+                <label for="new-product-img-large" id="lbl-new-product-img-large" style="display:block; margin-bottom:4px; color:var(--text-muted);">🖥️ Desktop (Grande 900x550):</label>
                 <input type="text" id="new-product-img-large" placeholder="URL específica para desktop..." style="width:100%; padding:6px 8px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.75rem;">
               </div>
             </div>
@@ -3184,23 +3184,23 @@
 
         <!-- Filtros dietéticos -->
         <div style="background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-          <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Propiedades Dietéticas:</div>
+          <div id="lbl-dietary-props-title" style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Propiedades Dietéticas:</div>
           <div style="display:flex; gap:16px; flex-wrap:wrap;">
             <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
-              <input type="checkbox" id="new-product-vegan" style="accent-color:var(--accent-emerald);"> 🌱 Vegano
+              <input type="checkbox" id="new-product-vegan" style="accent-color:var(--accent-emerald);"> <span id="txt-prop-vegan">🌱 Vegano</span>
             </label>
             <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
-              <input type="checkbox" id="new-product-veg" style="accent-color:var(--accent-amber);"> 🧀 Vegetariano
+              <input type="checkbox" id="new-product-veg" style="accent-color:var(--accent-amber);"> <span id="txt-prop-veg">🧀 Vegetariano</span>
             </label>
             <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
-              <input type="checkbox" id="new-product-0alcohol" style="accent-color:var(--accent-blue);"> 💧 0% Alcohol
+              <input type="checkbox" id="new-product-0alcohol" style="accent-color:var(--accent-blue);"> <span id="txt-prop-0alc">💧 0% Alcohol</span>
             </label>
           </div>
         </div>
 
         <!-- Alérgenos -->
         <div style="background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-          <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Alérgenos Presentes:</div>
+          <div id="lbl-allergens-title" style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Alérgenos Presentes:</div>
           <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:6px; font-size:0.78rem;">
             <label><input type="checkbox" name="new-product-allergen" value="Gluten"> 🌾 Gluten</label>
             <label><input type="checkbox" name="new-product-allergen" value="Crustáceos"> 🦐 Crustáceos</label>
@@ -3221,10 +3221,10 @@
 
         <div style="display:flex; gap:10px; margin-top:8px;">
           <button type="button" id="btn-cancel-add-product" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
-            Cancelar
+            <span id="txt-btn-cancel-add-product">Cancelar</span>
           </button>
           <button type="submit" id="btn-submit-product" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
-            💾 Incorporar a Carta
+            <span id="txt-btn-submit-product">💾 Incorporar a Carta</span>
           </button>
         </div>
       </form>
@@ -3238,8 +3238,8 @@
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-size:1.6rem;">🎉</span>
           <div>
-            <h3 style="font-size:1.25rem; font-weight:800; margin:0; color:var(--text-main);">¡Pedido Confirmado!</h3>
-            <span style="font-size:0.78rem; color:var(--accent-emerald); font-weight:600;">Comanda enviada a sala y cocina</span>
+            <h3 id="txt-conf-title" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--text-main);">¡Pedido Confirmado!</h3>
+            <span id="txt-conf-sub" style="font-size:0.78rem; color:var(--accent-emerald); font-weight:600;">Comanda enviada a sala y cocina</span>
           </div>
         </div>
         <button id="btn-close-confirmed-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
@@ -3248,15 +3248,15 @@
       <!-- Header de comanda / ticket -->
       <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
         <div>
-          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Número de Comanda</div>
+          <div id="txt-conf-order-num-label" style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Número de Comanda</div>
           <div style="font-size:1.2rem; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--accent-orange);" id="conf-order-number">#DND-0000</div>
         </div>
         <div>
-          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Mesa</div>
+          <div id="txt-conf-table-label" style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Mesa</div>
           <div style="font-size:1.1rem; font-weight:700; color:var(--text-main);" id="conf-order-table">Mesa 4</div>
         </div>
         <div>
-          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Comprobante</div>
+          <div id="txt-conf-receipt-label" style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Comprobante</div>
           <span class="badge-tag tag-stock" id="conf-receipt-badge" style="font-size:0.75rem; padding:3px 8px;">🧾 Ticket de Pago</span>
         </div>
       </div>
@@ -3270,7 +3270,7 @@
       <!-- Contenedor con buen espacio y scroll para ver todos los productos pedidos -->
       <div style="margin-bottom:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <span style="font-size:0.82rem; font-weight:700; color:var(--text-main);">📋 Productos Solicitados:</span>
+          <span id="txt-conf-items-title" style="font-size:0.82rem; font-weight:700; color:var(--text-main);">📋 Productos Solicitados:</span>
           <span style="font-size:0.75rem; color:var(--text-muted);" id="conf-items-count">0 ítems</span>
         </div>
         <div id="conf-items-list" class="conf-items-scroll-box" style="max-height:220px; min-height:120px; overflow-y:auto; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:10px; display:flex; flex-direction:column; gap:8px;">
@@ -3281,36 +3281,36 @@
       <!-- Datos de Facturación (si solicitó Factura) -->
       <div id="conf-invoice-box" style="display:none; background:rgba(249,115,22,0.06); border:1px dashed var(--accent-orange); border-radius:var(--radius-md); padding:12px 14px; margin-bottom:14px; font-size:0.8rem;">
         <div style="font-weight:700; color:var(--accent-orange); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-          <span>📑 Factura Fiscal Emitida</span>
+          <span id="txt-conf-inv-title">📑 Factura Fiscal Emitida</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; color:var(--text-main);">
-          <div><span style="color:var(--text-muted);">NIF/CIF:</span> <strong id="conf-inv-nif"></strong></div>
-          <div><span style="color:var(--text-muted);">Razón Social:</span> <strong id="conf-inv-name"></strong></div>
-          <div style="grid-column:1/-1;"><span style="color:var(--text-muted);">Dirección:</span> <span id="conf-inv-address"></span></div>
-          <div style="grid-column:1/-1;"><span style="color:var(--text-muted);">Email:</span> <span id="conf-inv-email"></span></div>
+          <div><span id="txt-conf-inv-nif-lbl" style="color:var(--text-muted);">NIF/CIF:</span> <strong id="conf-inv-nif"></strong></div>
+          <div><span id="txt-conf-inv-name-lbl" style="color:var(--text-muted);">Razón Social:</span> <strong id="conf-inv-name"></strong></div>
+          <div style="grid-column:1/-1;"><span id="txt-conf-inv-address-lbl" style="color:var(--text-muted);">Dirección:</span> <span id="conf-inv-address"></span></div>
+          <div style="grid-column:1/-1;"><span id="txt-conf-inv-email-lbl" style="color:var(--text-muted);">Email:</span> <span id="conf-inv-email"></span></div>
         </div>
       </div>
 
       <!-- Desglose económico detallado con IVA 21% -->
       <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:18px; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;">
         <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
-          <span>Base Imponible (sin IVA):</span>
+          <span id="txt-conf-net-label">Base Imponible (sin IVA):</span>
           <span id="conf-subtotal-net">0.00 €</span>
         </div>
         <div style="display:flex; justify-content:space-between; color:var(--accent-orange); font-weight:600;">
-          <span>IVA (21%):</span>
+          <span id="txt-conf-vat-label">IVA (21%):</span>
           <span id="conf-vat">0.00 €</span>
         </div>
         <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
-          <span>Empaque y bolsas (Ley 7/2022):</span>
+          <span id="txt-conf-pack-label">Empaque y bolsas (Ley 7/2022):</span>
           <span id="conf-packaging">0.00 €</span>
         </div>
         <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
-          <span>Propina:</span>
+          <span id="txt-conf-tip-label">Propina:</span>
           <span id="conf-tip">0.00 €</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.15rem; color:var(--text-main); border-top:1px solid var(--border-subtle); padding-top:8px; margin-top:2px;">
-          <span>Total:</span>
+          <span id="txt-conf-total-label">Total:</span>
           <span id="conf-total" style="color:var(--accent-orange);">0.00 €</span>
         </div>
       </div>
@@ -3318,13 +3318,13 @@
       <!-- Acciones de Comprobante: Imprimir / Descargar / Cerrar -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button type="button" id="btn-print-receipt" class="btn-action" style="flex:1; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); padding:10px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-          🖨️ Imprimir
+          🖨️ <span id="txt-btn-print-receipt">Imprimir</span>
         </button>
         <button type="button" id="btn-download-receipt" class="btn-action" style="flex:1; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); padding:10px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-          📥 Descargar
+          📥 <span id="txt-btn-download-receipt">Descargar</span>
         </button>
         <button type="button" id="btn-dismiss-confirmed-modal" class="btn-action" style="flex:1.2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
-          Aceptar
+          <span id="txt-btn-dismiss-confirmed-modal">Aceptar</span>
         </button>
       </div>
     </div>

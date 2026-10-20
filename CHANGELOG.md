@@ -5,6 +5,19 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.12] - 2026-10-21
+### Fixed & Improved
+- **Internacionalización Integral (i18n) de Popups, Ventanas, Labels, Placeholders, Roles y Sanitización de Empleados:**
+  - **Sanitización de Nombres de Personal:** Eliminación de palabras y sufijos de roles como `(Gerente)`, `(Camarero)`, `Chef`, etc., tanto en las semillas de datos (`mock_data/users.json`) como en la carga del repositorio `JsonUserRepository` con expresiones regulares defensivas para limpiar cualquier dato residual en `localStorage`.
+  - **Roles Traducidos en Toda la Interfaz:** Implementación de la función utilitaria `getTranslatedRole(role, t)` y mapeo de roles en las 14 lenguas oficiales (`es`, `en`, `fr`, `de`, `zh`, `ko`, `uk`, `pt`, `ja`, `ar`, `ca`, `va`, `eu`, `gl`). Los roles (`Camarero`, `Cocinero`, `Gerente`, `Comensal`) se traducen en las tarjetas de perfil, selector de roles, selectores de formularios de empleados y encabezado de usuario.
+  - **Paridad del 100% de Traducciones en los 14 Idiomas con 325 Claves:**
+    - Modales completos: Login de empleados, registro y edición de usuarios, alta y edición de platos con imágenes y traducciones, confirmación de pedido y factura fiscal.
+    - Desglose detallado de comanda y comprobante de pago: líneas de productos pedidos traducidos dinámicamente con desglose de precios netos e IVA, botones de imprimir, descargar y cerrar.
+    - Labels, botones y placeholders traducidos dinámicamente: placeholders de inputs de autenticación, alta de producto, alta de empleado y datos de facturación (NIF, Razón Social, etc.).
+    - Traducción de las opciones del selector de temas visuales (Claro, Oscuro, Cálido, etc.) y selector de mesas.
+    - Más de 45 notificaciones toast parametrizadas completamente traducidas con nombres de platos en el idioma activo del usuario.
+  - **Validación y Pruebas Automatizadas:** 22/22 pruebas unitarias pasando, incluyendo validación estricta de paridad exacta de 325 claves por idioma y verificación de nombres limpios de empleados. Compilación de producción con Vite limpia en 340ms.
+
 ## [1.6.11] - 2026-10-20
 ### Fixed
 - **Internacionalización Integral (i18n) en Pantallas de Personal (Camarero, Cocinero y Gerente):**

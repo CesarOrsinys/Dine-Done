@@ -1,7 +1,7 @@
 [
   {
     "id": "usr_waiter_1",
-    "name": "David García (Camarero)",
+    "name": "David García",
     "username": "camarero",
     "email": "camarero@granvia.com",
     "password": "camarero123",
@@ -11,7 +11,7 @@
   },
   {
     "id": "usr_waiter_2",
-    "name": "Lucía Ramos (Camarera)",
+    "name": "Lucía Ramos",
     "username": "lucia",
     "email": "lucia.ramos@dinedone.com",
     "password": "camarera123",
@@ -21,7 +21,7 @@
   },
   {
     "id": "usr_chef_1",
-    "name": "Chef Antonio Martín (Cocinero)",
+    "name": "Antonio Martín",
     "username": "cocinero",
     "email": "cocina@granvia.com",
     "password": "cocina123",
@@ -31,7 +31,7 @@
   },
   {
     "id": "usr_chef_2",
-    "name": "Chef Elena Vega (Cocinera)",
+    "name": "Elena Vega",
     "username": "elena",
     "email": "elena.chef@dinedone.com",
     "password": "cocinera123",
@@ -41,7 +41,7 @@
   },
   {
     "id": "usr_mgr_1",
-    "name": "César Orsinys (Gerente)",
+    "name": "César Orsinys",
     "username": "gerente",
     "email": "gerente@granvia.com",
     "password": "gerente123",

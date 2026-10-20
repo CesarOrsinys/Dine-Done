@@ -588,6 +588,101 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
       }
     }
   });
+
+  it('HU-16 & Full i18n Parity: Should verify 100% key parity across all 14 supported languages with 325 keys', () => {
+    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+    const trans = translations as Record<string, Record<string, string>>;
+    const baseKeys = Object.keys(trans['es']);
+    assert.strictEqual(baseKeys.length, 325, `Spanish base dictionary must have exactly 325 keys (found: ${baseKeys.length})`);
+
+    for (const lang of requiredLanguages) {
+      assert.ok(trans[lang], `Language dictionary '${lang}' must exist`);
+      const langKeys = Object.keys(trans[lang]);
+      assert.strictEqual(
+        langKeys.length,
+        325,
+        `Language '${lang}' must have exactly 325 keys for 100% parity (found: ${langKeys.length})`
+      );
+
+      // Verify every key exists and has non-empty text
+      for (const key of baseKeys) {
+        const val = trans[lang][key];
+        assert.ok(
+          val !== undefined && typeof val === 'string' && val.trim().length > 0,
+          `Key '${key}' must be defined and non-empty in language '${lang}'`
+        );
+      }
+    }
+  });
+
+  it('HU-16 & Employee Names Sanitization: Staff names in repository must be clean personal names without role tags', async () => {
+    const staff = await userRepo.getAll();
+    assert.ok(staff.length >= 5, 'Should have at least 5 staff users');
+
+    const roleRegex = /\b(Gerente|Camarero|Camarera|Cocinero|Cocinera|Chef|Waiter|Manager)\b/i;
+
+    for (const user of staff) {
+      assert.ok(
+        !roleRegex.test(user.name),
+        `Staff name '${user.name}' must not contain role words like Gerente, Camarero or Chef`
+      );
+      assert.ok(user.name.trim().length > 0, 'Staff name must not be empty');
+      assert.ok(user.email.includes('@'), `Staff email '${user.email}' must be valid`);
+      assert.ok(user.role in UserRole, `Staff role '${user.role}' must be a valid UserRole`);
+    }
+
+    // Verify expected clean names
+    const names = staff.map(u => u.name);
+    assert.ok(names.includes('David García'));
+    assert.ok(names.includes('Lucía Ramos'));
+    assert.ok(names.includes('Antonio Martín'));
+    assert.ok(names.includes('Elena Vega'));
+    assert.ok(names.includes('César Orsinys'));
+  });
+
+  it('HU-16 & Localized Roles and Modals: Should verify all role definitions and modal labels are properly translated', () => {
+    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+    const trans = translations as Record<string, Record<string, string>>;
+
+    const roleKeys = ['roleWaiter', 'roleChef', 'roleManager', 'roleCustomer'];
+    const modalKeys = [
+      'modalNewUserTitle', 'modalEditUserTitle', 'modalNewUserSub', 'modalEditUserSub',
+      'lblUsername', 'btnSaveUser', 'btnUpdateUser',
+      'modalNewProductTitle', 'modalEditProductTitle', 'modalNewProductSub', 'modalEditProductSub',
+      'lblProductImagesTitle', 'lblProductImagesSub', 'btnSaveProduct', 'btnSaveProductChanges',
+      'orderConfirmedTitle', 'orderConfirmedSub', 'receiptTicket', 'receiptInvoice',
+      'lblRequestedProducts'
+    ];
+
+    for (const lang of requiredLanguages) {
+      for (const k of roleKeys) {
+        assert.ok(trans[lang][k], `Role key '${k}' must exist in '${lang}'`);
+      }
+      for (const k of modalKeys) {
+        assert.ok(trans[lang][k], `Modal/Form key '${k}' must exist in '${lang}'`);
+      }
+    }
+
+    // Verify localized role representations
+    assert.strictEqual(trans['es'].roleWaiter, 'Camarero');
+    assert.strictEqual(trans['en'].roleWaiter, 'Waiter');
+    assert.strictEqual(trans['fr'].roleWaiter, 'Serveur');
+    assert.strictEqual(trans['es'].roleChef, 'Cocina (KDS)');
+    assert.strictEqual(trans['en'].roleChef, 'Kitchen (KDS)');
+    assert.strictEqual(trans['fr'].roleChef, 'Cuisine (KDS)');
+    assert.strictEqual(trans['de'].roleChef, 'Küche (KDS)');
+
+    assert.strictEqual(trans['es'].roleChefBadge, '👨‍🍳 Cocinero');
+    assert.strictEqual(trans['en'].roleChefBadge, '👨‍🍳 Chef');
+    assert.strictEqual(trans['fr'].roleChefBadge, '👨‍🍳 Cuisinier');
+    assert.strictEqual(trans['de'].roleChefBadge, '👨‍🍳 Koch');
+
+    assert.strictEqual(trans['es'].roleManager, 'Gerente');
+    assert.strictEqual(trans['en'].roleManager, 'Manager');
+    assert.strictEqual(trans['fr'].roleManager, 'Gérant');
+    assert.strictEqual(trans['de'].roleManager, 'Geschäftsführer');
+  });
 });
+
 
 

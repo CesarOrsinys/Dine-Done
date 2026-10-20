@@ -17,7 +17,16 @@ export class JsonUserRepository implements IUserRepository {
         try {
           const parsed = JSON.parse(stored);
           // Requirement 4: Purge any legacy CUSTOMER user to strictly protect guest privacy
-          this.users = parsed.filter((u: User) => u.role !== UserRole.CUSTOMER);
+          // Also strip any legacy role parentheses from employee names
+          this.users = parsed
+            .filter((u: User) => u.role !== UserRole.CUSTOMER)
+            .map((u: User) => ({
+              ...u,
+              name: (u.name || '')
+                .replace(/\s*\((?:Camarero|Camarera|Cocinero|Cocinera|Gerente|Chef|Waiter|Manager)\)/gi, '')
+                .replace(/^Chef\s+/i, '')
+                .trim()
+            }));
           // If all users got purged or missing credentials, reseed with initialUsers
           if (this.users.length === 0 || !this.users[0].password) {
             this.users = JSON.parse(JSON.stringify(initialUsers));
