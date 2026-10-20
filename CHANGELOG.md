@@ -5,6 +5,22 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.3] - 2026-10-20
+### Added
+- **Restauración de Iconos Visuales de Alérgenos:**
+  - Inclusión de iconos pequeños e intuitivos con simbología internacional (`🌾`, `🥛`, `🥚`, `🐟`, `🦐`, `🥜`, `🌱`, `🌰`, etc.) junto al precio en cada plato del menú.
+  - Insignia interactiva con tooltip que identifica el alérgeno al pasar el cursor o pulsar sobre él, además de indicar `✅ Sin alérgenos` en productos libres de alérgenos.
+  - Visibilidad garantizada tanto en modo cuadrícula como en modo compacto.
+
+### Changed
+- **Distribución Responsiva Adaptada de Tarjetas en Móvil:**
+  - En versión móvil (`max-width: 640px`):
+    - La insignia de **Stock** se traslada a la esquina superior derecha (justo encima de la imagen miniatura).
+    - El botón **`+ Añadir`** se sitúa en la esquina inferior derecha (justo debajo de la imagen miniatura).
+    - Los **iconos de alérgenos** se posicionan a la derecha del precio en el bloque de información principal.
+  - En versión desktop (`min-width: 641px`):
+    - Se preserva la disposición estándar sin alterar el botón de añadir ni las etiquetas superiores, integrando limpiamente los iconos de alérgenos al lado del precio.
+
 ## [1.6.2] - 2026-10-20
 ### Added
 - **Desglose de IVA al 21% en el Apartado de Pago:**

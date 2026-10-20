@@ -97,6 +97,10 @@ created_at: "2026-10-20"
   - En el apartado de pago y carrito, a todos los productos se les quita el 21% de su importe para presentar su Base Imponible neta tanto por unidad como en el subtotal de platos.
   - En el desglose de la cuenta se añade la fila explícita **IVA (21%)**, sumando la cuota tributaria correspondiente a los productos antes de agregar empaques regulados (Ley 7/2022) y propinas.
   - Soporte multi-idioma completo para la fila fiscal en las 14 lenguas disponibles en la plataforma.
+- [Regla 21: Iconos visuales de alérgenos y distribución responsiva de tarjetas de menú]
+  - **Iconos gráficos de alérgenos en el precio:** En todas las tarjetas de plato, junto al precio, se incorporan los iconos visuales de cada alérgeno (`🌾` Gluten, `🥛` Lácteos, `🥚` Huevos, `🐟` Pescado, `🦐` Crustáceos, `🥜` Cacahuetes, `🌱` Soja, `🌰` F. Cáscara, etc.) con tooltip identificativo o badge de platos libres de alérgenos.
+  - **Distribución en pantallas móviles (Mobile UX):** La insignia de disponibilidad (`Stock`) se desplaza a la esquina superior derecha (sobre la imagen); el botón `+ Añadir` se desplaza a la esquina inferior derecha (bajo la imagen); y junto al precio se ubican los iconos de alérgenos de forma compacta.
+  - **Distribución en escritorio (Desktop UX):** Se mantiene la alineación horizontal natural (estado a la izquierda, stock a la derecha, precio e iconos de alérgenos en el pie junto al botón de añadir).
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

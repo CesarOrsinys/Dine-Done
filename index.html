@@ -570,7 +570,7 @@
     .menu-cards-grid.compact-view .menu-card {
       display: flex;
       flex-direction: row;
-      align-items: center;
+      align-items: stretch;
       justify-content: space-between;
       padding: 10px 12px;
       gap: 10px;
@@ -582,24 +582,6 @@
       overflow: hidden;
     }
 
-    .menu-cards-grid.compact-view .menu-card-picture {
-      order: 2;
-      width: 86px;
-      height: 86px;
-      min-width: 86px;
-      max-width: 86px;
-      flex: 0 0 86px;
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      align-self: center;
-    }
-
-    .menu-cards-grid.compact-view .menu-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .menu-cards-grid.compact-view .menu-body {
       order: 1;
       padding: 0;
@@ -608,7 +590,7 @@
       justify-content: space-between;
       flex: 1 1 auto;
       min-width: 0;
-      max-width: calc(100% - 96px);
+      max-width: calc(100% - 94px);
       overflow: hidden;
     }
 
@@ -649,15 +631,189 @@
       padding-top: 4px;
       border-top: none;
       margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
     }
 
     .menu-cards-grid.compact-view .menu-price {
       font-size: 1.15rem;
     }
 
-    .menu-cards-grid.compact-view .btn-add {
-      padding: 5px 12px;
-      font-size: 0.8rem;
+    .menu-price-allergens-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      min-width: 0;
+    }
+
+    .menu-mini-allergens {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      flex-wrap: nowrap;
+    }
+
+    .allergen-mini-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      font-size: 0.85rem;
+      background: rgba(236, 72, 153, 0.14);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      border-radius: 4px;
+      cursor: help;
+      transition: transform 0.15s ease;
+      line-height: 1;
+    }
+    .allergen-mini-icon:hover {
+      transform: scale(1.15);
+      border-color: var(--accent-orange);
+    }
+
+    .allergen-mini-pill {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.68rem;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* SIDE COLUMN (PICTURE + BADGE/BUTTON DEPENDING ON SCREEN) */
+    .menu-side-col {
+      order: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      width: 86px;
+      min-width: 86px;
+      max-width: 86px;
+      flex: 0 0 86px;
+      gap: 4px;
+    }
+
+    .menu-card-picture {
+      width: 86px;
+      height: 86px;
+      min-width: 86px;
+      max-width: 86px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #182238;
+      position: relative;
+    }
+
+    .menu-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    /* DESKTOP RULES (Screen > 640px) */
+    @media (min-width: 641px) {
+      .mobile-stock-badge,
+      .mobile-btn-add {
+        display: none !important;
+      }
+      .desktop-stock-badge,
+      .desktop-btn-add {
+        display: inline-flex !important;
+      }
+      .menu-cards-grid.compact-view .menu-badge-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+      .menu-cards-grid.compact-view .menu-side-col {
+        justify-content: center;
+        align-items: center;
+      }
+      .menu-cards-grid.compact-view .btn-add {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* MOBILE RULES (Screen <= 640px) */
+    @media (max-width: 640px) {
+      .desktop-stock-badge,
+      .desktop-btn-add {
+        display: none !important;
+      }
+      .mobile-stock-badge {
+        display: inline-flex !important;
+        font-size: 0.68rem;
+        padding: 2px 6px;
+        align-self: flex-end;
+      }
+      .mobile-btn-add {
+        display: inline-flex !important;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        padding: 4px 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+      }
+      .menu-cards-grid.compact-view .menu-side-col {
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .menu-cards-grid.compact-view .menu-card-picture {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+        max-width: 80px;
+        border-radius: var(--radius-sm);
+        margin: 2px 0;
+      }
+      .menu-cards-grid.compact-view .menu-body {
+        max-width: calc(100% - 88px);
+      }
+    }
+
+    /* VERTICAL GRID VIEW MODE RULES */
+    .menu-cards-grid.grid-view .menu-card {
+      display: flex;
+      flex-direction: column;
+    }
+    .menu-cards-grid.grid-view .menu-side-col {
+      order: 1;
+      width: 100%;
+      max-width: 100%;
+      flex: none;
+    }
+    .menu-cards-grid.grid-view .mobile-stock-badge,
+    .menu-cards-grid.grid-view .mobile-btn-add {
+      display: none !important;
+    }
+    .menu-cards-grid.grid-view .desktop-stock-badge,
+    .menu-cards-grid.grid-view .desktop-btn-add {
+      display: inline-flex !important;
+    }
+    .menu-cards-grid.grid-view .menu-card-picture {
+      width: 100%;
+      height: 160px;
+      max-width: 100%;
+    }
+    .menu-cards-grid.grid-view .menu-body {
+      order: 2;
+      padding: 14px;
+      max-width: 100%;
     }
 
     .menu-body {

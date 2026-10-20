@@ -816,6 +816,47 @@ function getResponsiveImages(item: MenuItem): { thumbnail: string; medium: strin
   };
 }
 
+// Helper: Identificación y mapeo de iconos gráficos de alérgenos
+const ALLERGEN_ICON_MAP: Record<string, string> = {
+  gluten: '🌾',
+  trigo: '🌾',
+  cebada: '🌾',
+  avena: '🌾',
+  lácteos: '🥛',
+  lacteos: '🥛',
+  leche: '🥛',
+  queso: '🥛',
+  huevos: '🥚',
+  huevo: '🥚',
+  pescado: '🐟',
+  crustáceos: '🦐',
+  crustaceos: '🦐',
+  marisco: '🦐',
+  cacahuetes: '🥜',
+  soja: '🌱',
+  'frutos de cáscara': '🌰',
+  'frutos de cascara': '🌰',
+  nueces: '🌰',
+  almendras: '🌰',
+  avellanas: '🌰',
+  pistachos: '🌰',
+  apio: '🌿',
+  mostaza: '🌭',
+  sésamo: '🥯',
+  sesamo: '🥯',
+  sulfitos: '🍷',
+  altramuces: '🌾',
+  moluscos: '🦪'
+};
+
+function getAllergenIcon(name: string): string {
+  const lower = name.toLowerCase();
+  for (const [key, icon] of Object.entries(ALLERGEN_ICON_MAP)) {
+    if (lower.includes(key)) return icon;
+  }
+  return '⚠️';
+}
+
 function renderMenu() {
   menuCardsContainer.innerHTML = '';
   
@@ -908,6 +949,19 @@ function renderMenu() {
       </div>
     `;
 
+    const miniAllergensHtml = displayAllergens.length > 0 ? `
+      <div class="menu-mini-allergens">
+        ${displayAllergens.map((a: string) => {
+          const icon = getAllergenIcon(a);
+          return `<span class="allergen-mini-icon" title="${a}">${icon}</span>`;
+        }).join('')}
+      </div>
+    ` : `
+      <div class="menu-mini-allergens">
+        <span class="allergen-mini-pill" title="${noAllergenLabel}">✅ Sin alérgenos</span>
+      </div>
+    `;
+
     const cookingLabel = item.requiresCooking ? t.requiresCooking : t.directDelivery;
     const stockLabel = isOutOfStock ? t.outOfStock : `${t.stock}: ${item.stock}`;
     const addBtnText = isOutOfStock ? t.outOfStock : t.addToCart;
@@ -916,25 +970,21 @@ function renderMenu() {
     const responsiveImgs = getResponsiveImages(item);
 
     card.innerHTML = `
-      <picture class="menu-card-picture">
-        <source media="(max-width: 640px)" srcset="${responsiveImgs.thumbnail}">
-        <source media="(max-width: 1024px)" srcset="${responsiveImgs.medium}">
-        <img src="${responsiveImgs.large}" alt="${displayName}" class="menu-img" loading="lazy" width="300" height="200">
-      </picture>
+      <!-- Columna Principal / Información -->
       <div class="menu-body">
         <div>
           <div class="menu-badge-row">
             <span class="badge-tag ${item.requiresCooking ? 'tag-cooking' : 'tag-direct'}">
               ${cookingLabel}
             </span>
-            <span class="badge-tag ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
+            <span class="badge-tag desktop-stock-badge ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
               ${stockLabel}
             </span>
           </div>
           <h3 class="menu-title">${displayName}</h3>
           <p class="menu-desc">${displayDesc}</p>
           
-          <!-- Ingredients and Allergens details -->
+          <!-- Ingredientes y Alérgenos expandidos (visibles en modo cuadrícula) -->
           <div class="menu-meta-details">
             ${ingredientsHtml}
             ${allergensHtml}
@@ -942,16 +992,36 @@ function renderMenu() {
         </div>
 
         <div class="menu-footer">
-          <span class="menu-price">${item.price.toFixed(2)} €</span>
-          <button class="btn-add" data-id="${item.id}" ${isOutOfStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+          <div class="menu-price-allergens-wrap">
+            <span class="menu-price">${item.price.toFixed(2)} €</span>
+            ${miniAllergensHtml}
+          </div>
+          <button class="btn-add desktop-btn-add" data-id="${item.id}" ${isOutOfStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
             <span>${addBtnText}</span>
           </button>
         </div>
       </div>
+
+      <!-- Columna Lateral: En móvil contiene Stock arriba, Imagen en medio, Botón Añadir abajo -->
+      <div class="menu-side-col">
+        <span class="badge-tag mobile-stock-badge ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
+          ${stockLabel}
+        </span>
+        <picture class="menu-card-picture">
+          <source media="(max-width: 640px)" srcset="${responsiveImgs.thumbnail}">
+          <source media="(max-width: 1024px)" srcset="${responsiveImgs.medium}">
+          <img src="${responsiveImgs.large}" alt="${displayName}" class="menu-img" loading="lazy" width="300" height="200">
+        </picture>
+        <button class="btn-add mobile-btn-add" data-id="${item.id}" ${isOutOfStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+          <span>${addBtnText}</span>
+        </button>
+      </div>
     `;
 
-    card.querySelector('.btn-add')?.addEventListener('click', () => {
-      addToCart(item);
+    card.querySelectorAll('.btn-add').forEach(btn => {
+      btn.addEventListener('click', () => {
+        addToCart(item);
+      });
     });
 
     menuCardsContainer.appendChild(card);
