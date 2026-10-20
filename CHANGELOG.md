@@ -5,6 +5,12 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.6] - 2026-10-20
+### Fixed
+- **Ajuste de Dimensiones de Botones de Acción y Añadir en Gerencia:**
+  - Corrección de la propiedad heredada `flex: 1` (`flex-grow: 1; flex-basis: 0;`) y de la regla móvil `width: 100%` en la clase genérica `.btn-action`, acotándolas exclusivamente a las barras de acciones de comandas (`.order-actions-bar .btn-action`).
+  - Creación de la clase `.btn-compact-add` con `flex-grow: 0 !important; flex-shrink: 0 !important; flex-basis: 38px !important; width: 38px !important; height: 38px !important;`, garantizando que los botones de adición `➕` de producto y usuario se mantengan siempre perfectamente compactos y cuadrados sin estirarse en ningún dispositivo.
+
 ## [1.6.5] - 2026-10-20
 ### Added
 - **Tarjetas de Perfil Compactas para Gestión de Personal (Vista de Gerente):**
