@@ -2,5 +2,6 @@ export enum MenuCategory {
   STARTER = 'STARTER',
   MAIN = 'MAIN',
   DESSERT = 'DESSERT',
-  BEVERAGE = 'BEVERAGE'
+  BEVERAGE = 'BEVERAGE',
+  SIDE = 'SIDE'
 }

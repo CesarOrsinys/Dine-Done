@@ -102,6 +102,11 @@ created_at: "2026-10-20"
   - **Distribución en pantallas móviles (Mobile UX):** La insignia de disponibilidad (`Stock`) se desplaza a la esquina superior derecha (sobre la imagen); el botón `+ Añadir` se desplaza a la esquina inferior derecha (bajo la imagen); y junto al precio se ubican los iconos de alérgenos de forma compacta.
   - **Distribución en escritorio (Desktop UX):** Se mantiene la alineación horizontal natural (estado a la izquierda, stock a la derecha, precio e iconos de alérgenos en el pie junto al botón de añadir).
 
+- [Regla 22: Edición integral de productos existentes en la carta]
+  - **Edición desde el Panel de Gerencia:** En la tabla de control de carta y stock, cada fila dispone del botón `✏️ Editar` que abre el modal de edición precargado con todos los datos del plato (nombre, descripción, categoría, precio, stock, requerimiento de cocina, atributos dietéticos, alérgenos, imágenes adaptativas y traducciones a los 14 idiomas).
+  - **Edición directa desde la Carta Digital:** Cuando un usuario con rol Gerente visualiza el menú, cada tarjeta de plato incluye un botón de acceso directo `✏️ Editar` para corregir rápidamente erratas, precios o descripciones sin tener que navegar al panel administrativo.
+  - **Re-traducción y personalización multilingüe:** Posibilidad de regenerar automáticamente con un clic las traducciones a los 14 idiomas a partir de los datos corregidos en español, o afinar manualmente traducciones individuales.
+
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
 - **Frontend / UI:** Vite + TypeScript + Vanilla CSS (Arquitectura limpia y alto rendimiento)

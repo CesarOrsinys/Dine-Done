@@ -5,6 +5,14 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.4] - 2026-10-20
+### Added
+- **Edición Integral de Productos Existentes en Carta:**
+  - Botón interactivo `✏️ Editar` añadido en cada fila de la tabla **Control de Carta, Precios y Stock** del panel de Gerente.
+  - Botón de acceso directo `✏️ Editar` en las tarjetas de plato del menú digital cuando se navega con rol de Gerente, permitiendo solventar erratas inmediatamente sin cambiar de pantalla.
+  - Modal unificado de edición que precarga todos los datos del plato: título, descripción detallada, categoría (incluyendo Entrantes, Principales, Postres, Bebidas y Guarniciones), precio, stock, requerimiento de cocina, propiedades dietéticas (vegano, vegetariano, 0% alcohol), alérgenos oficiales, imágenes multi-dispositivo y traducciones completas a los 14 idiomas.
+  - Sincronización instantánea con el repositorio hexagonal de carta (`updateItem`), persistencia en tiempo real y actualización dinámica de los selectores de idioma y del menú.
+
 ## [1.6.3] - 2026-10-20
 ### Added
 - **Restauración de Iconos Visuales de Alérgenos:**

@@ -2511,7 +2511,7 @@
                   <th>Categoría</th>
                   <th>Precio (€)</th>
                   <th>Stock Actual</th>
-                  <th>Acción</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="stock-tbody">
@@ -2650,14 +2650,15 @@
   <div class="modal-overlay" id="add-product-modal" style="display:none;">
     <div class="modal-card" style="max-width:720px; width:95%; max-height:92vh; overflow-y:auto; padding:24px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 style="font-size:1.25rem; font-weight:700;">🍽️ Añadir Nuevo Producto / Plato</h3>
+        <h3 id="product-modal-title" style="font-size:1.25rem; font-weight:700;">🍽️ Añadir Nuevo Producto / Plato</h3>
         <button id="btn-close-add-product-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
       </div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px; line-height:1.4;">
+      <p id="product-modal-subtitle" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px; line-height:1.4;">
         Incorpora un nuevo plato a la carta con stock inicial, traducción automática a los 14 idiomas soportados, imágenes optimizadas para móvil/tablet/escritorio y ficha de alérgenos.
       </p>
 
       <form id="add-product-form" style="display:flex; flex-direction:column; gap:14px;">
+        <input type="hidden" id="edit-product-id" value="">
         <!-- Nombre Principal (ES) -->
         <div style="display:flex; flex-direction:column; gap:6px;">
           <label for="new-product-name" style="font-size:0.85rem; font-weight:600; color:var(--text-main);">
@@ -2703,7 +2704,7 @@
             <label for="new-product-category" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Categoría:</label>
             <select id="new-product-category" required style="padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none; cursor:pointer;">
               <option value="STARTER">🥗 Entrante</option>
-              <option value="MAIN_COURSE">🥩 Plato Principal</option>
+              <option value="MAIN">🥩 Plato Principal</option>
               <option value="DESSERT">🍰 Postre</option>
               <option value="BEVERAGE">🍷 Bebida</option>
               <option value="SIDE">🍟 Guarnición</option>
@@ -2810,7 +2811,7 @@
           <button type="button" id="btn-cancel-add-product" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
             Cancelar
           </button>
-          <button type="submit" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
+          <button type="submit" id="btn-submit-product" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
             💾 Incorporar a Carta
           </button>
         </div>

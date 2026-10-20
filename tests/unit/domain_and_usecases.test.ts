@@ -405,5 +405,39 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.ok(found, 'Created dish must exist in repository');
     assert.strictEqual(found?.name, 'Gazpacho Andaluz');
   });
+
+  it('Manager Edit: Should allow full editing of existing dish information (name, allergens, category, price, translations)', async () => {
+    const existing = await menuRepo.getById('menu_1');
+    assert.ok(existing);
+
+    const updatedDish = await menuRepo.updateItem({
+      ...existing,
+      name: 'Hamburguesa Trufada Angus Corregida',
+      description: 'Descripción actualizada con nuevos detalles gourmet',
+      price: 15.50,
+      stock: 45,
+      category: MenuCategory.MAIN,
+      allergens: ['Gluten', 'Lácteos', 'Huevos'],
+      translations: {
+        ...existing.translations,
+        en: {
+          name: 'Corrected Truffled Angus Burger',
+          description: 'Updated gourmet description'
+        }
+      }
+    });
+
+    assert.strictEqual(updatedDish.name, 'Hamburguesa Trufada Angus Corregida');
+    assert.strictEqual(updatedDish.price, 15.50);
+    assert.strictEqual(updatedDish.stock, 45);
+    assert.ok(updatedDish.allergens?.includes('Huevos'));
+    assert.strictEqual(updatedDish.translations?.en?.name, 'Corrected Truffled Angus Burger');
+
+    const reloaded = await menuRepo.getById('menu_1');
+    assert.strictEqual(reloaded?.name, 'Hamburguesa Trufada Angus Corregida');
+    assert.strictEqual(reloaded?.price, 15.50);
+    assert.strictEqual(reloaded?.stock, 45);
+  });
 });
+
 

@@ -157,6 +157,7 @@ function generateFallbackTranslations(name: string, description: string): Record
 let menuCatalog: MenuItem[] = [];
 let allOrders: Order[] = [];
 let allUsers: User[] = [];
+let openProductEditorModal: (item?: MenuItem) => void = () => {};
 
 // Cart & Table State (Customer View)
 let currentAssignedTable = 'Mesa 4';
@@ -969,14 +970,24 @@ function renderMenu() {
     // Multi-dimension responsive picture
     const responsiveImgs = getResponsiveImages(item);
 
+    const isManager = currentUser.role === UserRole.MANAGER || (authenticatedStaffUser !== null && authenticatedStaffUser.role === UserRole.MANAGER);
+    const managerEditBtn = isManager ? `
+      <button class="btn-manager-edit-dish" data-id="${item.id}" title="Editar plato completo" style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.35); color:#60a5fa; border-radius:4px; font-size:0.72rem; padding:2px 7px; cursor:pointer; font-weight:700; margin-left:6px; display:inline-flex; align-items:center; gap:3px;">
+        ✏️ Editar
+      </button>
+    ` : '';
+
     card.innerHTML = `
       <!-- Columna Principal / Información -->
       <div class="menu-body">
         <div>
           <div class="menu-badge-row">
-            <span class="badge-tag ${item.requiresCooking ? 'tag-cooking' : 'tag-direct'}">
-              ${cookingLabel}
-            </span>
+            <div style="display:flex; align-items:center;">
+              <span class="badge-tag ${item.requiresCooking ? 'tag-cooking' : 'tag-direct'}">
+                ${cookingLabel}
+              </span>
+              ${managerEditBtn}
+            </div>
             <span class="badge-tag desktop-stock-badge ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
               ${stockLabel}
             </span>
@@ -1021,6 +1032,13 @@ function renderMenu() {
     card.querySelectorAll('.btn-add').forEach(btn => {
       btn.addEventListener('click', () => {
         addToCart(item);
+      });
+    });
+
+    card.querySelectorAll('.btn-manager-edit-dish').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProductEditorModal(item);
       });
     });
 
@@ -1611,11 +1629,20 @@ async function renderManagerDashboard() {
         <input type="number" class="stock-input" id="stock-input-${item.id}" value="${item.stock}" min="0">
       </td>
       <td>
-        <button class="btn-action btn-waiter-deliver btn-save-item" data-id="${item.id}" style="padding:5px 10px; font-size:0.75rem;">
-          💾 Guardar
-        </button>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="btn-action btn-edit-product-full" data-id="${item.id}" title="Editar Información Completa del Plato" style="padding:5px 9px; font-size:0.75rem; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-weight:600; box-shadow:0 2px 6px rgba(37,99,235,0.35);">
+            ✏️ Editar
+          </button>
+          <button class="btn-action btn-waiter-deliver btn-save-item" data-id="${item.id}" title="Guardar Cambios Rápidos de Precio y Stock" style="padding:5px 9px; font-size:0.75rem;">
+            💾 Guardar
+          </button>
+        </div>
       </td>
     `;
+
+    tr.querySelector('.btn-edit-product-full')?.addEventListener('click', () => {
+      openProductEditorModal(item);
+    });
 
     tr.querySelector('.btn-save-item')?.addEventListener('click', async () => {
       const stockInput = document.getElementById(`stock-input-${item.id}`) as HTMLInputElement;
@@ -1746,12 +1773,16 @@ function setupManagerModals() {
     }
   });
 
-  // Modal Añadir Producto al Menú / Stock con Traducción a 14 Idiomas e Imágenes Multi-Dispositivo
+  // Modal Añadir / Editar Producto en la Carta con Traducción a 14 Idiomas e Imágenes Multi-Dispositivo
   const modalAddProduct = document.getElementById('add-product-modal')!;
   const btnOpenAddProduct = document.getElementById('btn-open-add-product');
   const btnCloseAddProduct = document.getElementById('btn-close-add-product-modal');
   const btnCancelAddProduct = document.getElementById('btn-cancel-add-product');
   const formAddProduct = document.getElementById('add-product-form') as HTMLFormElement;
+  const editProductIdInput = document.getElementById('edit-product-id') as HTMLInputElement;
+  const productModalTitle = document.getElementById('product-modal-title');
+  const productModalSubtitle = document.getElementById('product-modal-subtitle');
+  const btnSubmitProduct = document.getElementById('btn-submit-product') as HTMLButtonElement;
   const btnAutoTranslate = document.getElementById('btn-auto-translate-dish');
   const fileImgInput = document.getElementById('new-product-file') as HTMLInputElement;
   const urlImgInput = document.getElementById('new-product-image-url') as HTMLInputElement;
@@ -1881,14 +1912,85 @@ function setupManagerModals() {
     }
   });
 
-  btnOpenAddProduct?.addEventListener('click', () => {
+  openProductEditorModal = (item?: MenuItem) => {
     formAddProduct.reset();
     uploadedDishDataUrl = '';
-    if (previewImg) previewImg.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240';
-    if (transStatusEl) transStatusEl.innerText = '';
-    (document.getElementById('new-product-cooking') as HTMLInputElement).checked = true;
-    initTranslationFields();
+    if (fileImgInput) fileImgInput.value = '';
+
+    if (item) {
+      // Modo Edición
+      if (editProductIdInput) editProductIdInput.value = item.id;
+      if (productModalTitle) productModalTitle.innerText = `✏️ Editar Producto: ${item.name}`;
+      if (productModalSubtitle) productModalSubtitle.innerText = 'Modifica los datos, descripciones, traducciones a los 14 idiomas, alérgenos, categoría o imágenes del plato seleccionado.';
+      if (btnSubmitProduct) btnSubmitProduct.innerText = '💾 Guardar Cambios';
+
+      (document.getElementById('new-product-name') as HTMLInputElement).value = item.name;
+      (document.getElementById('new-product-desc') as HTMLTextAreaElement).value = item.description;
+      (document.getElementById('new-product-category') as HTMLSelectElement).value = item.category;
+      (document.getElementById('new-product-price') as HTMLInputElement).value = item.price.toString();
+      (document.getElementById('new-product-stock') as HTMLInputElement).value = item.stock.toString();
+      (document.getElementById('new-product-cooking') as HTMLInputElement).checked = Boolean(item.requiresCooking);
+      (document.getElementById('new-product-vegan') as HTMLInputElement).checked = Boolean(item.isVegan);
+      (document.getElementById('new-product-veg') as HTMLInputElement).checked = Boolean(item.isVegetarian);
+      (document.getElementById('new-product-0alcohol') as HTMLInputElement).checked = Boolean(item.isAlcoholFree);
+
+      const responsiveImgs = getResponsiveImages(item);
+      if (previewImg) previewImg.src = responsiveImgs.thumbnail || responsiveImgs.large || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240';
+      if (urlImgInput) urlImgInput.value = item.imageUrl || responsiveImgs.large || '';
+      const thumbIn = document.getElementById('new-product-img-thumb') as HTMLInputElement;
+      const medIn = document.getElementById('new-product-img-medium') as HTMLInputElement;
+      const largeIn = document.getElementById('new-product-img-large') as HTMLInputElement;
+      if (thumbIn) thumbIn.value = item.images?.thumbnail || '';
+      if (medIn) medIn.value = item.images?.medium || '';
+      if (largeIn) largeIn.value = item.images?.large || '';
+
+      const allergenCheckboxes = document.querySelectorAll<HTMLInputElement>('input[name="new-product-allergen"]');
+      allergenCheckboxes.forEach(cb => {
+        cb.checked = item.allergens ? item.allergens.includes(cb.value) : false;
+      });
+
+      initTranslationFields();
+      ALL_ADD_LANGS.forEach(l => {
+        const transObj = (item.translations as any)?.[l.code];
+        const inName = document.getElementById(`trans-name-${l.code}`) as HTMLInputElement;
+        const inDesc = document.getElementById(`trans-desc-${l.code}`) as HTMLTextAreaElement;
+        if (inName) inName.value = transObj?.name || '';
+        if (inDesc) inDesc.value = transObj?.description || '';
+      });
+
+      if (transStatusEl) {
+        transStatusEl.innerText = 'Traducciones cargadas para edición.';
+        transStatusEl.style.color = 'var(--text-muted)';
+      }
+    } else {
+      // Modo Añadir Nuevo
+      if (editProductIdInput) editProductIdInput.value = '';
+      if (productModalTitle) productModalTitle.innerText = '🍽️ Añadir Nuevo Producto / Plato';
+      if (productModalSubtitle) productModalSubtitle.innerText = 'Incorpora un nuevo plato a la carta con stock inicial, traducción automática a los 14 idiomas soportados, imágenes optimizadas para móvil/tablet/escritorio y ficha de alérgenos.';
+      if (btnSubmitProduct) btnSubmitProduct.innerText = '💾 Incorporar a Carta';
+
+      if (previewImg) previewImg.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240';
+      if (urlImgInput) urlImgInput.value = '';
+      const thumbIn = document.getElementById('new-product-img-thumb') as HTMLInputElement;
+      const medIn = document.getElementById('new-product-img-medium') as HTMLInputElement;
+      const largeIn = document.getElementById('new-product-img-large') as HTMLInputElement;
+      if (thumbIn) thumbIn.value = '';
+      if (medIn) medIn.value = '';
+      if (largeIn) largeIn.value = '';
+      if (transStatusEl) transStatusEl.innerText = '';
+      (document.getElementById('new-product-cooking') as HTMLInputElement).checked = true;
+
+      const allergenCheckboxes = document.querySelectorAll<HTMLInputElement>('input[name="new-product-allergen"]');
+      allergenCheckboxes.forEach(cb => { cb.checked = false; });
+
+      initTranslationFields();
+    }
+
     modalAddProduct.style.display = 'flex';
+  };
+
+  btnOpenAddProduct?.addEventListener('click', () => {
+    openProductEditorModal();
   });
 
   function closeAddProductModal() {
@@ -1900,6 +2002,9 @@ function setupManagerModals() {
 
   formAddProduct?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const isEditing = Boolean(editProductIdInput && editProductIdInput.value.trim());
+    const editingId = editProductIdInput ? editProductIdInput.value.trim() : '';
+
     const name = (document.getElementById('new-product-name') as HTMLInputElement).value.trim();
     const description = (document.getElementById('new-product-desc') as HTMLTextAreaElement).value.trim();
     const category = (document.getElementById('new-product-category') as HTMLSelectElement).value as MenuCategory;
@@ -1957,33 +2062,68 @@ function setupManagerModals() {
       }
     }
 
-    const newDish: MenuItem = {
-      id: `item_custom_${Date.now()}`,
-      name,
-      description,
-      price,
-      category,
-      stock,
-      requiresCooking,
-      isVegan,
-      isVegetarian,
-      isAlcoholFree,
-      allergens,
-      imageUrl: responsiveImages.large,
-      images: responsiveImages,
-      translations: dishTranslations
-    };
+    if (isEditing) {
+      const existing = menuCatalog.find(i => i.id === editingId);
+      if (!existing) {
+        showToast('Error: No se encontró el plato para editar.', 'danger');
+        return;
+      }
+      const updatedDish: MenuItem = {
+        ...existing,
+        name,
+        description,
+        price,
+        category,
+        stock,
+        requiresCooking,
+        isVegan,
+        isVegetarian,
+        isAlcoholFree,
+        allergens,
+        imageUrl: responsiveImages.large,
+        images: responsiveImages,
+        translations: dishTranslations
+      };
+      try {
+        await services.menuRepo.updateItem(updatedDish);
+        menuCatalog = await services.menuRepo.getAll();
+        updateLanguageSelectorOptions();
+        renderManagerDashboard();
+        renderMenu();
+        closeAddProductModal();
+        showToast(`¡Plato "${updatedDish.name}" actualizado con éxito!`, 'success');
+      } catch (err: any) {
+        showToast(`Error al actualizar el plato: ${err.message}`, 'danger');
+      }
+    } else {
+      const newDish: MenuItem = {
+        id: `item_custom_${Date.now()}`,
+        name,
+        description,
+        price,
+        category,
+        stock,
+        requiresCooking,
+        isVegan,
+        isVegetarian,
+        isAlcoholFree,
+        allergens,
+        imageUrl: responsiveImages.large,
+        images: responsiveImages,
+        translations: dishTranslations
+      };
 
-    try {
-      await services.menuRepo.createItem(newDish);
-      menuCatalog = await services.menuRepo.getAll();
-      updateLanguageSelectorOptions();
-      renderManagerDashboard();
-      renderMenu();
-      closeAddProductModal();
-      showToast(`¡Plato "${newDish.name}" incorporado con éxito con traducción a 14 idiomas e imágenes adaptadas!`, 'success');
-    } catch (err: any) {
-      showToast(`Error al crear producto: ${err.message}`, 'danger');
+      try {
+        await services.menuRepo.createItem(newDish);
+        menuCatalog = await services.menuRepo.getAll();
+        updateLanguageSelectorOptions();
+        renderManagerDashboard();
+        renderMenu();
+        closeAddProductModal();
+        showToast(`¡Plato "${newDish.name}" incorporado con éxito con traducción a 14 idiomas e imágenes adaptadas!`, 'success');
+      } catch (err: any) {
+        showToast(`Error al crear producto: ${err.message}`, 'danger');
+      }
     }
   });
 }
