@@ -7,9 +7,32 @@
     "category": "STARTER",
     "requiresCooking": true,
     "stock": 25,
+    "isVegan": false,
+    "isVegetarian": true,
+    "isAlcoholFree": true,
     "ingredients": ["Harina de trigo", "Queso blanco llanero", "Mantequilla", "Huevo", "Salsa tártara"],
     "allergens": ["Gluten", "Lácteos", "Huevos"],
-    "imageUrl": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Artisanal Cheese Sticks (5 pcs)",
+        "description": "Crispy rolled pastry stuffed with white cheese and homemade tartar sauce.",
+        "ingredients": ["Wheat flour", "White cheese", "Butter", "Egg", "Tartar sauce"],
+        "allergens": ["Gluten", "Dairy", "Eggs"]
+      },
+      "fr": {
+        "name": "Bâtonnets de Fromage Artisanal (5 pcs)",
+        "description": "Doigts de pâte croustillants farcis au fromage blanc et sauce tartare.",
+        "ingredients": ["Farine de blé", "Fromage blanc", "Beurre", "Oeuf", "Sauce tartare"],
+        "allergens": ["Gluten", "Lactose", "Oeufs"]
+      },
+      "de": {
+        "name": "Käse-Teigtaschen Tequeños (5 Stk.)",
+        "description": "Knusprige Teigstangen gefüllt mit Weißkäse, serviert mit Tartarsauce.",
+        "ingredients": ["Weizenmehl", "Weißkäse", "Butter", "Ei", "Tartarsauce"],
+        "allergens": ["Gluten", "Laktose", "Eier"]
+      }
+    }
   },
   {
     "id": "menu_2",
@@ -19,9 +42,32 @@
     "category": "STARTER",
     "requiresCooking": true,
     "stock": 18,
+    "isVegan": false,
+    "isVegetarian": false,
+    "isAlcoholFree": true,
     "ingredients": ["Pechuga de pollo", "Lechuga romana", "Queso Parmesano D.O.P.", "Pan tostado", "Salsa César"],
     "allergens": ["Gluten", "Lácteos", "Pescado", "Huevos"],
-    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Crispy Chicken Caesar Salad",
+        "description": "Romaine lettuce, parmesan shavings, croutons and herb marinated chicken.",
+        "ingredients": ["Chicken breast", "Romaine lettuce", "Parmesan cheese", "Croutons", "Caesar dressing"],
+        "allergens": ["Gluten", "Dairy", "Fish", "Eggs"]
+      },
+      "fr": {
+        "name": "Salade César au Poulet Croustillant",
+        "description": "Laitue romaine, copeaux de parmesan, croûtons et poulet mariné aux herbes.",
+        "ingredients": ["Blanc de poulet", "Laitue romaine", "Parmesan", "Croûtons", "Sauce César"],
+        "allergens": ["Gluten", "Lactose", "Poisson", "Oeufs"]
+      },
+      "de": {
+        "name": "Caesar Salat mit Knusperhähnchen",
+        "description": "Römersalat, Parmesanspäne, Croutons und Kräuter-Hähnchenbrust.",
+        "ingredients": ["Hähnchenbrust", "Römersalat", "Parmesankäse", "Croutons", "Caesar Dressing"],
+        "allergens": ["Gluten", "Laktose", "Fisch", "Eier"]
+      }
+    }
   },
   {
     "id": "menu_3",
@@ -31,9 +77,32 @@
     "category": "MAIN",
     "requiresCooking": true,
     "stock": 30,
+    "isVegan": false,
+    "isVegetarian": false,
+    "isAlcoholFree": true,
     "ingredients": ["Carne Angus 200g", "Pan brioche", "Queso Cheddar", "Cebolla caramelizada", "Mayonesa de trufa negra"],
-    "allergens": ["Gluten", "Lácteos", "Huevos", "Sésamo"],
-    "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80"
+    "allergens": ["Gluten", "Lácteos", "Huevos"],
+    "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Truffled Angus Premium Burger",
+        "description": "200g Angus beef, melted cheddar, black truffle mayo and caramelized onion.",
+        "ingredients": ["Angus beef 200g", "Brioche bun", "Cheddar cheese", "Caramelized onion", "Truffle mayo"],
+        "allergens": ["Gluten", "Dairy", "Eggs"]
+      },
+      "fr": {
+        "name": "Burger Angus Truffé Premium",
+        "description": "200g de bœuf Angus, cheddar fondu, mayonnaise à la truffe et oignons caramélisés.",
+        "ingredients": ["Bœuf Angus 200g", "Pain brioché", "Cheddar", "Oignons caramélisés", "Mayo truffée"],
+        "allergens": ["Gluten", "Lactose", "Oeufs"]
+      },
+      "de": {
+        "name": "Getrüffelter Angus Premium Burger",
+        "description": "200g Angus-Rindfleisch, geschmolzener Cheddar, Trüffelmayo und karamellisierte Zwiebeln.",
+        "ingredients": ["Angus Rindfleisch", "Brioche-Brötchen", "Cheddarkäse", "Zwiebeln", "Trüffelmayo"],
+        "allergens": ["Gluten", "Laktose", "Eier"]
+      }
+    }
   },
   {
     "id": "menu_4",
@@ -43,9 +112,32 @@
     "category": "MAIN",
     "requiresCooking": true,
     "stock": 15,
+    "isVegan": false,
+    "isVegetarian": false,
+    "isAlcoholFree": true,
     "ingredients": ["Lomo de salmón fresco", "Espárragos trigueros", "Zanahoria baby", "Aceite de oliva virgen extra", "Limón"],
     "allergens": ["Pescado"],
-    "imageUrl": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Grilled Norwegian Salmon with Veggies",
+        "description": "Fresh salmon fillet with wild asparagus and citrus emulsion.",
+        "ingredients": ["Fresh salmon", "Wild asparagus", "Baby carrots", "Extra virgin olive oil", "Lemon"],
+        "allergens": ["Fish"]
+      },
+      "fr": {
+        "name": "Saumon Norvégien Grillé aux Légumes",
+        "description": "Pavé de saumon frais, asperges sauvages et émulsion d'agrumes.",
+        "ingredients": ["Saumon frais", "Asperges", "Carottes", "Huile d'olive", "Citron"],
+        "allergens": ["Poisson"]
+      },
+      "de": {
+        "name": "Gegrillter norwegischer Lachs mit Gemüse",
+        "description": "Frisches Lachsfilet mit wildem Spargel und Zitrus-Emulsion.",
+        "ingredients": ["Frischer Lachs", "Grüner Spargel", "Babykarotten", "Olivenöl", "Zitrone"],
+        "allergens": ["Fisch"]
+      }
+    }
   },
   {
     "id": "menu_5",
@@ -55,9 +147,32 @@
     "category": "MAIN",
     "requiresCooking": true,
     "stock": 22,
+    "isVegan": false,
+    "isVegetarian": true,
+    "isAlcoholFree": true,
     "ingredients": ["Harina de trigo tipo 00", "Tomate San Marzano", "Mozzarella fior di latte", "Albahaca fresca", "Aceite de oliva virgen extra"],
     "allergens": ["Gluten", "Lácteos"],
-    "imageUrl": "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Neapolitan Margherita Pizza D.O.P.",
+        "description": "48h fermented dough, San Marzano tomato, fior di latte mozzarella and basil.",
+        "ingredients": ["Wheat flour 00", "San Marzano tomatoes", "Fior di latte mozzarella", "Fresh basil", "Olive oil"],
+        "allergens": ["Gluten", "Dairy"]
+      },
+      "fr": {
+        "name": "Pizza Napolitaine Margherita D.O.P.",
+        "description": "Pâte fermentée 48h, tomate San Marzano, mozzarella fior di latte et basilic.",
+        "ingredients": ["Farine de blé", "Tomates San Marzano", "Mozzarella", "Basilic frais", "Huile d'olive"],
+        "allergens": ["Gluten", "Lactose"]
+      },
+      "de": {
+        "name": "Neapolitanische Pizza Margherita D.O.P.",
+        "description": "48h gereifter Teig, San Marzano Tomaten, Fior di Latte Mozzarella und frisches Basilikum.",
+        "ingredients": ["Weizenmehl", "San Marzano Tomaten", "Mozzarella", "Basilikum", "Olivenöl"],
+        "allergens": ["Gluten", "Laktose"]
+      }
+    }
   },
   {
     "id": "menu_6",
@@ -67,56 +182,171 @@
     "category": "DESSERT",
     "requiresCooking": false,
     "stock": 12,
+    "isVegan": false,
+    "isVegetarian": true,
+    "isAlcoholFree": true,
     "ingredients": ["Queso crema", "Nata fresca 35%", "Huevos de corral", "Azúcar de caña", "Galleta artesana"],
     "allergens": ["Gluten", "Lácteos", "Huevos"],
-    "imageUrl": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Creamy Baked Basque Cheesecake",
+        "description": "Classic baked Basque cheesecake with a runny heart and caramelized top.",
+        "ingredients": ["Cream cheese", "Fresh cream", "Eggs", "Cane sugar", "Biscuit base"],
+        "allergens": ["Gluten", "Dairy", "Eggs"]
+      },
+      "fr": {
+        "name": "Cheesecake Basque Fondant au Four",
+        "description": "Cheesecake basque traditionnel avec cœur crémeux et croûte caramélisée.",
+        "ingredients": ["Fromage frais", "Crème fraîche", "Oeufs", "Sucre de canne", "Biscuit"],
+        "allergens": ["Gluten", "Lactose", "Oeufs"]
+      },
+      "de": {
+        "name": "Cremiger baskischer Käsekuchen",
+        "description": "Klassischer baskischer Ofen-Käsekuchen mit cremigem Kern.",
+        "ingredients": ["Frischkäse", "Sahne", "Eier", "Rohrzucker", "Kekskruste"],
+        "allergens": ["Gluten", "Laktose", "Eier"]
+      }
+    }
   },
   {
     "id": "menu_7",
-    "name": "Brownie de Chocolate Belga con Helado",
-    "description": "Bizcocho tibio de chocolate amargo, nueces de pecán y bola de helado de vainilla Bourbon.",
+    "name": "Brownie Vegano de Chocolate Belga con Frutos",
+    "description": "Bizcocho tibio de chocolate amargo 70%, nueces de pecán y sirope de arce puro.",
     "price": 6.00,
     "category": "DESSERT",
     "requiresCooking": true,
     "stock": 14,
-    "ingredients": ["Chocolate belga 70%", "Mantequilla", "Nueces de pecán", "Helado de vainilla Bourbon"],
-    "allergens": ["Gluten", "Lácteos", "Huevos", "Frutos de cáscara"],
-    "imageUrl": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80"
+    "isVegan": true,
+    "isVegetarian": true,
+    "isAlcoholFree": true,
+    "ingredients": ["Chocolate belga 70%", "Harina de avena", "Nueces de pecán", "Sirope de arce", "Leche de almendras"],
+    "allergens": ["Frutos de cáscara"],
+    "imageUrl": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Vegan Belgian Chocolate Nut Brownie",
+        "description": "Warm 70% dark chocolate sponge, pecan nuts and pure maple syrup.",
+        "ingredients": ["Belgian chocolate 70%", "Oat flour", "Pecan nuts", "Maple syrup", "Almond milk"],
+        "allergens": ["Nuts"]
+      },
+      "fr": {
+        "name": "Brownie Végétalien au Chocolat Belge",
+        "description": "Gâteau tiède au chocolat noir 70%, noix de pécan et sirop d'érable.",
+        "ingredients": ["Chocolat belge 70%", "Farine d'avoine", "Noix de pécan", "Sirop d'érable", "Lait d'amande"],
+        "allergens": ["Fruits à coque"]
+      },
+      "de": {
+        "name": "Veganer Schoko-Nuss-Brownie",
+        "description": "Warmer Kuchen aus 70% Zartbitterschokolade mit Pekannüssen und Ahornsirup.",
+        "ingredients": ["Schokolade 70%", "Hafermehl", "Pekannüsse", "Ahornsirup", "Mandelmilch"],
+        "allergens": ["Schalenfrüchte"]
+      }
+    }
   },
   {
     "id": "menu_8",
-    "name": "Cerveza Artesanal IPA Madrid",
-    "description": "Botellín de 33cl de cerveza rubia lupulada con toques cítricos y florales.",
+    "name": "Cerveza Artesanal IPA Madrid (33cl)",
+    "description": "Botellín de 33cl de cerveza rubia lupulada con toques cítricos y florales. (5.8% Vol).",
     "price": 3.80,
     "category": "BEVERAGE",
     "requiresCooking": false,
     "stock": 45,
+    "isVegan": true,
+    "isVegetarian": true,
+    "isAlcoholFree": false,
     "ingredients": ["Agua", "Malta de cebada", "Lúpulo Cascade", "Levadura"],
     "allergens": ["Gluten"],
-    "imageUrl": "https://images.unsplash.com/photo-1608270196882-78d10b7b51b2?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1608270196882-78d10b7b51b2?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Madrid Craft IPA Beer (33cl)",
+        "description": "33cl bottle of dry-hopped blonde ale with citrus notes (5.8% ABV).",
+        "ingredients": ["Water", "Barley malt", "Cascade hops", "Yeast"],
+        "allergens": ["Gluten"]
+      },
+      "fr": {
+        "name": "Bière Artisanale IPA Madrid (33cl)",
+        "description": "Bouteille 33cl de bière blonde houblonnée aux agrumes (5.8% Vol).",
+        "ingredients": ["Eau", "Malt d'orge", "Houblon Cascade", "Levure"],
+        "allergens": ["Gluten"]
+      },
+      "de": {
+        "name": "Madrid Craft IPA Bier (33cl)",
+        "description": "33cl Flasche gehopftes IPA mit Zitrusnoten (5,8% Vol).",
+        "ingredients": ["Wasser", "Gerstenmalz", "Cascade Hopfen", "Hefe"],
+        "allergens": ["Gluten"]
+      }
+    }
   },
   {
     "id": "menu_9",
     "name": "Copa de Vino Tinto Ribera del Duero",
-    "description": "Crianza con notas a frutos rojos y sutil madera.",
+    "description": "Crianza con notas a frutos rojos y sutil madera. (14% Vol).",
     "price": 4.20,
     "category": "BEVERAGE",
     "requiresCooking": false,
     "stock": 35,
+    "isVegan": true,
+    "isVegetarian": true,
+    "isAlcoholFree": false,
     "ingredients": ["Uva Tempranillo 100%"],
     "allergens": ["Sulfitos"],
-    "imageUrl": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Glass of Red Wine Ribera del Duero",
+        "description": "Crianza red wine with red berries and oak notes (14% ABV).",
+        "ingredients": ["Tempranillo grapes 100%"],
+        "allergens": ["Sulphites"]
+      },
+      "fr": {
+        "name": "Verre de Vin Rouge Ribera del Duero",
+        "description": "Vin rouge Crianza aux notes de fruits rouges et bois (14% Vol).",
+        "ingredients": ["Cépage Tempranillo 100%"],
+        "allergens": ["Sulfites"]
+      },
+      "de": {
+        "name": "Glas Ribera del Duero Rotwein",
+        "description": "Crianza Rotwein mit Waldbeeren und Holznote (14% Vol).",
+        "ingredients": ["100% Tempranillo Traube"],
+        "allergens": ["Sulfite"]
+      }
+    }
   },
   {
     "id": "menu_10",
     "name": "Agua Mineral Natural Sierra (50cl)",
-    "description": "Agua de manantial fresca con o sin gas.",
+    "description": "Agua de manantial fresca de baja mineralización.",
     "price": 2.20,
     "category": "BEVERAGE",
     "requiresCooking": false,
     "stock": 60,
+    "isVegan": true,
+    "isVegetarian": true,
+    "isAlcoholFree": true,
     "ingredients": ["Agua mineral natural"],
     "allergens": [],
-    "imageUrl": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=500&q=80"
+    "imageUrl": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=500&q=80",
+    "translations": {
+      "en": {
+        "name": "Natural Mineral Water Sierra (50cl)",
+        "description": "Fresh low mineralization spring water.",
+        "ingredients": ["Natural mineral water"],
+        "allergens": []
+      },
+      "fr": {
+        "name": "Eau Minérale Naturelle Sierra (50cl)",
+        "description": "Eau de source fraîche à faible minéralisation.",
+        "ingredients": ["Eau minérale naturelle"],
+        "allergens": []
+      },
+      "de": {
+        "name": "Natürliches Mineralwasser Sierra (50cl)",
+        "description": "Frisches Quellwasser aus dem Gebirge.",
+        "ingredients": ["Natürliches Mineralwasser"],
+        "allergens": []
+      }
+    }
   }
 ]

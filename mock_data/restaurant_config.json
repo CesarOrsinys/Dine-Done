@@ -1,8 +1,10 @@
 {
-  "businessName": "Dine & Done Bistro",
-  "tagline": "Alta Gastronomía & Servicio Ágil",
-  "address": "Calle Gran Vía 42, Madrid",
+  "businessName": "Bistro Gran Vía",
+  "tagline": "Cocina Mediterránea de Temporada",
+  "address": "Calle Gran Vía 42, 28013 Madrid",
   "phone": "+34 912 345 678",
   "currency": "€",
-  "vatNumber": "B-88776655"
+  "vatNumber": "B-88776655",
+  "softwareBranding": "Dine & Done",
+  "softwareVersion": "v1.2.0"
 }

@@ -45,16 +45,19 @@ export class CreateOrderUseCase {
       dto.items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity }))
     );
 
-    // 2. Subtotal and totals calculation
+    // 2. Subtotal and packaging calculation (Spanish Law: R.D. 293/2018 and Ley 7/2022)
     const subtotal = dto.items.reduce((acc, curr) => acc + (curr.unitPrice * curr.quantity), 0);
+    const packagingCost = (dto.packaging.bags ? 0.10 : 0) +
+                          (dto.packaging.plasticContainers ? 0.15 : 0) +
+                          (dto.packaging.cutleryCount > 0 ? dto.packaging.cutleryCount * 0.10 : 0);
     const tip = dto.tipAmount && dto.tipAmount > 0 ? dto.tipAmount : 0;
-    const total = parseFloat((subtotal + tip).toFixed(2));
+    const total = parseFloat((subtotal + packagingCost + tip).toFixed(2));
 
     // 3. Payment Processing
     let paymentStatus = PaymentStatus.PENDING_CASH;
     if (dto.paymentMethod === PaymentMethod.STRIPE_CARD) {
       const paymentResult = await this.paymentGateway.processPayment({
-        amount: subtotal,
+        amount: subtotal + packagingCost,
         tip: tip,
         token: dto.stripeToken || 'tok_visa'
       });
@@ -78,6 +81,7 @@ export class CreateOrderUseCase {
       paymentStatus: paymentStatus,
       paymentMethod: dto.paymentMethod,
       subtotal: parseFloat(subtotal.toFixed(2)),
+      packagingCost: parseFloat(packagingCost.toFixed(2)),
       tipAmount: parseFloat(tip.toFixed(2)),
       total: total,
       waiterId: dto.waiterId,

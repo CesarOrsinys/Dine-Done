@@ -174,3 +174,86 @@
   - **Given** la barra de identificación de mesa en la vista de comensal
   - **When** el usuario pulsa "Cambiar Mesa" e introduce un nuevo identificador
   - **Then** la comanda actualiza su destino y se recuerda la preferencia.
+
+---
+
+### HU-12: Autenticación y Acceso Seguro para Personal (Staff Login)
+**Como** Empleado del restaurante (Camarero, Cocinero, Gerente)  
+**Quiero** autenticarme mediante un botón de acceso arriba a la derecha con selección de perfil  
+**Para** desbloquear los paneles de operación interna sin exponer controles a los comensales.
+
+- **Criterio 12.1: Acceso comensal sin login previo**
+  - **Given** un comensal que entra a la aplicación
+  - **When** visualiza el encabezado superior
+  - **Then** no se muestran las pestañas de personal y solo ve el botón "Acceso Empleados".
+
+- **Criterio 12.2: Despliegue de modal y activación de roles de personal**
+  - **Given** que un empleado pulsa "Acceso Empleados"
+  - **When** selecciona su perfil en el modal (Camarero, Cocinero, Gerente)
+  - **Then** se habilitan las pestañas de navegación de personal y el botón "Salir (Comensal)" para cerrar sesión de manera segura.
+
+---
+
+### HU-13: Filtro Excluyente de Alérgenos Alimentarios
+**Como** Comensal con intolerancias o alergias  
+**Quiero** filtrar la carta seleccionando alérgenos específicos para excluirlos  
+**Para** ver únicamente platos 100% seguros para mi consumo.
+
+- **Criterio 13.1: Exclusión reactiva de platos con alérgenos**
+  - **Given** el selector de alérgenos en la barra de filtros
+  - **When** el comensal selecciona "Excluir Gluten" o cualquier otro alérgeno
+  - **Then** el catálogo oculta automáticamente todos los platos que contengan dicho alérgeno.
+
+---
+
+### HU-14: Filtros de Preferencias Dietéticas (Vegano, Vegetariano, 0% Alcohol)
+**Como** Comensal con preferencias o restricciones alimentarias  
+**Quiero** chips interactivos de filtrado para Vegano, Vegetariano y 0% Alcohol  
+**Para** encontrar rápidamente opciones acordes a mi estilo de vida.
+
+- **Criterio 14.1: Activación combinada de filtros dietéticos**
+  - **Given** los botones chip de dieta en la carta
+  - **When** el comensal pulsa "Vegano" o "0% Alcohol"
+  - **Then** la carta muestra exclusivamente los productos que satisfacen todos los filtros activos.
+
+---
+
+### HU-15: Cumplimiento de la Normativa Española sobre Empaques y Bolsas (R.D. 293/2018 y Ley 7/2022)
+**Como** Gerente y Comensal  
+**Quiero** que el cobro de bolsas plásticas y envases desechables se rija por la legislación española vigente  
+**Para** cumplir con la obligación legal de cobro diferenciado y promover la reducción de residuos.
+
+- **Criterio 15.1: Desglose específico de empaque en comanda y factura**
+  - **Given** la sección de empaque en la bandeja de pedido
+  - **When** el comensal solicita bolsa (+0.10 € según R.D. 293/2018), envase para llevar (+0.15 € según Ley 7/2022) o cubiertos ecológicos (+0.10 €/ud)
+  - **Then** el sistema detalla cada concepto como línea independiente sujeta a normativa y lo suma al total a pagar.
+
+---
+
+### HU-16: Desacoplamiento de Marca: Identidad del Restaurante vs Software "Dine & Done"
+**Como** Propietario del restaurante  
+**Quiero** que la cabecera muestre únicamente el nombre de mi establecimiento y "Dine & Done" aparezca en el footer  
+**Para** mantener una identidad visual propia en sala mientras se reconoce la tecnología de software en el pie de página.
+
+- **Criterio 16.1: Encabezado limpio con nombre de restaurante**
+  - **Given** el encabezado superior
+  - **When** se renderiza la web
+  - **Then** no aparece la marca "Dine & Done" en la barra de navegación superior, sino el nombre configurado del local.
+
+- **Criterio 16.2: Pie de página con Powered by, redes y enlaces legales**
+  - **Given** el footer inferior
+  - **When** el usuario baja hasta el final de la página
+  - **Then** encuentra el sello "Powered by Dine & Done © 2026", enlaces a Términos, Privacidad, Cookies, Aviso Legal y redes sociales.
+
+---
+
+### HU-17: Sistema Multilingüe Internacional (i18n)
+**Como** Turista o cliente internacional  
+**Quiero** cambiar el idioma de la aplicación (Español, Inglés, Francés, Alemán) desde la cabecera  
+**Para** comprender todos los textos de la interfaz, nombres de platos, ingredientes y notas legales en mi lengua materna.
+
+- **Criterio 17.1: Traducción reactiva sin recarga de página**
+  - **Given** el selector de idioma en la parte superior derecha
+  - **When** el usuario selecciona "EN", "FR" o "DE"
+  - **Then** todos los títulos, botones, filtros, opciones de empaque y nombres/ingredientes de la carta se actualizan instantáneamente al idioma seleccionado.
+

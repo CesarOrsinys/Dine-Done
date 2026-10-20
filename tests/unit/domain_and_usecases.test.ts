@@ -69,8 +69,9 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     });
 
     assert.strictEqual(order.subtotal, 17.00);
+    assert.strictEqual(order.packagingCost, 0.45);
     assert.strictEqual(order.tipAmount, 2.00);
-    assert.strictEqual(order.total, 19.00);
+    assert.strictEqual(order.total, 19.45);
     assert.strictEqual(order.paymentStatus, PaymentStatus.PAID);
     assert.strictEqual(order.status, OrderStatus.PLACED);
     assert.strictEqual(order.packaging.bags, true);

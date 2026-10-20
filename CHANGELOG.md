@@ -5,6 +5,25 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.2.0] - 2026-10-20
+### Added
+- **Acceso Exclusivo de Personal (Staff Login) (HU-12):**
+  - Botón "Acceso Empleados" en la barra superior derecha con modal de selección de perfil para Camarero, Cocinero y Gerente.
+  - La vista del comensal no requiere login y oculta por defecto los paneles operativos de personal.
+  - Botón de cierre de sesión "Salir (Comensal)" para retornar al modo cliente.
+- **Filtro Excluyente de Alérgenos (HU-13):**
+  - Selector en la barra de filtros para excluir platos con Gluten, Lácteos, Huevos, Pescado, Frutos de cáscara o Sulfitos.
+- **Filtros Dietéticos Especiales (HU-14):**
+  - Chips interactivos para filtrar platos Veganos, Vegetarianos y 0% Alcohol.
+- **Cumplimiento de la Normativa Española sobre Empaques (HU-15):**
+  - Cálculo y desglose específico en la comanda para cobro de bolsas plásticas (R.D. 293/2018: +0.10 €), envases desechables de un solo uso (Ley 7/2022 de Residuos: +0.15 €) y cubiertos ecológicos (+0.10 €/ud).
+- **Desacoplamiento de Marca: Restaurante en Header, Dine & Done en Footer (HU-16):**
+  - El encabezado superior muestra exclusivamente el nombre comercial del restaurante procedente de `restaurant_config.json`.
+  - El software "Dine & Done" se traslada al pie de página junto a enlaces de redes sociales, Términos y Condiciones, Política de Privacidad, Cookies, Aviso Legal e información sobre sostenibilidad.
+- **Soporte Internacional Multilingüe (i18n) (HU-17):**
+  - Selector de idioma en la barra superior (Español 🇪🇸, Inglés 🇬🇧, Francés 🇫🇷, Alemán 🇩🇪).
+  - Diccionario exhaustivo `mock_data/translations.json` y traducción completa reactiva de la interfaz y elementos de la carta (nombre, descripción, ingredientes y alérgenos).
+
 ## [1.1.0] - 2026-10-20
 ### Added
 - **Branding Personalizable por JSON (HU-09):**

@@ -27,15 +27,24 @@ created_at: "2026-10-20"
 - **Feature 6:** Control de stock 
 - **Feature 7:** Control de usuarios
 - **Feature 8:** ver el camarero y cocinero asignado a cada pedido
-- **Feature 9 (Nuevo):** Nombre de la empresa personalizable mediante fichero `.json` de configuración (branding dinámico en interfaz y tickets).
-- **Feature 10 (Nuevo):** Menú enriquecido y personalizable con nombre, ingredientes (de tenerlos), alérgenos (de tenerlos), precio y stock, gestionado mediante BBDD / repositorio con mock JSON inicial.
-- **Feature 11 (Nuevo):** Detección inteligente de mesa para comensales: lectura automática por parámetro de URL (ej. `?table=5` o `?mesa=5`) y selección manual interactiva.
+- **Feature 9:** Nombre de la empresa personalizable mediante fichero `.json` de configuración (branding dinámico en interfaz y tickets).
+- **Feature 10:** Menú enriquecido y personalizable con nombre, ingredientes (de tenerlos), alérgenos (de tenerlos), precio y stock, gestionado mediante BBDD / repositorio con mock JSON inicial.
+- **Feature 11:** Detección inteligente de mesa para comensales: lectura automática por parámetro de URL (ej. `?table=5` o `?mesa=5`) y selección manual interactiva.
+- **Feature 12 (Nuevo):** Login de Staff arriba a la derecha para desbloquear vistas de Camarero, Cocinero y Gerente (el comensal no requiere login).
+- **Feature 13 (Nuevo):** Filtro de alérgenos para exclusión de ingredientes peligrosos para personas con intolerancias alimentarias.
+- **Feature 14 (Nuevo):** Filtros dietéticos específicos: Vegano, Vegetariano y 0% Alcohol.
+- **Feature 15 (Nuevo):** Cumplimiento estricto de la normativa española para bolsas y plásticos (R.D. 293/2018 y Ley 7/2022 de residuos): desglose con cobro legal de bolsas y envases de un solo uso.
+- **Feature 16 (Nuevo):** Branding desacoplado: Encabezado superior exclusivo del Restaurante; mención a Dine & Done trasladada al Footer completo con redes sociales, cookies, términos y condiciones legales.
+- **Feature 17 (Nuevo):** Selector multi-idioma (i18n) arriba a la derecha que traduce toda la web y la carta del restaurante (ES, EN, FR, DE).
 
 ### 2.3. Business Rules & Edge Cases (Reglas de Negocio)
 - [Regla 1: Identificación de mesa] El comensal debe tener siempre una mesa asociada antes de confirmar el pedido, detectada automáticamente por URL o configurada manualmente.
 - [Regla 2: Ficha técnica de plato] Cada plato del menú debe informar con precisión de sus ingredientes y alérgenos reconocidos para seguridad alimentaria de los comensales.
-- [Regla 3: Personalización de restaurante] El nombre comercial y datos de marca del restaurante provienen de `restaurant_config.json` sin hardcoding.
+- [Regla 3: Personalización de restaurante] El nombre comercial y datos de marca del restaurante provienen de `restaurant_config.json` sin hardcoding de Dine & Done en el encabezado.
 - [Regla 4: Concurrencia de stock] El inventario se descuenta atómicamente por BBDD / repositorio para evitar sobreventas.
+- [Regla 5: Control de acceso RBAC] Las vistas operativas (Camarero, Cocina, Gerente) requieren autenticación de staff; el Comensal opera de forma pública y anónima.
+- [Regla 6: Normativa española de plásticos] Conforme al Real Decreto 293/2018 y Ley 7/2022, las bolsas de plástico conllevan un cobro obligatorio (0.10 €) y los envases plásticos/cubiertos no reutilizables tienen un suplemento impositivo (0.15 €), desglosados explícitamente en el ticket.
+- [Regla 7: Internacionalización total] El cambio de idioma conmuta instantáneamente todas las etiquetas, descripciones de platos, alérgenos y filtros al idioma seleccionado sin recargar la página.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

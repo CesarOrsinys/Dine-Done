@@ -1,4 +1,5 @@
 import restaurantConfig from '../mock_data/restaurant_config.json' with { type: 'json' };
+import translationsData from '../mock_data/translations.json' with { type: 'json' };
 import { RepositoryContainer } from './adapters/infrastructure/di/RepositoryContainer.js';
 import { MenuItem } from './core/domain/entities/MenuItem.js';
 import { Order } from './core/domain/entities/Order.js';
@@ -15,6 +16,11 @@ import { GenerateKpiReportUseCase } from './core/usecases/GenerateKpiReportUseCa
 import { ManageStockUseCase } from './core/usecases/ManageStockUseCase.js';
 import { ProcessCashPaymentUseCase } from './core/usecases/ProcessCashPaymentUseCase.js';
 import { UpdateOrderStatusUseCase } from './core/usecases/UpdateOrderStatusUseCase.js';
+
+// Types for i18n
+type Language = 'es' | 'en' | 'fr' | 'de';
+let currentLanguage: Language = 'es';
+const translations: Record<Language, any> = translationsData as Record<Language, any>;
 
 // 1. Initialize Hexagonal Services & Use Cases via DI
 const services = RepositoryContainer.getServices(true);
@@ -52,6 +58,12 @@ let currentTipPercent = 0.10;
 let currentPaymentMethod: PaymentMethod = PaymentMethod.STRIPE_CARD;
 let cutleryCount = 2;
 
+// Features 2 & 3: Dietary & Allergen Filter State
+let isFilterVegan = false;
+let isFilterVegetarian = false;
+let isFilterNoAlcohol = false;
+let selectedAllergenToExclude = 'ALL';
+
 // DOM Elements
 const toastContainer = document.getElementById('toast-container')!;
 const menuCardsContainer = document.getElementById('menu-cards-container')!;
@@ -71,7 +83,7 @@ function showToast(message: string, type: 'info' | 'success' | 'warning' | 'dang
   }, 4000);
 }
 
-// 3. Feature 9: Customizable Business Details from restaurant_config.json
+// 3. Feature 9 & 5: Branding desacoplado (Header exclusivo de restaurante, Dine & Done en Footer)
 function applyBusinessBranding() {
   document.title = `${restaurantConfig.businessName} | ${restaurantConfig.tagline}`;
   
@@ -90,9 +102,208 @@ function applyBusinessBranding() {
   if (tagEl) {
     tagEl.innerText = `${restaurantConfig.tagline} • ${restaurantConfig.address}`;
   }
+
+  // Footer branding
+  const footerNameEl = document.getElementById('footer-restaurant-name');
+  if (footerNameEl) footerNameEl.innerText = restaurantConfig.businessName;
+
+  const footerDescEl = document.getElementById('footer-restaurant-desc');
+  if (footerDescEl) footerDescEl.innerText = `${restaurantConfig.tagline} • ${restaurantConfig.address}`;
 }
 
-// 4. Feature 11: Intelligent Table Identification (URL Detection + Manual Edit)
+// 4. Feature 6: Selector de Idioma Multilingüe (i18n)
+function setupLanguageSelector() {
+  const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
+  if (langSelector) {
+    langSelector.value = currentLanguage;
+    langSelector.addEventListener('change', () => {
+      setLanguage(langSelector.value as Language);
+    });
+  }
+}
+
+function setLanguage(lang: Language) {
+  currentLanguage = lang;
+  const t = translations[lang] || translations['es'];
+
+  // Static UI Elements dictionary update
+  const elMap: Record<string, string> = {
+    'txt-menu-title': t.menuTitle,
+    'txt-menu-sub': t.menuSubtitle,
+    'pill-cat-all': t.allDishes,
+    'pill-cat-starter': t.starters,
+    'pill-cat-main': t.mains,
+    'pill-cat-dessert': t.desserts,
+    'pill-cat-beverage': t.beverages,
+    'txt-table-title': t.tableIdentification,
+    'txt-cart-title': t.yourOrder,
+    'txt-cart-empty': t.emptyCart,
+    'txt-cart-table-label': t.tableAssigned,
+    'txt-pack-title': t.servicePackaging,
+    'txt-pack-law': `⚖️ ${t.packagingLawNote}`,
+    'txt-pack-bags': t.bagOption,
+    'txt-pack-plastic': t.plasticOption,
+    'txt-tip-label': t.tipSection,
+    'txt-pay-label': t.paymentMethod,
+    'txt-bill-subtotal-label': t.subtotalDishes,
+    'txt-bill-pack-label': t.packagingTotal,
+    'txt-bill-tip-label': t.tipAmount,
+    'txt-bill-total-label': t.totalToPay,
+    'txt-btn-place-order': t.confirmOrder,
+    'txt-modal-title': t.loginModalTitle,
+    'txt-modal-desc': t.loginModalDesc,
+    'footer-legal-notice': t.footerNotice,
+    'footer-rights': t.footerRights,
+    'footer-link-terms': t.terms,
+    'footer-link-privacy': t.privacy,
+    'footer-link-cookies': t.cookies,
+    'footer-link-legal': t.legalNotice
+  };
+
+  for (const [id, val] of Object.entries(elMap)) {
+    const el = document.getElementById(id);
+    if (el && val) el.innerHTML = val;
+  }
+
+  const btnVegan = document.getElementById('btn-filter-vegan');
+  if (btnVegan) btnVegan.innerHTML = `<span>${t.filterVegan}</span>`;
+
+  const btnVeg = document.getElementById('btn-filter-vegetarian');
+  if (btnVeg) btnVeg.innerHTML = `<span>${t.filterVegetarian}</span>`;
+
+  const btnNoAlc = document.getElementById('btn-filter-noalcohol');
+  if (btnNoAlc) btnNoAlc.innerHTML = `<span>${t.filterNoAlcohol}</span>`;
+
+  const cutleryLabel = document.getElementById('txt-pack-cutlery');
+  if (cutleryLabel) cutleryLabel.innerText = `${t.cutleryOption}:`;
+
+  const btnStaffLogin = document.getElementById('btn-staff-login');
+  if (btnStaffLogin) btnStaffLogin.innerHTML = `<span>${t.staffLogin}</span>`;
+
+  const btnStaffLogout = document.getElementById('btn-staff-logout');
+  if (btnStaffLogout) btnStaffLogout.innerHTML = `<span>${t.staffLogout}</span>`;
+
+  // Re-render menu cards and cart with translated values
+  renderMenu();
+  updateCartUI();
+}
+
+// 5. Feature 1: Login de Personal (Modal arriba derecha; comensal por defecto)
+function setupStaffAuth() {
+  const modal = document.getElementById('staff-login-modal')!;
+  const btnLogin = document.getElementById('btn-staff-login')!;
+  const btnLogout = document.getElementById('btn-staff-logout')!;
+  const btnClose = document.getElementById('btn-close-modal')!;
+  const staffSwitcher = document.getElementById('staff-role-switcher')!;
+
+  btnLogin?.addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
+
+  btnClose?.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  const staffCards = document.querySelectorAll('.staff-select-card');
+  staffCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const role = card.getAttribute('data-staff-role') as UserRole;
+      const staffName = card.getAttribute('data-staff-name') || 'Empleado';
+
+      modal.style.display = 'none';
+      staffSwitcher.style.display = 'flex';
+      btnLogin.style.display = 'none';
+      btnLogout.style.display = 'flex';
+
+      switchRole(role);
+      showToast(`¡Bienvenido, ${staffName}! Panel de ${role} activado.`, 'success');
+    });
+  });
+
+  btnLogout?.addEventListener('click', () => {
+    staffSwitcher.style.display = 'none';
+    btnLogout.style.display = 'none';
+    btnLogin.style.display = 'flex';
+
+    currentUser = allUsers.find(u => u.role === UserRole.CUSTOMER) || {
+      id: 'usr_cust_1',
+      name: 'María López',
+      email: 'maria@cliente.com',
+      role: UserRole.CUSTOMER,
+      active: true
+    };
+
+    switchRole(UserRole.CUSTOMER);
+    showToast('Sesión de empleado cerrada. Has vuelto al modo comensal.', 'info');
+  });
+}
+
+// 6. Navigation & Role Switcher
+function setupRoleSwitcher() {
+  const roleButtons = document.querySelectorAll('.role-btn');
+  roleButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedRole = btn.getAttribute('data-role') as UserRole;
+      switchRole(selectedRole);
+    });
+  });
+}
+
+async function switchRole(role: UserRole) {
+  // Update currentUser matching role
+  const foundUser = allUsers.find(u => u.role === role) || {
+    id: `usr_${role.toLowerCase()}`,
+    name: role === UserRole.CUSTOMER ? 'María López' : role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
+    email: `${role.toLowerCase()}@dinedone.com`,
+    role: role,
+    active: true
+  };
+  currentUser = foundUser;
+
+  // Header update (if user info display exists)
+  const uNameEl = document.getElementById('header-user-name');
+  if (uNameEl) uNameEl.innerText = currentUser.name;
+  const uRoleEl = document.getElementById('header-user-role');
+  if (uRoleEl) uRoleEl.innerText = `Rol: ${currentUser.role}`;
+
+  // Buttons state
+  document.querySelectorAll('.role-btn').forEach(b => {
+    if (b.getAttribute('data-role') === role) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  // Views switching
+  document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
+  const viewMap: Record<UserRole, string> = {
+    [UserRole.CUSTOMER]: 'view-customer',
+    [UserRole.WAITER]: 'view-waiter',
+    [UserRole.CHEF]: 'view-chef',
+    [UserRole.MANAGER]: 'view-manager'
+  };
+  document.getElementById(viewMap[role])?.classList.add('active-view');
+
+  // Trigger role-specific rendering
+  if (role === UserRole.CUSTOMER) {
+    renderMenu();
+  } else if (role === UserRole.WAITER) {
+    renderWaiterOrders();
+  } else if (role === UserRole.CHEF) {
+    renderChefOrders();
+  } else if (role === UserRole.MANAGER) {
+    renderManagerDashboard();
+  }
+}
+
+// 7. Feature 11: Intelligent Table Identification (URL Detection + Manual Edit)
 function setupTableIdentification() {
   const urlParams = new URLSearchParams(window.location.search);
   const fromParam = urlParams.get('table') || urlParams.get('mesa') || urlParams.get('m');
@@ -163,65 +374,7 @@ function updateTableUI() {
   if (cartTableInput) cartTableInput.value = currentAssignedTable;
 }
 
-// 5. Navigation & Role Switcher
-function setupRoleSwitcher() {
-  const roleButtons = document.querySelectorAll('.role-btn');
-  roleButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const selectedRole = btn.getAttribute('data-role') as UserRole;
-      switchRole(selectedRole);
-    });
-  });
-}
-
-async function switchRole(role: UserRole) {
-  // Update currentUser matching role
-  const foundUser = allUsers.find(u => u.role === role) || {
-    id: `usr_${role.toLowerCase()}`,
-    name: role === UserRole.CUSTOMER ? 'María López' : role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
-    email: `${role.toLowerCase()}@dinedone.com`,
-    role: role,
-    active: true
-  };
-  currentUser = foundUser;
-
-  // Header update
-  document.getElementById('header-user-name')!.innerText = currentUser.name;
-  document.getElementById('header-user-role')!.innerText = `Rol: ${currentUser.role}`;
-  document.getElementById('header-avatar')!.innerText = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2);
-
-  // Buttons state
-  document.querySelectorAll('.role-btn').forEach(b => {
-    if (b.getAttribute('data-role') === role) {
-      b.classList.add('active');
-    } else {
-      b.classList.remove('active');
-    }
-  });
-
-  // Views switching
-  document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
-  const viewMap: Record<UserRole, string> = {
-    [UserRole.CUSTOMER]: 'view-customer',
-    [UserRole.WAITER]: 'view-waiter',
-    [UserRole.CHEF]: 'view-chef',
-    [UserRole.MANAGER]: 'view-manager'
-  };
-  document.getElementById(viewMap[role])?.classList.add('active-view');
-
-  // Trigger role-specific rendering
-  if (role === UserRole.CUSTOMER) {
-    renderMenu();
-  } else if (role === UserRole.WAITER) {
-    renderWaiterOrders();
-  } else if (role === UserRole.CHEF) {
-    renderChefOrders();
-  } else if (role === UserRole.MANAGER) {
-    renderManagerDashboard();
-  }
-}
-
-// 6. Customer: Menu & Cart Rendering (Feature 10: Rich Ingredients & Allergens)
+// 8. Features 2 & 3: Filtros de Categorías, Dietas (Vegano, Vegetariano, 0 Alcohol) y Alérgenos
 function setupCategoryFilters() {
   const pills = document.querySelectorAll('.cat-pill');
   pills.forEach(pill => {
@@ -234,57 +387,136 @@ function setupCategoryFilters() {
   });
 }
 
+function setupDietaryAndAllergenFilters() {
+  const btnVegan = document.getElementById('btn-filter-vegan');
+  btnVegan?.addEventListener('click', () => {
+    isFilterVegan = !isFilterVegan;
+    btnVegan.classList.toggle('active-vegan', isFilterVegan);
+    renderMenu();
+  });
+
+  const btnVeg = document.getElementById('btn-filter-vegetarian');
+  btnVeg?.addEventListener('click', () => {
+    isFilterVegetarian = !isFilterVegetarian;
+    btnVeg.classList.toggle('active-veg', isFilterVegetarian);
+    renderMenu();
+  });
+
+  const btnNoAlc = document.getElementById('btn-filter-noalcohol');
+  btnNoAlc?.addEventListener('click', () => {
+    isFilterNoAlcohol = !isFilterNoAlcohol;
+    btnNoAlc.classList.toggle('active-noalc', isFilterNoAlcohol);
+    renderMenu();
+  });
+
+  const allergenSelect = document.getElementById('allergen-filter-select') as HTMLSelectElement;
+  allergenSelect?.addEventListener('change', () => {
+    selectedAllergenToExclude = allergenSelect.value;
+    renderMenu();
+  });
+}
+
 function renderMenu() {
   menuCardsContainer.innerHTML = '';
-  const filtered = currentCategoryFilter === 'ALL'
+  
+  let filtered = currentCategoryFilter === 'ALL'
     ? menuCatalog
     : menuCatalog.filter(m => m.category === currentCategoryFilter);
 
-  document.getElementById('badge-menu-count')!.innerText = `${filtered.length} Platos en Carta`;
+  // Apply Dietary Filters (Feature 3)
+  if (isFilterVegan) {
+    filtered = filtered.filter(m => m.isVegan === true);
+  }
+  if (isFilterVegetarian) {
+    filtered = filtered.filter(m => m.isVegetarian === true || m.isVegan === true);
+  }
+  if (isFilterNoAlcohol) {
+    filtered = filtered.filter(m => m.isAlcoholFree === true);
+  }
+
+  // Apply Allergen Exclusion Filter (Feature 2)
+  if (selectedAllergenToExclude !== 'ALL') {
+    const allergenExclusionMap: Record<string, string[]> = {
+      'Sin Gluten': ['gluten'],
+      'Sin Lácteos': ['lácteo', 'lacteo', 'dairy', 'lactose'],
+      'Sin Huevos': ['huevo', 'egg', 'oeuf'],
+      'Sin Pescado': ['pescado', 'fish', 'poisson'],
+      'Sin Frutos de cáscara': ['fruto', 'cáscara', 'nut', 'noix'],
+      'Sin Sulfitos': ['sulfito', 'sulphite']
+    };
+
+    const targetKeywords = allergenExclusionMap[selectedAllergenToExclude] || [];
+    if (targetKeywords.length > 0) {
+      filtered = filtered.filter(m => {
+        if (!m.allergens || m.allergens.length === 0) return true;
+        const hasExclusion = m.allergens.some(a => 
+          targetKeywords.some(kw => a.toLowerCase().includes(kw))
+        );
+        return !hasExclusion;
+      });
+    }
+  }
+
+  const t = translations[currentLanguage] || translations['es'];
+  const countBadge = document.getElementById('badge-menu-count');
+  if (countBadge) countBadge.innerText = `${filtered.length} ${t.allDishes || 'Platos'}`;
 
   filtered.forEach(item => {
     const card = document.createElement('div');
     card.className = 'menu-card';
     const isOutOfStock = item.stock <= 0;
 
-    const ingredientsHtml = item.ingredients && item.ingredients.length > 0 ? `
+    // Multi-language translation lookup (Feature 6)
+    const trans = (item.translations as any)?.[currentLanguage];
+    const displayName = trans?.name || item.name;
+    const displayDesc = trans?.description || item.description;
+    const displayIngredients = trans?.ingredients || item.ingredients || [];
+    const displayAllergens = trans?.allergens || item.allergens || [];
+
+    const ingLabel = currentLanguage === 'en' ? 'Ingredients' : currentLanguage === 'fr' ? 'Ingrédients' : currentLanguage === 'de' ? 'Zutaten' : 'Ingredientes';
+    const ingredientsHtml = displayIngredients.length > 0 ? `
       <div style="font-size:0.77rem; color:var(--text-muted); margin-bottom:8px; line-height:1.4;">
-        🌿 <strong>Ingredientes:</strong> ${item.ingredients.join(', ')}
+        🌿 <strong>${ingLabel}:</strong> ${displayIngredients.join(', ')}
       </div>
     ` : '';
 
-    const allergensHtml = item.allergens && item.allergens.length > 0 ? `
+    const noAllergenLabel = currentLanguage === 'en' ? 'Allergen Free' : currentLanguage === 'fr' ? 'Sans allergènes' : currentLanguage === 'de' ? 'Allergenfrei' : 'Libre de alérgenos';
+    const allergensHtml = displayAllergens.length > 0 ? `
       <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px;">
-        ${item.allergens.map(a => `<span class="badge-tag" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:0.67rem;">⚠️ ${a}</span>`).join('')}
+        ${displayAllergens.map((a: string) => `<span class="badge-tag" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:0.67rem;">⚠️ ${a}</span>`).join('')}
       </div>
     ` : `
       <div style="margin-bottom:12px;">
-        <span class="badge-tag" style="background:rgba(16,185,129,0.1); color:#34d399; font-size:0.67rem;">✅ Libre de alérgenos</span>
+        <span class="badge-tag" style="background:rgba(16,185,129,0.1); color:#34d399; font-size:0.67rem;">✅ ${noAllergenLabel}</span>
       </div>
     `;
 
+    const cookingLabel = item.requiresCooking ? t.requiresCooking : t.directDelivery;
+    const stockLabel = isOutOfStock ? t.outOfStock : `${t.stock}: ${item.stock}`;
+    const addBtnText = isOutOfStock ? t.outOfStock : t.addToCart;
+
     card.innerHTML = `
-      <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${item.name}" class="menu-img" loading="lazy">
+      <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${displayName}" class="menu-img" loading="lazy">
       <div class="menu-body">
         <div class="menu-badge-row">
           <span class="badge-tag ${item.requiresCooking ? 'tag-cooking' : 'tag-direct'}">
-            ${item.requiresCooking ? '🔥 Requiere Cocina' : '⚡ Entrega Directa'}
+            ${cookingLabel}
           </span>
           <span class="badge-tag ${isOutOfStock ? 'tag-cooking' : item.stock < 5 ? 'tag-low-stock' : 'tag-stock'}">
-            ${isOutOfStock ? 'AGOTADO' : `Stock: ${item.stock}`}
+            ${stockLabel}
           </span>
         </div>
-        <h3 class="menu-title">${item.name}</h3>
-        <p class="menu-desc">${item.description}</p>
+        <h3 class="menu-title">${displayName}</h3>
+        <p class="menu-desc">${displayDesc}</p>
         
-        <!-- Feature 10: Ingredients and Allergens -->
+        <!-- Ingredients and Allergens -->
         ${ingredientsHtml}
         ${allergensHtml}
 
         <div class="menu-footer">
           <span class="menu-price">${item.price.toFixed(2)} €</span>
           <button class="btn-add" data-id="${item.id}" ${isOutOfStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-            <span>${isOutOfStock ? 'Sin stock' : '+ Añadir'}</span>
+            <span>${addBtnText}</span>
           </button>
         </div>
       </div>
@@ -324,12 +556,13 @@ function updateCartUI() {
   const counterEl = document.getElementById('cart-items-counter')!;
 
   const totalCount = currentCart.reduce((acc, c) => acc + c.quantity, 0);
+  const t = translations[currentLanguage] || translations['es'];
   counterEl.innerText = `${totalCount} ${totalCount === 1 ? 'ítem' : 'ítems'}`;
 
   if (currentCart.length === 0) {
     container.innerHTML = `
       <p style="color:var(--text-dim); text-align:center; padding:30px 0; font-size:0.88rem;">
-        Tu bandeja está vacía.<br>¡Añade platos desde el menú!
+        ${t.emptyCart || 'Tu bandeja está vacía.'}
       </p>
     `;
     updateBillTotals(0);
@@ -341,11 +574,14 @@ function updateCartUI() {
 
   currentCart.forEach((item, index) => {
     subtotal += item.menuItem.price * item.quantity;
+    const trans = (item.menuItem.translations as any)?.[currentLanguage];
+    const displayName = trans?.name || item.menuItem.name;
+
     const row = document.createElement('div');
     row.className = 'cart-item';
     row.innerHTML = `
       <div class="cart-item-info">
-        <div class="cart-item-name">${item.menuItem.name}</div>
+        <div class="cart-item-name">${displayName}</div>
         <div class="cart-item-price">${(item.menuItem.price * item.quantity).toFixed(2)} € (${item.menuItem.price.toFixed(2)} €/ud)</div>
       </div>
       <div class="cart-qty-ctrl">
@@ -379,27 +615,64 @@ function updateCartUI() {
   updateBillTotals(subtotal);
 }
 
-function updateBillTotals(subtotal: number) {
-  const tipAmount = subtotal * currentTipPercent;
-  const total = subtotal + tipAmount;
+// 9. Feature 4: Normativa Española de Empaques y Bolsas (R.D. 293/2018 y Ley 7/2022)
+function calculatePackagingCost(): number {
+  const hasBags = (document.getElementById('pack-bags') as HTMLInputElement)?.checked ?? false;
+  const hasPlastic = (document.getElementById('pack-plastic') as HTMLInputElement)?.checked ?? false;
+  let packCost = 0;
+  if (hasBags) packCost += 0.10; // R.D. 293/2018 sobre bolsas de plástico
+  if (hasPlastic) packCost += 0.15; // Ley 7/2022 de envases de un solo uso
+  packCost += cutleryCount * 0.10; // Cubiertos ecológicos biodegradables
+  return parseFloat(packCost.toFixed(2));
+}
 
-  document.getElementById('bill-subtotal')!.innerText = `${subtotal.toFixed(2)} €`;
-  document.getElementById('bill-tip')!.innerText = `${tipAmount.toFixed(2)} € (${(currentTipPercent * 100).toFixed(0)}%)`;
-  document.getElementById('bill-total')!.innerText = `${total.toFixed(2)} €`;
+function updateBillTotals(subtotal: number) {
+  const packagingAmount = calculatePackagingCost();
+  const tipAmount = parseFloat((subtotal * currentTipPercent).toFixed(2));
+  const total = parseFloat((subtotal + packagingAmount + tipAmount).toFixed(2));
+
+  const subtotalEl = document.getElementById('bill-subtotal');
+  if (subtotalEl) subtotalEl.innerText = `${subtotal.toFixed(2)} €`;
+
+  const packEl = document.getElementById('bill-packaging');
+  if (packEl) packEl.innerText = `${packagingAmount.toFixed(2)} €`;
+
+  const tipEl = document.getElementById('bill-tip');
+  if (tipEl) tipEl.innerText = `${tipAmount.toFixed(2)} € (${(currentTipPercent * 100).toFixed(0)}%)`;
+
+  const totalEl = document.getElementById('bill-total');
+  if (totalEl) totalEl.innerText = `${total.toFixed(2)} €`;
 }
 
 function setupCartControls() {
+  // Packaging checkboxes change listeners (Feature 4 live calculation)
+  const packBags = document.getElementById('pack-bags');
+  packBags?.addEventListener('change', () => {
+    const subtotal = currentCart.reduce((acc, c) => acc + (c.menuItem.price * c.quantity), 0);
+    updateBillTotals(subtotal);
+  });
+
+  const packPlastic = document.getElementById('pack-plastic');
+  packPlastic?.addEventListener('change', () => {
+    const subtotal = currentCart.reduce((acc, c) => acc + (c.menuItem.price * c.quantity), 0);
+    updateBillTotals(subtotal);
+  });
+
   // Cutlery counter
   document.getElementById('btn-cutlery-minus')?.addEventListener('click', () => {
     if (cutleryCount > 0) {
       cutleryCount--;
       document.getElementById('cutlery-count-display')!.innerText = cutleryCount.toString();
+      const subtotal = currentCart.reduce((acc, c) => acc + (c.menuItem.price * c.quantity), 0);
+      updateBillTotals(subtotal);
     }
   });
 
   document.getElementById('btn-cutlery-plus')?.addEventListener('click', () => {
     cutleryCount++;
     document.getElementById('cutlery-count-display')!.innerText = cutleryCount.toString();
+    const subtotal = currentCart.reduce((acc, c) => acc + (c.menuItem.price * c.quantity), 0);
+    updateBillTotals(subtotal);
   });
 
   // Tip chips
@@ -478,7 +751,8 @@ async function handlePlaceOrder() {
       ? '¡Pago con tarjeta verificado mediante Stripe!'
       : 'Cobro marcado en efectivo. El camarero cobrará en mesa.';
 
-    showToast(`🎉 ¡Comanda ${createdOrder.orderNumber} confirmada para la ${createdOrder.tableNumber}! ${payMsg}`, 'success');
+    const packNotice = createdOrder.packagingCost ? ` (Empaque Ley 7/2022: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
+    showToast(`🎉 ¡Comanda ${createdOrder.orderNumber} confirmada para la ${createdOrder.tableNumber}!${packNotice} ${payMsg}`, 'success');
 
     // Reset Cart
     currentCart = [];
@@ -493,7 +767,7 @@ async function handlePlaceOrder() {
   }
 }
 
-// 7. Camarero: Comandas Board
+// 10. Camarero: Comandas Board
 function renderWaiterOrders() {
   waiterOrdersContainer.innerHTML = '';
   if (allOrders.length === 0) {
@@ -532,14 +806,15 @@ function renderWaiterOrders() {
         `).join('')}
       </div>
 
-      <!-- Feature 1: Packaging tags -->
+      <!-- Feature 4: Packaging breakdown tags under Spanish Law -->
       <div class="order-pack-tags">
-        ${order.packaging.bags ? '<span class="pack-tag-pill">🛍️ Con bolsa</span>' : ''}
-        ${order.packaging.plasticContainers ? '<span class="pack-tag-pill">♻️ Envases</span>' : ''}
-        <span class="pack-tag-pill">🍴 ${order.packaging.cutleryCount} cubiertos</span>
+        ${order.packaging.bags ? '<span class="pack-tag-pill">🛍️ Bolsa (R.D. 293/2018)</span>' : ''}
+        ${order.packaging.plasticContainers ? '<span class="pack-tag-pill">♻️ Envases (Ley 7/2022)</span>' : ''}
+        <span class="pack-tag-pill">🍴 ${order.packaging.cutleryCount} cubiertos eco</span>
+        ${order.packagingCost ? `<span class="pack-tag-pill" style="color:var(--accent-orange);">+${order.packagingCost.toFixed(2)} €</span>` : ''}
       </div>
 
-      <!-- Feature 8: Staff assignment -->
+      <!-- Staff assignment -->
       <div class="order-staff-row">
         <div>🏃 Camarero: <strong>${order.waiterName || 'Sin asignar'}</strong></div>
         <div>👨‍🍳 Cocinero: <strong>${order.chefName || 'Sin asignar'}</strong></div>
@@ -597,7 +872,7 @@ function renderWaiterOrders() {
   });
 }
 
-// 8. Cocina: Kitchen Display System (KDS - Feature 4)
+// 11. Cocina: Kitchen Display System (KDS)
 function renderChefOrders() {
   chefOrdersContainer.innerHTML = '';
 
@@ -640,7 +915,7 @@ function renderChefOrders() {
         `).join('')}
       </div>
 
-      <!-- Feature 8: Staff assignment -->
+      <!-- Staff assignment -->
       <div class="order-staff-row">
         <div>👨‍🍳 Cocinero asignado: <strong>${order.chefName || 'Sin asignar'}</strong></div>
       </div>
@@ -692,7 +967,7 @@ function renderChefOrders() {
   });
 }
 
-// 9. Gerente: KPIs, Precios y Stock (Features 5, 6, 7 y 10)
+// 12. Gerente: KPIs, Precios y Stock
 async function renderManagerDashboard() {
   const report = await kpiUseCase.execute();
 
@@ -715,7 +990,7 @@ async function renderManagerDashboard() {
     topTbody.appendChild(tr);
   });
 
-  // Feature 6 y 10: Live Stock & Price Editor
+  // Live Stock & Price Editor
   const stockTbody = document.getElementById('stock-tbody')!;
   stockTbody.innerHTML = '';
   menuCatalog.forEach(item => {
@@ -769,7 +1044,7 @@ async function renderManagerDashboard() {
     stockTbody.appendChild(tr);
   });
 
-  // Feature 7: User Management Table
+  // User Management Table
   const userTbody = document.getElementById('users-tbody')!;
   userTbody.innerHTML = '';
   allUsers.forEach(u => {
@@ -789,7 +1064,7 @@ async function renderManagerDashboard() {
   });
 }
 
-// 10. Realtime Subscriptions & Refresh
+// 13. Realtime Subscriptions & Refresh
 async function refreshAll() {
   menuCatalog = await services.menuRepo.getAll();
   allOrders = await services.orderRepo.findAll();
@@ -806,7 +1081,7 @@ async function refreshAll() {
   }
 }
 
-// Setup Export Report (Feature 5)
+// Setup Export Report
 function setupExportReport() {
   document.getElementById('btn-export-report')?.addEventListener('click', async () => {
     const report = await kpiUseCase.execute();
@@ -861,7 +1136,10 @@ async function initApp() {
   allUsers = await services.userRepo.getAll();
 
   setupRoleSwitcher();
+  setupStaffAuth();
+  setupLanguageSelector();
   setupCategoryFilters();
+  setupDietaryAndAllergenFilters();
   setupCartControls();
   setupExportReport();
 

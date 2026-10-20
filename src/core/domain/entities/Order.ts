@@ -15,6 +15,7 @@ export interface Order {
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
   subtotal: number;
+  packagingCost?: number;
   tipAmount: number;
   total: number;
   waiterId?: string;
