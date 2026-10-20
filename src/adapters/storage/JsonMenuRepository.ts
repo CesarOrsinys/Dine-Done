@@ -10,18 +10,39 @@ export class JsonMenuRepository implements IMenuRepository {
   }
 
   private init() {
+    const seedItems = JSON.parse(JSON.stringify(initialMenu)) as MenuItem[];
+
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('DND_MENU_ITEMS');
       if (stored) {
         try {
-          this.items = JSON.parse(stored);
-          return;
+          const parsed = JSON.parse(stored) as MenuItem[];
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            // Merge custom stored price/stock while always updating translations and assets
+            this.items = seedItems.map(seed => {
+              const existing = parsed.find(p => p.id === seed.id);
+              if (existing) {
+                return {
+                  ...seed,
+                  price: typeof existing.price === 'number' ? existing.price : seed.price,
+                  stock: typeof existing.stock === 'number' ? existing.stock : seed.stock,
+                  translations: {
+                    ...seed.translations,
+                    ...(existing.translations || {})
+                  }
+                };
+              }
+              return seed;
+            });
+            this.save();
+            return;
+          }
         } catch (e) {
           console.warn('Error reading menu from localStorage, falling back to initial seed.');
         }
       }
     }
-    this.items = JSON.parse(JSON.stringify(initialMenu));
+    this.items = seedItems;
     this.save();
   }
 

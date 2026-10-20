@@ -19,7 +19,8 @@ import { UpdateOrderStatusUseCase } from './core/usecases/UpdateOrderStatusUseCa
 
 // Types for i18n supporting all 10 international languages
 export type Language = 'es' | 'en' | 'fr' | 'de' | 'zh' | 'ko' | 'uk' | 'pt' | 'ja' | 'ar' | string;
-let currentLanguage: Language = 'es';
+const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('DND_SELECTED_LANG') : null;
+let currentLanguage: Language = savedLang || 'es';
 const translations: Record<string, any> = translationsData as Record<string, any>;
 
 // Language metadata mapping
@@ -185,6 +186,7 @@ function setupLanguageSelector() {
     langSelector.addEventListener('change', () => {
       setLanguage(langSelector.value);
     });
+    setLanguage(currentLanguage);
   }
 }
 
@@ -195,6 +197,9 @@ function setLanguage(lang: string) {
     lang = 'es';
   }
   currentLanguage = lang;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('DND_SELECTED_LANG', lang);
+  }
 
   // RTL and Document Language attributes
   document.documentElement.lang = lang;
