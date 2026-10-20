@@ -54,6 +54,23 @@ created_at: "2026-10-20"
   - Soporte RTL (Right-to-Left) automático para Árabe (`dir="rtl"`).
   - Regla de desacoplamiento de catálogo: El selector de idiomas solo expone los idiomas presentes en el catálogo activo de platos del menú. Si un idioma no está disponible en el menú, queda automáticamente oculto del selector.
   - Traducción integral de toda la interfaz: selector de alérgenos, tarjetas de mesa, estados de comanda en vivo, opciones de empaque y cobro, y footer completo (columnas de Restaurante, Normativa & Legal, Sostenibilidad, enlaces y Powered by Dine & Done).
+- [Regla 11: Configuración de mesas centralizada y acceso restringido (Requisitos 1 y 2)]
+  - Las mesas se definen en el archivo `restaurant_config.json` (`availableTables`) y se presentan mediante un `<select>` desplegable.
+  - El comensal tiene la mesa protegida contra modificación (sólo lectura); los controles de cambio/reasignación de mesa están estrictamente restringidos y visibles únicamente para los empleados autenticados (Camarero, Cocina, Gerente).
+- [Regla 12: Autenticación de Staff con credenciales seguras (Requisito 3)]
+  - El acceso a empleados requiere ingreso manual de usuario/correo y contraseña (no mediante tarjetas o selección directa visible).
+  - Credenciales mock integradas en `users.json` para cada rol operativo (Camarero, Cocinero, Gerente).
+- [Regla 13: Privacidad estricta de comensales y RGPD (Requisito 4)]
+  - Ningún comensal se registra ni se lista en la base de datos de control de usuarios del panel de Gerente.
+  - La sección de gestión de usuarios en Gerencia se dedica exclusivamente al personal interno del restaurante, garantizando el cumplimiento normativo de protección de datos personales.
+- [Regla 14: Selector dinámico de 5 paletas de colores (Requisito 5)]
+  - Conmutador superior de temas en el encabezado con 5 paletas completas:
+    1. **Versión Oscura** (`dark`): Modo noche premium por defecto con acentos naranja cálido.
+    2. **Versión Clara** (`light`): Modo día limpio, fondos claros y alto contraste.
+    3. **Versión Comida** (`food`): Paleta gastronómica `#F6E2B3`, `#E7A84E`, `#D96C2C`, `#3E8E7E`, `#274C56`.
+    4. **Versión Retro** (`retro`): Paleta vintage diner `#F6E2B3`, `#E7A84E`, `#D96C2C`, `#3E8E7E`, `#274C56` sobre base cálida pergamino.
+    5. **Versión Pastel** (`pastel`): Paleta suave `#FFF1E6`, `#FDE2E4`, `#E2ECE9`, `#CDDAFD`, `#DBE7E4`.
+  - Persistencia del tema seleccionado en `localStorage` (`DND_THEME`).
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

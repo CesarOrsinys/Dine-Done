@@ -9,7 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
+    /* 1. VERSIÓN OSCURA (DEFAULT DARK LUXURY) */
+    :root,
+    [data-theme="dark"] {
       --bg-dark: #0a0e17;
       --bg-surface: #111726;
       --bg-card: rgba(19, 26, 43, 0.85);
@@ -40,6 +42,110 @@
       --shadow-glow: 0 0 25px rgba(249, 115, 22, 0.35);
     }
 
+    /* 2. VERSIÓN CLARA (LIGHT THEME) */
+    [data-theme="light"] {
+      --bg-dark: #f5f7fb;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border-subtle: rgba(0, 0, 0, 0.09);
+      --border-active: rgba(234, 88, 12, 0.55);
+      
+      --accent-orange: #ea580c;
+      --accent-pink: #db2777;
+      --accent-amber: #d97706;
+      --accent-emerald: #059669;
+      --accent-blue: #2563eb;
+      --accent-purple: #7c3aed;
+      --accent-gradient: linear-gradient(135deg, #ea580c 0%, #db2777 100%);
+      --accent-gradient-kds: linear-gradient(135deg, #dc2626 0%, #d97706 100%);
+      
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      
+      --shadow-elevation: 0 16px 36px -10px rgba(0, 0, 0, 0.08);
+      --shadow-glow: 0 0 20px rgba(234, 88, 12, 0.2);
+    }
+
+    /* 3. VERSIÓN COMIDA (#F6E2B3, #E7A84E, #D96C2C, #3E8E7E, #274C56) */
+    [data-theme="food"] {
+      --bg-dark: #1f3e46;
+      --bg-surface: #274C56;
+      --bg-card: rgba(39, 76, 86, 0.95);
+      --bg-card-hover: #2e5763;
+      --border-subtle: rgba(246, 226, 179, 0.22);
+      --border-active: #D96C2C;
+      
+      --accent-orange: #D96C2C;
+      --accent-pink: #E7A84E;
+      --accent-amber: #E7A84E;
+      --accent-emerald: #3E8E7E;
+      --accent-blue: #3E8E7E;
+      --accent-purple: #D96C2C;
+      --accent-gradient: linear-gradient(135deg, #D96C2C 0%, #E7A84E 100%);
+      --accent-gradient-kds: linear-gradient(135deg, #D96C2C 0%, #E7A84E 100%);
+      
+      --text-main: #FFFDF9;
+      --text-muted: #F6E2B3;
+      --text-dim: #D1BE93;
+      
+      --shadow-elevation: 0 18px 40px -10px rgba(20, 40, 46, 0.6);
+      --shadow-glow: 0 0 25px rgba(217, 108, 44, 0.4);
+    }
+
+    /* 4. VERSIÓN RETRO (#F6E2B3, #E7A84E, #D96C2C, #3E8E7E, #274C56) */
+    [data-theme="retro"] {
+      --bg-dark: #F7EEDD;
+      --bg-surface: #FFF9EE;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #F6E2B3;
+      --border-subtle: rgba(39, 76, 86, 0.2);
+      --border-active: #D96C2C;
+      
+      --accent-orange: #D96C2C;
+      --accent-pink: #E7A84E;
+      --accent-amber: #E7A84E;
+      --accent-emerald: #3E8E7E;
+      --accent-blue: #274C56;
+      --accent-purple: #D96C2C;
+      --accent-gradient: linear-gradient(135deg, #D96C2C 0%, #E7A84E 100%);
+      --accent-gradient-kds: linear-gradient(135deg, #D96C2C 0%, #274C56 100%);
+      
+      --text-main: #274C56;
+      --text-muted: #3E8E7E;
+      --text-dim: #5c7880;
+      
+      --shadow-elevation: 0 16px 36px -10px rgba(39, 76, 86, 0.15);
+      --shadow-glow: 0 0 20px rgba(217, 108, 44, 0.25);
+    }
+
+    /* 5. VERSIÓN PASTEL (#FFF1E6, #FDE2E4, #E2ECE9, #CDDAFD, #DBE7E4) */
+    [data-theme="pastel"] {
+      --bg-dark: #FFF1E6;
+      --bg-surface: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #FDE2E4;
+      --border-subtle: rgba(205, 218, 253, 0.6);
+      --border-active: #CDDAFD;
+      
+      --accent-orange: #E07A5F;
+      --accent-pink: #F49097;
+      --accent-amber: #F2C078;
+      --accent-emerald: #6FA397;
+      --accent-blue: #7899D4;
+      --accent-purple: #9B8BB6;
+      --accent-gradient: linear-gradient(135deg, #CDDAFD 0%, #FDE2E4 100%);
+      --accent-gradient-kds: linear-gradient(135deg, #F49097 0%, #F2C078 100%);
+      
+      --text-main: #2B2D42;
+      --text-muted: #5C677D;
+      --text-dim: #8D99AE;
+      
+      --shadow-elevation: 0 16px 36px -10px rgba(110, 130, 180, 0.12);
+      --shadow-glow: 0 0 20px rgba(205, 218, 253, 0.4);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
 
     html {
@@ -60,7 +166,7 @@
     /* TOP NAVIGATION */
     header {
       height: 72px;
-      background: rgba(17, 23, 38, 0.88);
+      background: var(--bg-surface);
       backdrop-filter: var(--glass-blur);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
@@ -101,12 +207,13 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
-    /* LANGUAGE SELECTOR */
+    /* THEME & LANGUAGE SELECTORS */
+    .theme-select,
     .lang-select {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       color: var(--text-main);
       padding: 6px 12px;
@@ -117,9 +224,15 @@
       cursor: pointer;
       transition: all 0.2s;
     }
+    .theme-select:hover,
     .lang-select:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--bg-card-hover);
       border-color: var(--accent-orange);
+    }
+    .theme-select option,
+    .lang-select option {
+      background: var(--bg-surface);
+      color: var(--text-main);
     }
 
     /* STAFF LOGIN / LOGOUT BUTTON */
@@ -1089,7 +1202,7 @@
 
     /* FOOTER (FEATURE 5 - BRANDING DESACOPLADO) */
     footer {
-      background: #070a10;
+      background: var(--bg-surface);
       border-top: 1px solid var(--border-subtle);
       padding: 40px 28px 24px;
       margin-top: auto;
@@ -1111,7 +1224,7 @@
     .footer-brand h4 {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-main);
       margin-bottom: 8px;
     }
 
@@ -1124,7 +1237,7 @@
 
     .footer-col h5 {
       font-size: 0.85rem;
-      color: #fff;
+      color: var(--text-main);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 12px;
@@ -1201,13 +1314,13 @@
     }
 
     .modal-card {
-      background: #111726;
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 30px;
       max-width: 440px;
       width: 100%;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
       animation: fadeIn 0.25s ease;
     }
 
@@ -1242,9 +1355,10 @@
     .toast {
       padding: 14px 20px;
       border-radius: var(--radius-sm);
-      background: #182238;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
       border-left: 4px solid var(--accent-orange);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
       color: var(--text-main);
       font-size: 0.9rem;
       display: flex;
@@ -1828,8 +1942,17 @@
       </button>
     </div>
 
-    <!-- HEADER RIGHT: LANGUAGE SELECTOR & STAFF AUTH BUTTON -->
+    <!-- HEADER RIGHT: THEME SELECTOR, LANGUAGE SELECTOR & STAFF AUTH BUTTON -->
     <div class="header-actions">
+      <!-- Feature 20: Color Palette Selector -->
+      <select class="theme-select" id="theme-selector" title="Paleta de Colores">
+        <option value="dark">🌙 Oscura</option>
+        <option value="light">☀️ Clara</option>
+        <option value="food">🥘 Comida</option>
+        <option value="retro">📻 Retro</option>
+        <option value="pastel">🌸 Pastel</option>
+      </select>
+
       <!-- Feature 6: Language Selector -->
       <select class="lang-select" id="lang-selector" title="Seleccionar idioma">
         <option value="es">🇪🇸 ES</option>
@@ -1858,19 +1981,22 @@
     <!-- ========================================== -->
     <section class="view-section active-view" id="view-customer">
       
-      <!-- Identificación Inteligente de Mesa (Feature 11) -->
+      <!-- Identificación Inteligente de Mesa (Feature 11 & Requirements 1 y 2) -->
       <div class="table-identifier-bar" id="table-identifier-bar" style="background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.3); border-radius:var(--radius-md); padding:12px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <span style="font-size:1.4rem;">📍</span>
           <div>
             <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-orange); font-weight:700;" id="txt-table-title">Identificación de Mesa</div>
-            <div style="font-size:1.1rem; font-weight:700; color:#fff;" id="current-table-display">Mesa 4</div>
+            <div style="font-size:1.1rem; font-weight:700; color:var(--text-main);" id="current-table-display">Mesa 4</div>
           </div>
           <span class="badge-tag tag-stock" id="table-detection-badge" style="margin-left:6px;">URL Auto-Detect</span>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <input type="text" id="quick-table-input" placeholder="Escribe el nº de mesa..." style="display:none; padding:7px 12px; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem; width:170px; outline:none;">
-          <button class="btn-action" id="btn-toggle-edit-table" style="background:rgba(255,255,255,0.08); color:#fff; padding:6px 14px; font-size:0.82rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+        <!-- Staff-Only Table Controls (Protected from customers) -->
+        <div id="staff-table-controls" style="display:none; align-items:center; gap:10px;">
+          <select id="quick-table-select" style="display:none; padding:7px 12px; background:var(--bg-surface); border:1px solid var(--accent-orange); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.85rem; outline:none; cursor:pointer;">
+            <!-- Populated dynamically from restaurant_config.json -->
+          </select>
+          <button class="btn-action" id="btn-toggle-edit-table" style="background:var(--bg-card); color:var(--text-main); padding:6px 14px; font-size:0.82rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); cursor:pointer;">
             ✏️ Cambiar Mesa
           </button>
         </div>
@@ -1964,7 +2090,7 @@
             <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:4px; font-weight:500;" id="txt-cart-table-label">
               Mesa asignada:
             </label>
-            <input type="text" id="cart-table-input" value="Mesa 4" style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.3); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:#fff; font-size:0.88rem; outline:none;">
+            <input type="text" id="cart-table-input" value="Mesa 4" readonly style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.18); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none; cursor:default;">
           </div>
 
           <!-- Feature 4: Packaging & Spanish Legislation (R.D. 293/2018 & Ley 7/2022) -->
@@ -2218,33 +2344,37 @@
         <h3 style="font-size:1.2rem; font-weight:700;" id="txt-modal-title">🔐 Acceso a Personal</h3>
         <button id="btn-close-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
       </div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;" id="txt-modal-desc">
-        Selecciona tu perfil de empleado para acceder a los paneles internos de sala, cocina o gerencia:
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;" id="txt-modal-desc">
+        Introduce tus credenciales de empleado para acceder a los paneles de sala, cocina o gerencia:
       </p>
 
-      <div class="staff-select-card" data-staff-role="WAITER" data-staff-name="David García">
-        <div>
-          <div style="font-weight:700;">🏃 David García</div>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Camarero de Sala</div>
+      <form id="staff-login-form" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="login-username" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);" id="lbl-login-user">Usuario o Correo:</label>
+          <input type="text" id="login-username" placeholder="ej. camarero, cocinero o gerente" required autocomplete="username" style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; transition:border-color 0.2s;">
         </div>
-        <span class="badge-tag tag-direct">WAITER</span>
-      </div>
 
-      <div class="staff-select-card" data-staff-role="CHEF" data-staff-name="Chef Antonio Martín">
-        <div>
-          <div style="font-weight:700;">👨‍🍳 Chef Antonio Martín</div>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Jefe de Cocina (KDS)</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="login-password" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);" id="lbl-login-pass">Contraseña:</label>
+          <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; transition:border-color 0.2s;">
         </div>
-        <span class="badge-tag tag-cooking">CHEF</span>
-      </div>
 
-      <div class="staff-select-card" data-staff-role="MANAGER" data-staff-name="César Orsinys">
-        <div>
-          <div style="font-weight:700;">📊 César Orsinys</div>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Gerente General</div>
+        <div id="login-error-msg" style="display:none; color:#ef4444; font-size:0.82rem; font-weight:600; padding:8px 12px; background:rgba(239,68,68,0.1); border-radius:var(--radius-sm); border:1px solid rgba(239,68,68,0.3);">
         </div>
-        <span class="badge-tag tag-stock">MANAGER</span>
-      </div>
+
+        <button type="submit" id="btn-login-submit" class="btn-action" style="background:var(--accent-gradient); color:#fff; padding:12px; border:none; border-radius:var(--radius-sm); font-size:0.92rem; font-weight:700; cursor:pointer; margin-top:4px; box-shadow:var(--shadow-glow);">
+          <span id="btn-login-submit-text">🔐 Iniciar Sesión</span>
+        </button>
+
+        <details style="margin-top:6px; font-size:0.75rem; color:var(--text-dim); background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+          <summary style="cursor:pointer; font-weight:600;">ℹ️ Credenciales de Demostración (Mock Staff)</summary>
+          <div style="margin-top:6px; line-height:1.6;">
+            <div><strong>Camarero:</strong> <code>camarero</code> / <code>camarero123</code></div>
+            <div><strong>Cocinero:</strong> <code>cocinero</code> / <code>cocina123</code></div>
+            <div><strong>Gerente:</strong> <code>gerente</code> / <code>gerente123</code></div>
+          </div>
+        </details>
+      </form>
     </div>
   </div>
 

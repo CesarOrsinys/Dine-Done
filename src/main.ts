@@ -100,11 +100,37 @@ const processCashUseCase = new ProcessCashPaymentUseCase(services.orderRepo, ser
 const manageStockUseCase = new ManageStockUseCase(services.menuRepo);
 const kpiUseCase = new GenerateKpiReportUseCase(services.orderRepo);
 
-// 2. Application State
+// 2. Application State & Theme Management
+let currentTheme: string = (typeof localStorage !== 'undefined') ? localStorage.getItem('DND_THEME') || 'dark' : 'dark';
+
+function applyTheme(theme: string) {
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('DND_THEME', theme);
+  }
+  const themeSelector = document.getElementById('theme-selector') as HTMLSelectElement;
+  if (themeSelector && themeSelector.value !== theme) {
+    themeSelector.value = theme;
+  }
+}
+
+function setupThemeSelector() {
+  applyTheme(currentTheme);
+  const themeSelector = document.getElementById('theme-selector') as HTMLSelectElement;
+  if (themeSelector) {
+    themeSelector.value = currentTheme;
+    themeSelector.addEventListener('change', () => {
+      applyTheme(themeSelector.value);
+    });
+  }
+}
+
+// Requirement 4: Anonymous guest customer state (Never stored in employee database for privacy)
 let currentUser: User = {
-  id: 'usr_cust_1',
-  name: 'María López',
-  email: 'maria@cliente.com',
+  id: 'guest_customer',
+  name: 'Comensal en Sala',
+  email: 'comensal@restaurante.local',
   role: UserRole.CUSTOMER,
   active: true
 };
@@ -242,6 +268,9 @@ function setLanguage(lang: string) {
     'txt-btn-place-order': t.confirmOrder,
     'txt-modal-title': t.loginModalTitle,
     'txt-modal-desc': t.loginModalDesc,
+    'lbl-login-user': t.lblLoginUser || 'Usuario o Email:',
+    'lbl-login-pass': t.lblLoginPass || 'Contraseña:',
+    'btn-login-submit-text': t.loginSubmit || '🔐 Iniciar Sesión',
     'footer-legal-notice': t.footerNotice,
     'footer-rights': t.footerRights,
     'footer-link-terms': t.terms,
@@ -280,12 +309,8 @@ function setLanguage(lang: string) {
   // Update table bar elements
   const btnEditTable = document.getElementById('btn-toggle-edit-table');
   if (btnEditTable) {
-    const isEditing = (document.getElementById('quick-table-input')?.style.display !== 'none');
+    const isEditing = (document.getElementById('quick-table-select')?.style.display !== 'none');
     btnEditTable.innerText = isEditing ? t.save : t.changeTable;
-  }
-  const quickInput = document.getElementById('quick-table-input') as HTMLInputElement;
-  if (quickInput) {
-    quickInput.placeholder = t.tableInputPlaceholder || 'Escribe el nº de mesa...';
   }
 
   // Update table detection badge text
@@ -371,16 +396,26 @@ function setLanguage(lang: string) {
   updateCartUI();
 }
 
-// 5. Feature 1: Login de Personal (Modal arriba derecha; comensal por defecto)
+// 5. Feature 1 & Requirement 3: Login de Personal Manual (Usuario y Contraseña)
 function setupStaffAuth() {
   const modal = document.getElementById('staff-login-modal')!;
   const btnLogin = document.getElementById('btn-staff-login')!;
   const btnLogout = document.getElementById('btn-staff-logout')!;
   const btnClose = document.getElementById('btn-close-modal')!;
   const staffSwitcher = document.getElementById('staff-role-switcher')!;
+  const loginForm = document.getElementById('staff-login-form') as HTMLFormElement;
+  const usernameInput = document.getElementById('login-username') as HTMLInputElement;
+  const passwordInput = document.getElementById('login-password') as HTMLInputElement;
+  const errorMsg = document.getElementById('login-error-msg')!;
 
   btnLogin?.addEventListener('click', () => {
     modal.style.display = 'flex';
+    if (errorMsg) errorMsg.style.display = 'none';
+    if (usernameInput) {
+      usernameInput.value = '';
+      usernameInput.focus();
+    }
+    if (passwordInput) passwordInput.value = '';
   });
 
   btnClose?.addEventListener('click', () => {
@@ -393,20 +428,38 @@ function setupStaffAuth() {
     }
   });
 
-  const staffCards = document.querySelectorAll('.staff-select-card');
-  staffCards.forEach(card => {
-    card.addEventListener('click', () => {
-      const role = card.getAttribute('data-staff-role') as UserRole;
-      const staffName = card.getAttribute('data-staff-name') || 'Empleado';
+  loginForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const userVal = usernameInput.value.trim().toLowerCase();
+    const passVal = passwordInput.value.trim();
 
+    // Find staff user by email, username, or role keyword
+    const staffUser = allUsers.find(u => 
+      u.role !== UserRole.CUSTOMER &&
+      (
+        u.email.toLowerCase() === userVal || 
+        (u.username && u.username.toLowerCase() === userVal) ||
+        (userVal === 'camarero' && u.role === UserRole.WAITER) ||
+        (userVal === 'cocinero' && u.role === UserRole.CHEF) ||
+        (userVal === 'gerente' && u.role === UserRole.MANAGER)
+      )
+    );
+
+    if (staffUser && staffUser.password && staffUser.password === passVal) {
       modal.style.display = 'none';
       staffSwitcher.style.display = 'flex';
       btnLogin.style.display = 'none';
       btnLogout.style.display = 'flex';
 
-      switchRole(role);
-      showToast(`¡Bienvenido, ${staffName}! Panel de ${role} activado.`, 'success');
-    });
+      switchRole(staffUser.role);
+      updateTableControlsVisibility();
+      showToast(`¡Bienvenido, ${staffUser.name}! Acceso verificado como ${staffUser.role}.`, 'success');
+    } else {
+      if (errorMsg) {
+        errorMsg.innerText = '❌ Credenciales no válidas. Revisa usuario y contraseña.';
+        errorMsg.style.display = 'block';
+      }
+    }
   });
 
   btnLogout?.addEventListener('click', () => {
@@ -414,15 +467,16 @@ function setupStaffAuth() {
     btnLogout.style.display = 'none';
     btnLogin.style.display = 'flex';
 
-    currentUser = allUsers.find(u => u.role === UserRole.CUSTOMER) || {
-      id: 'usr_cust_1',
-      name: 'María López',
-      email: 'maria@cliente.com',
+    currentUser = {
+      id: 'guest_customer',
+      name: 'Comensal en Sala',
+      email: 'comensal@restaurante.local',
       role: UserRole.CUSTOMER,
       active: true
     };
 
     switchRole(UserRole.CUSTOMER);
+    updateTableControlsVisibility();
     showToast('Sesión de empleado cerrada. Has vuelto al modo comensal.', 'info');
   });
 }
@@ -442,7 +496,7 @@ async function switchRole(role: UserRole) {
   // Update currentUser matching role
   const foundUser = allUsers.find(u => u.role === role) || {
     id: `usr_${role.toLowerCase()}`,
-    name: role === UserRole.CUSTOMER ? 'María López' : role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
+    name: role === UserRole.CUSTOMER ? 'Comensal en Sala' : role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Chef Antonio Martín' : 'César Orsinys',
     email: `${role.toLowerCase()}@dinedone.com`,
     role: role,
     active: true
@@ -474,6 +528,9 @@ async function switchRole(role: UserRole) {
   };
   document.getElementById(viewMap[role])?.classList.add('active-view');
 
+  // Update staff table controls visibility
+  updateTableControlsVisibility();
+
   // Responsive mobile cart bar visibility
   const mobileCartBar = document.getElementById('mobile-cart-bar');
   if (mobileCartBar) {
@@ -498,12 +555,38 @@ async function switchRole(role: UserRole) {
   }
 }
 
-// 7. Feature 11: Intelligent Table Identification (URL Detection + Manual Edit)
+// Helper: Visibility of table change controls (Only accessible by staff, never customer)
+function updateTableControlsVisibility() {
+  const staffTableControls = document.getElementById('staff-table-controls');
+  if (staffTableControls) {
+    const isStaff = currentUser.role !== UserRole.CUSTOMER;
+    staffTableControls.style.display = isStaff ? 'flex' : 'none';
+  }
+}
+
+// 7. Feature 11 & Requirements 1 y 2: Identificación Inteligente de Mesa (Select configurable en restaurant_config.json y exclusivo para personal)
 function setupTableIdentification() {
   const urlParams = new URLSearchParams(window.location.search);
   const fromParam = urlParams.get('table') || urlParams.get('mesa') || urlParams.get('m');
   const badgeEl = document.getElementById('table-detection-badge')!;
   const t = translations[currentLanguage] || translations['es'];
+
+  // Requirement 1: Load available tables configured in restaurant_config.json
+  const availableTables: string[] = (restaurantConfig as any).availableTables || [
+    'Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4', 'Mesa 5', 'Mesa 6', 'Mesa 7', 'Mesa 8', 'Terraza 1', 'Terraza 2', 'Barra 1'
+  ];
+
+  // Populate select dropdown
+  const quickSelect = document.getElementById('quick-table-select') as HTMLSelectElement;
+  if (quickSelect) {
+    quickSelect.innerHTML = '';
+    availableTables.forEach(tbl => {
+      const opt = document.createElement('option');
+      opt.value = tbl;
+      opt.textContent = `📍 ${tbl}`;
+      quickSelect.appendChild(opt);
+    });
+  }
 
   if (fromParam) {
     currentAssignedTable = fromParam.startsWith('Mesa') ? fromParam : `Mesa ${fromParam}`;
@@ -519,6 +602,7 @@ function setupTableIdentification() {
       badgeEl.innerText = t.rememberedTable || 'Mesa Recordada';
       badgeEl.className = 'badge-tag tag-direct';
     } else {
+      currentAssignedTable = availableTables[0] || 'Mesa 4';
       badgeEl.setAttribute('data-origin', 'default');
       badgeEl.innerText = t.defaultTable || 'Mesa por Defecto';
       badgeEl.className = 'badge-tag tag-stock';
@@ -526,44 +610,47 @@ function setupTableIdentification() {
   }
 
   updateTableUI();
+  updateTableControlsVisibility();
 
-  // Manual edit toggle
-  const editBtn = document.getElementById('btn-toggle-edit-table')!;
-  const quickInput = document.getElementById('quick-table-input') as HTMLInputElement;
+  // Requirement 2: Manual edit toggle for staff only
+  const editBtn = document.getElementById('btn-toggle-edit-table');
+  if (editBtn && quickSelect) {
+    editBtn.addEventListener('click', () => {
+      const curT = translations[currentLanguage] || translations['es'];
+      if (quickSelect.style.display === 'none') {
+        quickSelect.style.display = 'inline-block';
+        quickSelect.value = currentAssignedTable;
+        quickSelect.focus();
+        editBtn.innerText = curT.save || '💾 Guardar';
+        editBtn.style.background = 'var(--accent-orange)';
+        editBtn.style.color = '#fff';
+      } else {
+        saveStaffTable();
+      }
+    });
 
-  editBtn.addEventListener('click', () => {
+    quickSelect.addEventListener('change', () => {
+      saveStaffTable();
+    });
+  }
+
+  function saveStaffTable() {
     const curT = translations[currentLanguage] || translations['es'];
-    if (quickInput.style.display === 'none') {
-      quickInput.style.display = 'inline-block';
-      quickInput.value = currentAssignedTable;
-      quickInput.focus();
-      editBtn.innerText = curT.save || '💾 Guardar';
-      editBtn.style.background = 'var(--accent-orange)';
-    } else {
-      saveManualTable();
-    }
-  });
-
-  quickInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      saveManualTable();
-    }
-  });
-
-  function saveManualTable() {
-    const curT = translations[currentLanguage] || translations['es'];
-    const val = quickInput.value.trim();
+    const val = quickSelect.value;
     if (val) {
-      currentAssignedTable = val.startsWith('Mesa') ? val : `Mesa ${val}`;
+      currentAssignedTable = val;
       localStorage.setItem('DND_SELECTED_TABLE', currentAssignedTable);
       badgeEl.setAttribute('data-origin', 'manual');
-      badgeEl.innerText = curT.manualTable || 'Configurada Manualmente';
+      badgeEl.innerText = curT.manualTable || 'Configurada por Personal';
       badgeEl.className = 'badge-tag tag-cooking';
       showToast(`${curT.manualTableSet || 'Mesa actualizada a'} "${currentAssignedTable}".`, 'success');
     }
-    quickInput.style.display = 'none';
-    editBtn.innerText = curT.changeTable || '✏️ Cambiar Mesa';
-    editBtn.style.background = 'rgba(255,255,255,0.08)';
+    quickSelect.style.display = 'none';
+    if (editBtn) {
+      editBtn.innerText = curT.changeTable || '✏️ Cambiar Mesa';
+      editBtn.style.background = 'var(--bg-card)';
+      editBtn.style.color = 'var(--text-main)';
+    }
     updateTableUI();
   }
 }
@@ -1365,10 +1452,11 @@ async function renderManagerDashboard() {
     stockTbody.appendChild(tr);
   });
 
-  // User Management Table
+  // User Management Table (Requirement 4: Exclude customer role to protect guest privacy)
   const userTbody = document.getElementById('users-tbody')!;
   userTbody.innerHTML = '';
-  allUsers.forEach(u => {
+  const staffOnly = allUsers.filter(u => u.role !== UserRole.CUSTOMER);
+  staffOnly.forEach(u => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">${u.id}</td>
@@ -1449,6 +1537,7 @@ services.realtimeNotifier.subscribe((updatedOrder) => {
 
 // Boot Application
 async function initApp() {
+  setupThemeSelector();
   applyBusinessBranding();
   setupTableIdentification();
 

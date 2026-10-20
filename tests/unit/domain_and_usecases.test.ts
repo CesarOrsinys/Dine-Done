@@ -8,11 +8,14 @@ import { ManageStockUseCase } from '../../src/core/usecases/ManageStockUseCase.j
 import { GenerateKpiReportUseCase } from '../../src/core/usecases/GenerateKpiReportUseCase.js';
 import { JsonOrderRepository } from '../../src/adapters/storage/JsonOrderRepository.js';
 import { JsonMenuRepository } from '../../src/adapters/storage/JsonMenuRepository.js';
+import { JsonUserRepository } from '../../src/adapters/storage/JsonUserRepository.js';
+import restaurantConfig from '../../mock_data/restaurant_config.json' with { type: 'json' };
 import { StripePaymentGatewayMock } from '../../src/adapters/storage/StripePaymentGatewayMock.js';
 import { LocalEventRealtimeNotifier } from '../../src/adapters/infrastructure/LocalEventRealtimeNotifier.js';
 import { PaymentMethod } from '../../src/core/domain/enums/PaymentMethod.js';
 import { PaymentStatus } from '../../src/core/domain/enums/PaymentStatus.js';
 import { OrderStatus } from '../../src/core/domain/enums/OrderStatus.js';
+import { UserRole } from '../../src/core/domain/enums/UserRole.js';
 
 describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
   let orderRepo: JsonOrderRepository;
@@ -252,6 +255,37 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
 
     const langsAfterRemoval = filterAvailableLanguages(itemsWithoutZh, appLanguages);
     assert.ok(!langsAfterRemoval.includes('zh'), 'Language missing from even 1 menu item must be omitted from selector');
+  });
+
+  it('Req 1 & 2: Should verify availableTables in restaurant_config.json for staff-only table selection', () => {
+    assert.ok(Array.isArray((restaurantConfig as any).availableTables), 'availableTables must be an array in config');
+    assert.ok((restaurantConfig as any).availableTables.length >= 5, 'availableTables must have at least 5 tables');
+    for (const table of (restaurantConfig as any).availableTables) {
+      assert.ok(typeof table === 'string' && table.trim().length > 0, 'Every table must be a valid non-empty string');
+    }
+  });
+
+  it('Req 3 & 4: Should verify staff credentials and strictly exclude CUSTOMER role from user management for privacy', async () => {
+    const userRepo = new JsonUserRepository();
+    const allUsers = await userRepo.getAll();
+
+    // Requirement 4: Zero customers in user management repository to preserve privacy
+    const customerUsers = allUsers.filter(u => u.role === UserRole.CUSTOMER);
+    assert.strictEqual(customerUsers.length, 0, 'No CUSTOMER role users allowed in user management database');
+
+    // Requirement 3: Staff users must have valid mock credentials for manual login
+    assert.ok(allUsers.length > 0, 'Must have staff users configured');
+    for (const staff of allUsers) {
+      assert.ok(staff.role !== UserRole.CUSTOMER, 'User must be internal staff');
+      assert.ok(staff.password && staff.password.length >= 6, `Staff ${staff.name} must have a secure mock password`);
+      assert.ok(staff.username && staff.username.length > 0, `Staff ${staff.name} must have a username`);
+    }
+
+    // Verify each staff role is represented
+    const roles = allUsers.map(u => u.role);
+    assert.ok(roles.includes(UserRole.WAITER), 'Must have at least one WAITER');
+    assert.ok(roles.includes(UserRole.CHEF), 'Must have at least one CHEF');
+    assert.ok(roles.includes(UserRole.MANAGER), 'Must have at least one MANAGER');
   });
 });
 

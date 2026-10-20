@@ -5,6 +5,27 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.0] - 2026-10-20
+### Added
+- **Configuración Dinámica de Mesas y Restricción Exclusiva para Empleados (Req 1 & 2):**
+  - Listado de mesas configurables centralizado en `restaurant_config.json` (`availableTables`).
+  - Sustitución del campo de texto libre por un selector `<select id="quick-table-select">` poblado dinámicamente.
+  - La reasignación de mesa queda protegida y oculta para el comensal (sólo lectura); únicamente el personal autenticado (Camarero, Cocinero, Gerente) puede activar el desplegable para cambiar o asignar mesas.
+- **Login de Personal con Credenciales Manuales (Req 3):**
+  - Eliminación de la selección visual directa por tarjetas de empleado.
+  - Formulario de autenticación con campos obligatorios de usuario/email y contraseña (`type="password"`), validación contra credenciales del personal y feedback de error.
+- **Protección de Privacidad y RGPD en Panel de Gerente (Req 4):**
+  - Eliminación completa de roles de comensal (`CUSTOMER`) en la base de datos de usuarios y en la tabla de control de usuarios del panel de Gerencia.
+  - El comensal opera como cliente anónimo en memoria sin almacenar datos personales en nómina o listas internas.
+- **Selector de 5 Paletas de Colores / Temas (Req 5):**
+  - Incorporación de selector de temas `#theme-selector` en el encabezado con 5 versiones integrales:
+    1. `🌙 Versión Oscura` (`dark`): Modo noche premium de alto contraste.
+    2. `☀️ Versión Clara` (`light`): Fondos claros y limpios.
+    3. `🥘 Versión Comida` (`food`): Paleta gastronómica `#F6E2B3`, `#E7A84E`, `#D96C2C`, `#3E8E7E`, `#274C56`.
+    4. `📻 Versión Retro` (`retro`): Paleta vintage diner sobre base cálida pergamino.
+    5. `🌸 Versión Pastel` (`pastel`): Paleta suave `#FFF1E6`, `#FDE2E4`, `#E2ECE9`, `#CDDAFD`, `#DBE7E4`.
+  - Persistencia de la paleta activa en `localStorage` (`DND_THEME`).
+
 ## [1.4.1] - 2026-10-20
 ### Added
 - **Idiomas Cooficiales Españoles (Catalán, Valenciano, Euskera y Gallego):**

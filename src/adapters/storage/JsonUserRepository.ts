@@ -15,7 +15,14 @@ export class JsonUserRepository implements IUserRepository {
       const stored = localStorage.getItem('DND_USERS');
       if (stored) {
         try {
-          this.users = JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          // Requirement 4: Purge any legacy CUSTOMER user to strictly protect guest privacy
+          this.users = parsed.filter((u: User) => u.role !== UserRole.CUSTOMER);
+          // If all users got purged or missing credentials, reseed with initialUsers
+          if (this.users.length === 0 || !this.users[0].password) {
+            this.users = JSON.parse(JSON.stringify(initialUsers));
+          }
+          this.save();
           return;
         } catch (e) {
           console.warn('Error reading users from localStorage, falling back to seed.');

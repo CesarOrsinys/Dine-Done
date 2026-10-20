@@ -1,43 +1,46 @@
 [
   {
-    "id": "usr_cust_1",
-    "name": "María López (Comensal)",
-    "email": "maria@cliente.com",
-    "role": "CUSTOMER",
-    "active": true
-  },
-  {
     "id": "usr_waiter_1",
     "name": "David García (Camarero)",
-    "email": "david.garcia@dinedone.com",
+    "username": "camarero",
+    "email": "camarero@granvia.com",
+    "password": "camarero123",
     "role": "WAITER",
     "active": true
   },
   {
     "id": "usr_waiter_2",
     "name": "Lucía Ramos (Camarera)",
+    "username": "lucia",
     "email": "lucia.ramos@dinedone.com",
+    "password": "camarera123",
     "role": "WAITER",
     "active": true
   },
   {
     "id": "usr_chef_1",
     "name": "Chef Antonio Martín (Cocinero)",
-    "email": "antonio.chef@dinedone.com",
+    "username": "cocinero",
+    "email": "cocina@granvia.com",
+    "password": "cocina123",
     "role": "CHEF",
     "active": true
   },
   {
     "id": "usr_chef_2",
     "name": "Chef Elena Vega (Cocinera)",
+    "username": "elena",
     "email": "elena.chef@dinedone.com",
+    "password": "cocinera123",
     "role": "CHEF",
     "active": true
   },
   {
     "id": "usr_mgr_1",
     "name": "César Orsinys (Gerente)",
-    "email": "cesar.gerente@dinedone.com",
+    "username": "gerente",
+    "email": "gerente@granvia.com",
+    "password": "gerente123",
     "role": "MANAGER",
     "active": true
   }

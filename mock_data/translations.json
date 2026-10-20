@@ -51,7 +51,7 @@
     "staffLogin": "🔐 Acceso Empleados",
     "staffLogout": "🚪 Salir (Comensal)",
     "loginModalTitle": "Acceso a Personal del Restaurante",
-    "loginModalDesc": "Selecciona tu perfil de empleado para acceder al panel de sala, cocina o gerencia:",
+    "loginModalDesc": "Introduce tus credenciales de empleado para acceder a los paneles de sala, cocina o gerencia:",
     "loginBtn": "Entrar como Empleado",
     "close": "Cerrar",
     "footerNotice": "Cumplimiento normativo español: R.D. 293/2018 sobre bolsas plásticas e Impuesto Ley 7/2022 de envases no reutilizables.",
@@ -97,7 +97,10 @@
     "footerLinkCompostable": "Envases Compostables",
     "footerLinkCircular": "Economía Circular",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "Restauración gastronómica con producto local, servicio ágil y tecnología digital de vanguardia."
+    "footerRestaurantDesc": "Restauración gastronómica con producto local, servicio ágil y tecnología digital de vanguardia.",
+    "lblLoginUser": "Usuario o Email:",
+    "lblLoginPass": "Contraseña:",
+    "loginSubmit": "🔐 Iniciar Sesión"
   },
   "en": {
     "menuTitle": "Digital Menu & Dining",
@@ -151,7 +154,7 @@
     "staffLogin": "🔐 Staff Login",
     "staffLogout": "🚪 Exit (Customer Mode)",
     "loginModalTitle": "Restaurant Staff Access",
-    "loginModalDesc": "Select your staff profile to access Waiter, Kitchen KDS, or Manager panels:",
+    "loginModalDesc": "Enter your staff credentials to access dining room, kitchen, or management panels:",
     "loginBtn": "Login as Staff",
     "close": "Close",
     "footerNotice": "Compliance with Spanish regulations: R.D. 293/2018 on plastic carrier bags and Law 7/2022 tax on non-reusable containers.",
@@ -197,7 +200,10 @@
     "footerLinkCompostable": "Compostable Packaging",
     "footerLinkCircular": "Circular Economy",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "Gastronomic dining with local fresh ingredients, agile service and modern digital ordering."
+    "footerRestaurantDesc": "Gastronomic dining with local fresh ingredients, agile service and modern digital ordering.",
+    "lblLoginUser": "Username or Email:",
+    "lblLoginPass": "Password:",
+    "loginSubmit": "🔐 Log In"
   },
   "fr": {
     "menuTitle": "Carte & Menu Digital",
@@ -251,7 +257,7 @@
     "staffLogin": "🔐 Accès Personnel",
     "staffLogout": "🚪 Quitter (Mode Client)",
     "loginModalTitle": "Accès Personnel du Restaurant",
-    "loginModalDesc": "Choisissez votre profil d'employé pour accéder au panneau Salle, Cuisine ou Direction :",
+    "loginModalDesc": "Entrez vos identifiants pour accéder aux panneaux de salle, de cuisine ou de gestion :",
     "loginBtn": "Connexion Employé",
     "close": "Fermer",
     "footerNotice": "Conformité à la législation espagnole : R.D. 293/2018 sur les sacs plastique et Loi 7/2022.",
@@ -297,7 +303,10 @@
     "footerLinkCompostable": "Emballages Compostables",
     "footerLinkCircular": "Économie Circulaire",
     "footerPoweredBy": "Propulsé par Dine & Done © 2026",
-    "footerRestaurantDesc": "Restauration gastronomique avec produits locaux, service agile et commande numérique de pointe."
+    "footerRestaurantDesc": "Restauration gastronomique avec produits locaux, service agile et commande numérique de pointe.",
+    "lblLoginUser": "Utilisateur ou E-mail :",
+    "lblLoginPass": "Mot de passe :",
+    "loginSubmit": "🔐 Se connecter"
   },
   "de": {
     "menuTitle": "Digitale Speisekarte",
@@ -351,7 +360,7 @@
     "staffLogin": "🔐 Personal-Login",
     "staffLogout": "🚪 Beenden (Gast-Modus)",
     "loginModalTitle": "Zugang für Restaurantpersonal",
-    "loginModalDesc": "Wählen Sie Ihr Mitarbeiterprofil für Service, Küche oder Geschäftsführung:",
+    "loginModalDesc": "Geben Sie Ihre Mitarbeiter-Zugangsdaten ein, um auf Service-, Küchen- oder Management-Panels zuzugreifen:",
     "loginBtn": "Als Mitarbeiter einloggen",
     "close": "Schließen",
     "footerNotice": "Spanische Vorschriftenkonformität: R.D. 293/2018 für Tragetaschen und Gesetz 7/2022.",
@@ -397,7 +406,10 @@
     "footerLinkCompostable": "Kompostierbare Behälter",
     "footerLinkCircular": "Kreislaufwirtschaft",
     "footerPoweredBy": "Bereitgestellt von Dine & Done © 2026",
-    "footerRestaurantDesc": "Kulinarische Gastronomie mit regionalen Produkten, schnellem Service und modernem digitalem Bestellen."
+    "footerRestaurantDesc": "Kulinarische Gastronomie mit regionalen Produkten, schnellem Service und modernem digitalem Bestellen.",
+    "lblLoginUser": "Benutzername oder E-Mail:",
+    "lblLoginPass": "Passwort:",
+    "loginSubmit": "🔐 Anmelden"
   },
   "zh": {
     "menuTitle": "数字菜单与点餐",
@@ -451,7 +463,7 @@
     "staffLogin": "🔐 员工通道",
     "staffLogout": "🚪 退出员工",
     "loginModalTitle": "餐厅员工登录",
-    "loginModalDesc": "请选择您的职位进入服务员、后厨KDS或经理面板：",
+    "loginModalDesc": "输入您的员工凭证以进入前厅、后厨或管理面板：",
     "loginBtn": "进入工作台",
     "close": "关闭",
     "footerNotice": "遵循西班牙法规：R.D. 293/2018 塑料袋法规与 7/2022 固体废弃物环保税。",
@@ -497,7 +509,10 @@
     "footerLinkCompostable": "可降解环保餐盒",
     "footerLinkCircular": "循环经济",
     "footerPoweredBy": "由 Dine & Done © 2026 技术支持",
-    "footerRestaurantDesc": "严选本地新鲜食材的美食餐厅，提供便捷敏捷的服务与前沿的数字化点餐体验。"
+    "footerRestaurantDesc": "严选本地新鲜食材的美食餐厅，提供便捷敏捷的服务与前沿的数字化点餐体验。",
+    "lblLoginUser": "用户名或邮箱：",
+    "lblLoginPass": "密码：",
+    "loginSubmit": "🔐 登录"
   },
   "ko": {
     "menuTitle": "디지털 메뉴 & 주문",
@@ -551,7 +566,7 @@
     "staffLogin": "🔐 직원 로그인",
     "staffLogout": "🚪 고객 모드로 나가기",
     "loginModalTitle": "레스토랑 직원 전용 접속",
-    "loginModalDesc": "홀 직원, 주방 KDS, 관리자 대시보드 중 역할을 선택하세요:",
+    "loginModalDesc": "홀, 주방 또는 관리자 패널에 액세스하려면 직원 자격 증명을 입력하세요:",
     "loginBtn": "직원으로 로그인",
     "close": "닫기",
     "footerNotice": "스페인 법규 준수: 비닐봉투 관련 R.D. 293/2018 및 일회용기 세금 7/2022.",
@@ -597,7 +612,10 @@
     "footerLinkCompostable": "생분해성 친환경 용기",
     "footerLinkCircular": "순환 경제",
     "footerPoweredBy": "Dine & Done © 2026 제공",
-    "footerRestaurantDesc": "신선한 로컬 식재료, 신속한 서비스 및 최첨단 디지털 스마트 오더를 제공하는 프리미엄 다이닝."
+    "footerRestaurantDesc": "신선한 로컬 식재료, 신속한 서비스 및 최첨단 디지털 스마트 오더를 제공하는 프리미엄 다이닝.",
+    "lblLoginUser": "사용자 이름 또는 이메일:",
+    "lblLoginPass": "비밀번호:",
+    "loginSubmit": "🔐 로그인"
   },
   "uk": {
     "menuTitle": "Цифрове Меню та Замовлення",
@@ -651,7 +669,7 @@
     "staffLogin": "🔐 Вхід для Персоналу",
     "staffLogout": "🚪 Вийти (Режим гостя)",
     "loginModalTitle": "Доступ для Співробітників",
-    "loginModalDesc": "Оберіть профіль співробітника для входу до зали, кухні KDS або панелі менеджера:",
+    "loginModalDesc": "Введіть облікові дані співробітника для доступу до панелей залу, кухні або керування:",
     "loginBtn": "Увійти як персонал",
     "close": "Закрити",
     "footerNotice": "Відповідність законодавству Іспанії: R.D. 293/2018 та Закон 7/2022 про відходи.",
@@ -697,7 +715,10 @@
     "footerLinkCompostable": "Компостована упаковка",
     "footerLinkCircular": "Циркулярна економіка",
     "footerPoweredBy": "Працює на базі Dine & Done © 2026",
-    "footerRestaurantDesc": "Гастрономічний ресторан зі свіжими локальними продуктами, швидким сервісом та інноваційним замовленням."
+    "footerRestaurantDesc": "Гастрономічний ресторан зі свіжими локальними продуктами, швидким сервісом та інноваційним замовленням.",
+    "lblLoginUser": "Користувач або Email:",
+    "lblLoginPass": "Пароль:",
+    "loginSubmit": "🔐 Увійти"
   },
   "pt": {
     "menuTitle": "Ementa & Menu Digital",
@@ -751,7 +772,7 @@
     "staffLogin": "🔐 Acesso Funcionários",
     "staffLogout": "🚪 Sair (Modo Cliente)",
     "loginModalTitle": "Acesso de Funcionários do Restaurante",
-    "loginModalDesc": "Selecione o seu perfil de colaborador para aceder à Sala, Cozinha ou Gestão:",
+    "loginModalDesc": "Insira suas credenciais de funcionário para acessar os painéis de salão, cozinha ou gerência:",
     "loginBtn": "Entrar como Funcionário",
     "close": "Fechar",
     "footerNotice": "Conformidade normativa espanhola: R.D. 293/2018 sobre sacos de plástico e Lei 7/2022.",
@@ -797,7 +818,10 @@
     "footerLinkCompostable": "Embalagens Compostáveis",
     "footerLinkCircular": "Economia Circular",
     "footerPoweredBy": "Desenvolvido por Dine & Done © 2026",
-    "footerRestaurantDesc": "Restauração gastronómica com produtos locais frescos, serviço ágil e tecnologia digital inovadora."
+    "footerRestaurantDesc": "Restauração gastronómica com produtos locais frescos, serviço ágil e tecnologia digital inovadora.",
+    "lblLoginUser": "Usuário ou E-mail:",
+    "lblLoginPass": "Senha:",
+    "loginSubmit": "🔐 Entrar"
   },
   "ja": {
     "menuTitle": "デジタルメニュー＆ご注文",
@@ -851,7 +875,7 @@
     "staffLogin": "🔐 スタッフ専用入口",
     "staffLogout": "🚪 ログアウト (お客様画面へ)",
     "loginModalTitle": "店舗スタッフ用アクセス",
-    "loginModalDesc": "ホール接客、厨房KDS、または店長管理画面を選択してください：",
+    "loginModalDesc": "ホール、厨房、または管理パネルにアクセスするには、スタッフ資格情報を入力してください:",
     "loginBtn": "スタッフとして入室",
     "close": "閉じる",
     "footerNotice": "スペイン法規制遵守：レジ袋規制令 R.D. 293/2018 及び 単回使用容器税制第7/2022号。",
@@ -897,7 +921,10 @@
     "footerLinkCompostable": "生分解性エコ容器",
     "footerLinkCircular": "サーキュラーエコノミー",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "地元の旬の厳選素材、スムーズなおもてなし、最新のデジタルモバイルオーダー体験を提供します。"
+    "footerRestaurantDesc": "地元の旬の厳選素材、スムーズなおもてなし、最新のデジタルモバイルオーダー体験を提供します。",
+    "lblLoginUser": "ユーザー名またはメール:",
+    "lblLoginPass": "パスワード:",
+    "loginSubmit": "🔐 ログイン"
   },
   "ar": {
     "menuTitle": "قائمة الطعام الرقمية والطلب",
@@ -951,7 +978,7 @@
     "staffLogin": "🔐 تسجيل دخول الموظفين",
     "staffLogout": "🚪 خروج (وضع الزبون)",
     "loginModalTitle": "بوابة دخول موظفي المطعم",
-    "loginModalDesc": "حدد دورك الوظيفي للدخول إلى لوحة الصالة، المطبخ KDS، أو الإدارة:",
+    "loginModalDesc": "أدخل بيانات اعتماد الموظف للوصول إلى لوحات الصالة أو المطبخ أو الإدارة:",
     "loginBtn": "دخول كموظف",
     "close": "إغلاق",
     "footerNotice": "امتثالاً للقوانين الإسبانية: المرسوم 293/2018 للأكياس البلاستيكية وقانون 7/2022.",
@@ -997,7 +1024,10 @@
     "footerLinkCompostable": "أوعية قابلة للتحلل العضوي",
     "footerLinkCircular": "الاقتصاد الدائري",
     "footerPoweredBy": "مشغل بواسطة Dine & Done © 2026",
-    "footerRestaurantDesc": "تجربة طعام راقية بمكونات محلية طازجة، خدمة استثنائية وسريعة ونظام طلب رقمي فائق التطور."
+    "footerRestaurantDesc": "تجربة طعام راقية بمكونات محلية طازجة، خدمة استثنائية وسريعة ونظام طلب رقمي فائق التطور.",
+    "lblLoginUser": "اسم المستخدم أو البريد:",
+    "lblLoginPass": "كلمة المرور:",
+    "loginSubmit": "🔐 تسجيل الدخول"
   },
   "ca": {
     "menuTitle": "Carta & Menú Digital",
@@ -1052,7 +1082,7 @@
     "staffLogin": "🔐 Accés Empleats",
     "staffLogout": "🚪 Sortir (Comensal)",
     "loginModalTitle": "Accés al Personal del Restaurant",
-    "loginModalDesc": "Selecciona el teu perfil d'empleat per accedir al panell de sala, cuina o gerència:",
+    "loginModalDesc": "Introdueix les teves credencials d'empleat per accedir als panells de sala, cuina o gerència:",
     "loginBtn": "Entrar com a Empleat",
     "close": "Tancar",
     "footerNotice": "Compliment normatiu espanyol: R.D. 293/2018 sobre bosses plàstiques i Impost Llei 7/2022 d'envasos no reutilitzables.",
@@ -1097,7 +1127,10 @@
     "footerLinkCompostable": "Envasos Compostables",
     "footerLinkCircular": "Economia Circular",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "Restauració gastronòmica amb producte local fresc, servei àgil i tecnologia digital d'avantguarda."
+    "footerRestaurantDesc": "Restauració gastronòmica amb producte local fresc, servei àgil i tecnologia digital d'avantguarda.",
+    "lblLoginUser": "Usuari o Correu:",
+    "lblLoginPass": "Contrasenya:",
+    "loginSubmit": "🔐 Iniciar Sessió"
   },
   "va": {
     "menuTitle": "Carta & Menú Digital",
@@ -1152,7 +1185,7 @@
     "staffLogin": "🔐 Accés Empleats",
     "staffLogout": "🚪 Eixir (Comensal)",
     "loginModalTitle": "Accés al Personal del Restaurant",
-    "loginModalDesc": "Selecciona el teu perfil d'empleat per a accedir al panell de sala, cuina o gerència:",
+    "loginModalDesc": "Introduïx les teues credencials d'empleat per a accedir als panells de sala, cuina o gerència:",
     "loginBtn": "Entrar com a Empleat",
     "close": "Tancar",
     "footerNotice": "Compliment normatiu espanyol: R.D. 293/2018 sobre bosses plàstiques i Impost Llei 7/2022 d'envasos no reutilitzables.",
@@ -1197,7 +1230,10 @@
     "footerLinkCompostable": "Envasos Compostables",
     "footerLinkCircular": "Economia Circular",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "Restauració gastronòmica amb producte local fresc, servici àgil i tecnologia digital d'avantguarda."
+    "footerRestaurantDesc": "Restauració gastronòmica amb producte local fresc, servici àgil i tecnologia digital d'avantguarda.",
+    "lblLoginUser": "Usuari o Correu:",
+    "lblLoginPass": "Contrasenya:",
+    "loginSubmit": "🔐 Iniciar Sessió"
   },
   "eu": {
     "menuTitle": "Menu Digitala eta Eskaerak",
@@ -1252,7 +1288,7 @@
     "staffLogin": "🔐 Langileen Sarbidea",
     "staffLogout": "🚪 Irten (Bezeroa)",
     "loginModalTitle": "Jatetxeko Langileen Sarbidea",
-    "loginModalDesc": "Hautatu zure langile-profila areto, sukalde edo kudeaketa paneletara sartzeko:",
+    "loginModalDesc": "Sartu zure langile-egiaztagiriak aretoko, sukaldeko edo kudeaketako paneletara sartzeko:",
     "loginBtn": "Langile gisa sartu",
     "close": "Itxi",
     "footerNotice": "Espainiako araudia betetzea: 293/2018 ED plastikozko poltsei buruzkoa eta 7/2022 Legea berrerabili ezin diren ontziei buruzkoa.",
@@ -1297,7 +1333,10 @@
     "footerLinkCompostable": "Ontzi Konpostagarriak",
     "footerLinkCircular": "Ekonomia Zirkularra",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "Tokiko produktu freskoko gastronomia, zerbitzu bizkorra eta punta-puntako teknologia digitala."
+    "footerRestaurantDesc": "Tokiko produktu freskoko gastronomia, zerbitzu bizkorra eta punta-puntako teknologia digitala.",
+    "lblLoginUser": "Erabiltzailea edo Posta:",
+    "lblLoginPass": "Pasahitza:",
+    "loginSubmit": "🔐 Saioa Hasi"
   },
   "gl": {
     "menuTitle": "Carta & Menú Dixital",
@@ -1352,7 +1391,7 @@
     "staffLogin": "🔐 Acceso Empregados",
     "staffLogout": "🚪 Saír (Comensal)",
     "loginModalTitle": "Acceso a Persoal do Restaurante",
-    "loginModalDesc": "Selecciona o teu perfil de empregado para acceder ao panel de sala, cociña ou xerencia:",
+    "loginModalDesc": "Introduce as túas credenciais de empregado para acceder aos paneis de sala, cociña ou xerencia:",
     "loginBtn": "Entrar como Empregado",
     "close": "Pechar",
     "footerNotice": "Cumprimento normativo español: R.D. 293/2018 sobre bolsas plásticas e Imposto Lei 7/2022 de envases non reutilizables.",
@@ -1397,6 +1436,9 @@
     "footerLinkCompostable": "Envases Compostables",
     "footerLinkCircular": "Economía Circular",
     "footerPoweredBy": "Powered by Dine & Done © 2026",
-    "footerRestaurantDesc": "Restauración gastronómica con produto local de tempada, servizo áxil e tecnoloxía dixital de vangarda."
+    "footerRestaurantDesc": "Restauración gastronómica con produto local de tempada, servizo áxil e tecnoloxía dixital de vangarda.",
+    "lblLoginUser": "Usuario ou Correo:",
+    "lblLoginPass": "Contrasinal:",
+    "loginSubmit": "🔐 Iniciar Sesión"
   }
 }

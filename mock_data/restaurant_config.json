@@ -6,5 +6,20 @@
   "currency": "€",
   "vatNumber": "B-88776655",
   "softwareBranding": "Dine & Done",
-  "softwareVersion": "v1.2.0"
+  "softwareVersion": "v1.2.0",
+  "availableTables": [
+    "Mesa 1",
+    "Mesa 2",
+    "Mesa 3",
+    "Mesa 4",
+    "Mesa 5",
+    "Mesa 6",
+    "Mesa 7",
+    "Mesa 8",
+    "Terraza 1",
+    "Terraza 2",
+    "Terraza 3",
+    "Barra 1",
+    "Barra 2"
+  ]
 }
