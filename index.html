@@ -849,7 +849,10 @@
           <line x1="14" y1="1" x2="14" y2="4"></line>
         </svg>
       </div>
-      <h1>Dine & <span>Done</span></h1>
+      <div>
+        <h1 id="brand-header-title">Dine & <span>Done</span></h1>
+        <div id="brand-header-tagline" style="font-size:0.7rem; color:var(--text-muted); font-weight:500;">Bistro • Servicio Ágil</div>
+      </div>
     </a>
 
     <!-- ROLE SWITCHER -->
@@ -885,6 +888,24 @@
     <!-- 1. VISTA COMENSAL (CUSTOMER)               -->
     <!-- ========================================== -->
     <section class="view-section active-view" id="view-customer">
+      <!-- Identificación Inteligente de Mesa (Feature 11) -->
+      <div class="table-identifier-bar" id="table-identifier-bar" style="background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.3); border-radius:var(--radius-md); padding:12px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:1.4rem;">📍</span>
+          <div>
+            <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-orange); font-weight:700;">Identificación de Mesa</div>
+            <div style="font-size:1.1rem; font-weight:700; color:#fff;" id="current-table-display">Mesa 4</div>
+          </div>
+          <span class="badge-tag tag-stock" id="table-detection-badge" style="margin-left:6px;">URL Auto-Detect</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="text" id="quick-table-input" placeholder="Escribe el nº de mesa..." style="display:none; padding:7px 12px; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem; width:170px; outline:none;">
+          <button class="btn-action" id="btn-toggle-edit-table" style="background:rgba(255,255,255,0.08); color:#fff; padding:6px 14px; font-size:0.82rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            ✏️ Cambiar Mesa
+          </button>
+        </div>
+      </div>
+
       <div class="section-header">
         <div class="section-title-wrap">
           <h2>Carta & Menú Digital</h2>
@@ -1111,13 +1132,14 @@
         </div>
 
         <div class="manager-section-card">
-          <h3 style="font-size:1.1rem; margin-bottom:16px;">📦 Control de Stock en Vivo (Feature 6)</h3>
-          <div class="table-container" style="max-height:300px; overflow-y:auto;">
+          <h3 style="font-size:1.1rem; margin-bottom:16px;">📦 Control de Carta, Precios y Stock (Features 6 y 10)</h3>
+          <div class="table-container" style="max-height:320px; overflow-y:auto;">
             <table>
               <thead>
                 <tr>
                   <th>Producto</th>
                   <th>Categoría</th>
+                  <th>Precio (€)</th>
                   <th>Stock Actual</th>
                   <th>Acción</th>
                 </tr>

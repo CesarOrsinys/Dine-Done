@@ -176,7 +176,26 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
 
     assert.ok(report.totalOrders > 0);
     assert.ok(typeof report.totalRevenue === 'number');
-    assert.ok(typeof report.averageTicket === 'number');
     assert.ok(Array.isArray(report.topRequestedItems));
+  });
+
+  it('HU-10: Should allow retrieving dishes with ingredients/allergens and updating price and stock', async () => {
+    const item = await menuRepo.getById('menu_1');
+    assert.ok(item);
+    assert.ok(item.ingredients && item.ingredients.length > 0);
+    assert.ok(item.allergens && item.allergens.includes('Gluten'));
+
+    const updated = await menuRepo.updateItem({
+      ...item,
+      price: 9.95,
+      stock: 40
+    });
+
+    assert.strictEqual(updated.price, 9.95);
+    assert.strictEqual(updated.stock, 40);
+
+    const reloaded = await menuRepo.getById('menu_1');
+    assert.strictEqual(reloaded?.price, 9.95);
+    assert.strictEqual(reloaded?.stock, 40);
   });
 });

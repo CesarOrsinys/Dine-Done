@@ -5,6 +5,18 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.1.0] - 2026-10-20
+### Added
+- **Branding Personalizable por JSON (HU-09):**
+  - Configuración dinámica del nombre de empresa, eslogan y datos desde `mock_data/restaurant_config.json`.
+  - Integración en título del navegador, encabezado y metadatos de reportes exportados.
+- **Menú Enriquecido y Editor Gerencial (HU-10):**
+  - Inclusión de ingredientes y etiquetas visuales de alérgenos (Gluten, Lácteos, Huevos, Pescado, Frutos secos, etc.) en cada plato.
+  - Editor en vivo para Gerencia permitiendo modificar tanto el precio unitario (€) como el stock disponible en BBDD/repositorio con persistencia.
+- **Detección Inteligente y Selección de Mesa (HU-11):**
+  - Detección automática por URL (`?table=...`, `?mesa=...`).
+  - Barra superior en la vista del comensal con identificador de mesa y botón interactivo para cambio manual con guardado local.
+
 ## [1.0.0] - 2026-10-20
 ### Added
 - **Módulo de Menú y Opciones de Servicio (HU-01):**

@@ -5,4 +5,5 @@ export interface IMenuRepository {
   getById(id: string): Promise<MenuItem | null>;
   deductStock(items: { menuItemId: string; quantity: number }[]): Promise<void>;
   updateStock(menuItemId: string, newStock: number): Promise<MenuItem>;
+  updateItem(item: MenuItem): Promise<MenuItem>;
 }

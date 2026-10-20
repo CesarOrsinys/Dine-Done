@@ -128,3 +128,49 @@
 **Como** Gerente  
 **Quiero** visualizar paneles de métricas (ingresos diarios, ticket promedio, propinas, tiempos de servicio y platos estrella)  
 **Para** tomar decisiones operativas y exportar reportes para auditoría.
+
+---
+
+### HU-09: Personalización de Marca y Nombre de Empresa
+**Como** Administrador / Dueño  
+**Quiero** que el nombre comercial, eslogan y datos del restaurante provengan de `restaurant_config.json`  
+**Para** que la aplicación sea multimarca y reconfigurable sin tocar código fuente.
+
+- **Criterio 9.1: Carga dinámica de branding**
+  - **Given** un archivo de configuración `restaurant_config.json` con el nombre del restaurante
+  - **When** se inicia la aplicación
+  - **Then** el encabezado, título del documento y reportes descargables muestran la identidad corporativa definida.
+
+---
+
+### HU-10: Menú Enriquecido con Ingredientes, Alérgenos y Edición en BBDD
+**Como** Comensal y Gerente  
+**Quiero** consultar los ingredientes y alérgenos de cada plato, y que el gerente pueda ajustar precios y stock en BBDD/repositorio  
+**Para** proteger a personas con alergias alimentarias y permitir una gestión flexible de la carta.
+
+- **Criterio 10.1: Visualización de ingredientes y alérgenos**
+  - **Given** platos con ingredientes y alérgenos registrados
+  - **When** el comensal navega la carta
+  - **Then** cada tarjeta muestra la lista de ingredientes y etiquetas destacadas con avisos de alérgenos.
+
+- **Criterio 10.2: Edición de precios y stock desde panel gerencial**
+  - **Given** la tabla de inventario en la vista de Gerente
+  - **When** el gerente modifica el precio o el stock de un plato y pulsa "Guardar"
+  - **Then** los cambios persisten en el repositorio y se reflejan instantáneamente en la carta.
+
+---
+
+### HU-11: Detección Inteligente y Selección de Mesa
+**Como** Comensal  
+**Quiero** que la aplicación identifique automáticamente mi mesa mediante la URL o me permita seleccionarla manualmente  
+**Para** que mi comanda llegue siempre al lugar correcto del restaurante sin confusiones.
+
+- **Criterio 11.1: Lectura por parámetro de URL**
+  - **Given** que el cliente accede mediante un código QR o enlace con parámetro `?table=5` o `?mesa=5`
+  - **When** la aplicación arranca
+  - **Then** se asigna automáticamente "Mesa 5" como mesa activa del comensal.
+
+- **Criterio 11.2: Edición manual de mesa**
+  - **Given** la barra de identificación de mesa en la vista de comensal
+  - **When** el usuario pulsa "Cambiar Mesa" e introduce un nuevo identificador
+  - **Then** la comanda actualiza su destino y se recuerda la preferencia.

@@ -70,4 +70,14 @@ export class JsonMenuRepository implements IMenuRepository {
     this.save();
     return JSON.parse(JSON.stringify(item));
   }
+
+  async updateItem(updatedItem: MenuItem): Promise<MenuItem> {
+    const idx = this.items.findIndex(i => i.id === updatedItem.id);
+    if (idx < 0) {
+      throw new Error(`El producto con ID ${updatedItem.id} no existe.`);
+    }
+    this.items[idx] = { ...updatedItem };
+    this.save();
+    return JSON.parse(JSON.stringify(this.items[idx]));
+  }
 }

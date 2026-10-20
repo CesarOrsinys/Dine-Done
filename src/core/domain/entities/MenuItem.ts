@@ -8,5 +8,7 @@ export interface MenuItem {
   category: MenuCategory;
   requiresCooking: boolean;
   stock: number;
+  ingredients?: string[];
+  allergens?: string[];
   imageUrl?: string;
 }

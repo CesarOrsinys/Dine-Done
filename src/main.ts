@@ -1,3 +1,4 @@
+import restaurantConfig from '../mock_data/restaurant_config.json' with { type: 'json' };
 import { RepositoryContainer } from './adapters/infrastructure/di/RepositoryContainer.js';
 import { MenuItem } from './core/domain/entities/MenuItem.js';
 import { Order } from './core/domain/entities/Order.js';
@@ -37,7 +38,9 @@ let menuCatalog: MenuItem[] = [];
 let allOrders: Order[] = [];
 let allUsers: User[] = [];
 
-// Cart State (Customer View)
+// Cart & Table State (Customer View)
+let currentAssignedTable = 'Mesa 4';
+
 interface CartItem {
   menuItem: MenuItem;
   quantity: number;
@@ -68,7 +71,99 @@ function showToast(message: string, type: 'info' | 'success' | 'warning' | 'dang
   }, 4000);
 }
 
-// 3. Navigation & Role Switcher
+// 3. Feature 9: Customizable Business Details from restaurant_config.json
+function applyBusinessBranding() {
+  document.title = `${restaurantConfig.businessName} | ${restaurantConfig.tagline}`;
+  
+  const titleEl = document.getElementById('brand-header-title');
+  if (titleEl) {
+    const parts = restaurantConfig.businessName.split(' ');
+    if (parts.length > 1) {
+      const last = parts.pop();
+      titleEl.innerHTML = `${parts.join(' ')} <span>${last}</span>`;
+    } else {
+      titleEl.innerHTML = `<span>${restaurantConfig.businessName}</span>`;
+    }
+  }
+
+  const tagEl = document.getElementById('brand-header-tagline');
+  if (tagEl) {
+    tagEl.innerText = `${restaurantConfig.tagline} • ${restaurantConfig.address}`;
+  }
+}
+
+// 4. Feature 11: Intelligent Table Identification (URL Detection + Manual Edit)
+function setupTableIdentification() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromParam = urlParams.get('table') || urlParams.get('mesa') || urlParams.get('m');
+  const badgeEl = document.getElementById('table-detection-badge')!;
+
+  if (fromParam) {
+    currentAssignedTable = fromParam.startsWith('Mesa') ? fromParam : `Mesa ${fromParam}`;
+    localStorage.setItem('DND_SELECTED_TABLE', currentAssignedTable);
+    badgeEl.innerText = 'Detectada por URL';
+    badgeEl.className = 'badge-tag tag-stock';
+  } else {
+    const stored = localStorage.getItem('DND_SELECTED_TABLE');
+    if (stored) {
+      currentAssignedTable = stored;
+      badgeEl.innerText = 'Mesa Recordada';
+      badgeEl.className = 'badge-tag tag-direct';
+    } else {
+      badgeEl.innerText = 'Mesa por Defecto';
+      badgeEl.className = 'badge-tag tag-stock';
+    }
+  }
+
+  updateTableUI();
+
+  // Manual edit toggle
+  const editBtn = document.getElementById('btn-toggle-edit-table')!;
+  const quickInput = document.getElementById('quick-table-input') as HTMLInputElement;
+
+  editBtn.addEventListener('click', () => {
+    if (quickInput.style.display === 'none') {
+      quickInput.style.display = 'inline-block';
+      quickInput.value = currentAssignedTable;
+      quickInput.focus();
+      editBtn.innerText = '💾 Guardar';
+      editBtn.style.background = 'var(--accent-orange)';
+    } else {
+      saveManualTable();
+    }
+  });
+
+  quickInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      saveManualTable();
+    }
+  });
+
+  function saveManualTable() {
+    const val = quickInput.value.trim();
+    if (val) {
+      currentAssignedTable = val.startsWith('Mesa') ? val : `Mesa ${val}`;
+      localStorage.setItem('DND_SELECTED_TABLE', currentAssignedTable);
+      badgeEl.innerText = 'Configurada Manualmente';
+      badgeEl.className = 'badge-tag tag-cooking';
+      showToast(`Mesa actualizada a "${currentAssignedTable}".`, 'success');
+    }
+    quickInput.style.display = 'none';
+    editBtn.innerText = '✏️ Cambiar Mesa';
+    editBtn.style.background = 'rgba(255,255,255,0.08)';
+    updateTableUI();
+  }
+}
+
+function updateTableUI() {
+  const displayEl = document.getElementById('current-table-display');
+  if (displayEl) displayEl.innerText = currentAssignedTable;
+
+  const cartTableInput = document.getElementById('cart-table-input') as HTMLInputElement;
+  if (cartTableInput) cartTableInput.value = currentAssignedTable;
+}
+
+// 5. Navigation & Role Switcher
 function setupRoleSwitcher() {
   const roleButtons = document.querySelectorAll('.role-btn');
   roleButtons.forEach(btn => {
@@ -126,7 +221,7 @@ async function switchRole(role: UserRole) {
   }
 }
 
-// 4. Customer: Menu & Cart Rendering
+// 6. Customer: Menu & Cart Rendering (Feature 10: Rich Ingredients & Allergens)
 function setupCategoryFilters() {
   const pills = document.querySelectorAll('.cat-pill');
   pills.forEach(pill => {
@@ -152,6 +247,22 @@ function renderMenu() {
     card.className = 'menu-card';
     const isOutOfStock = item.stock <= 0;
 
+    const ingredientsHtml = item.ingredients && item.ingredients.length > 0 ? `
+      <div style="font-size:0.77rem; color:var(--text-muted); margin-bottom:8px; line-height:1.4;">
+        🌿 <strong>Ingredientes:</strong> ${item.ingredients.join(', ')}
+      </div>
+    ` : '';
+
+    const allergensHtml = item.allergens && item.allergens.length > 0 ? `
+      <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px;">
+        ${item.allergens.map(a => `<span class="badge-tag" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:0.67rem;">⚠️ ${a}</span>`).join('')}
+      </div>
+    ` : `
+      <div style="margin-bottom:12px;">
+        <span class="badge-tag" style="background:rgba(16,185,129,0.1); color:#34d399; font-size:0.67rem;">✅ Libre de alérgenos</span>
+      </div>
+    `;
+
     card.innerHTML = `
       <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${item.name}" class="menu-img" loading="lazy">
       <div class="menu-body">
@@ -165,6 +276,11 @@ function renderMenu() {
         </div>
         <h3 class="menu-title">${item.name}</h3>
         <p class="menu-desc">${item.description}</p>
+        
+        <!-- Feature 10: Ingredients and Allergens -->
+        ${ingredientsHtml}
+        ${allergensHtml}
+
         <div class="menu-footer">
           <span class="menu-price">${item.price.toFixed(2)} €</span>
           <button class="btn-add" data-id="${item.id}" ${isOutOfStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
@@ -320,7 +436,7 @@ async function handlePlaceOrder() {
     return;
   }
 
-  const tableInput = (document.getElementById('cart-table-input') as HTMLInputElement).value.trim();
+  const tableInput = (document.getElementById('cart-table-input') as HTMLInputElement).value.trim() || currentAssignedTable;
   if (!tableInput) {
     showToast('Por favor introduce el número o nombre de mesa.', 'warning');
     return;
@@ -362,7 +478,7 @@ async function handlePlaceOrder() {
       ? '¡Pago con tarjeta verificado mediante Stripe!'
       : 'Cobro marcado en efectivo. El camarero cobrará en mesa.';
 
-    showToast(`🎉 ¡Comanda ${createdOrder.orderNumber} confirmada con éxito! ${payMsg}`, 'success');
+    showToast(`🎉 ¡Comanda ${createdOrder.orderNumber} confirmada para la ${createdOrder.tableNumber}! ${payMsg}`, 'success');
 
     // Reset Cart
     currentCart = [];
@@ -377,7 +493,7 @@ async function handlePlaceOrder() {
   }
 }
 
-// 5. Camarero: Comandas Board
+// 7. Camarero: Comandas Board
 function renderWaiterOrders() {
   waiterOrdersContainer.innerHTML = '';
   if (allOrders.length === 0) {
@@ -481,11 +597,10 @@ function renderWaiterOrders() {
   });
 }
 
-// 6. Cocina: Kitchen Display System (KDS - Feature 4)
+// 8. Cocina: Kitchen Display System (KDS - Feature 4)
 function renderChefOrders() {
   chefOrdersContainer.innerHTML = '';
 
-  // Filter orders that have cooking items and are not finished
   const kitchenOrders = allOrders.filter(o => 
     o.status !== OrderStatus.DELIVERED && 
     o.status !== OrderStatus.CANCELLED &&
@@ -577,7 +692,7 @@ function renderChefOrders() {
   });
 }
 
-// 7. Gerente: KPIs & Tablas (Features 5, 6, 7)
+// 9. Gerente: KPIs, Precios y Stock (Features 5, 6, 7 y 10)
 async function renderManagerDashboard() {
   const report = await kpiUseCase.execute();
 
@@ -600,33 +715,53 @@ async function renderManagerDashboard() {
     topTbody.appendChild(tr);
   });
 
-  // Feature 6: Live Stock Table
+  // Feature 6 y 10: Live Stock & Price Editor
   const stockTbody = document.getElementById('stock-tbody')!;
   stockTbody.innerHTML = '';
   menuCatalog.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${item.name}</td>
+      <td>
+        <strong>${item.name}</strong>
+        ${item.allergens && item.allergens.length > 0 ? `<div style="font-size:0.7rem; color:#f472b6;">Alérgenos: ${item.allergens.join(', ')}</div>` : ''}
+      </td>
       <td><span class="badge-tag tag-direct">${item.category}</span></td>
+      <td>
+        <input type="number" step="0.5" class="stock-input" id="price-input-${item.id}" value="${item.price.toFixed(2)}" min="0" style="width:75px;">
+      </td>
       <td>
         <input type="number" class="stock-input" id="stock-input-${item.id}" value="${item.stock}" min="0">
       </td>
       <td>
-        <button class="btn-action btn-waiter-deliver btn-save-stock" data-id="${item.id}" style="padding:4px 8px; font-size:0.75rem;">
+        <button class="btn-action btn-waiter-deliver btn-save-item" data-id="${item.id}" style="padding:5px 10px; font-size:0.75rem;">
           💾 Guardar
         </button>
       </td>
     `;
 
-    tr.querySelector('.btn-save-stock')?.addEventListener('click', async () => {
-      const inputEl = document.getElementById(`stock-input-${item.id}`) as HTMLInputElement;
-      const newStock = parseInt(inputEl.value, 10);
+    tr.querySelector('.btn-save-item')?.addEventListener('click', async () => {
+      const stockInput = document.getElementById(`stock-input-${item.id}`) as HTMLInputElement;
+      const priceInput = document.getElementById(`price-input-${item.id}`) as HTMLInputElement;
+
+      const newStock = parseInt(stockInput.value, 10);
+      const newPrice = parseFloat(priceInput.value);
+
       if (isNaN(newStock) || newStock < 0) {
         showToast('El stock debe ser un número entero mayor o igual a cero.', 'warning');
         return;
       }
-      await manageStockUseCase.execute(item.id, newStock);
-      showToast(`Stock de "${item.name}" actualizado a ${newStock}.`, 'success');
+      if (isNaN(newPrice) || newPrice < 0) {
+        showToast('El precio debe ser un número mayor o igual a cero.', 'warning');
+        return;
+      }
+
+      const updated = await services.menuRepo.updateItem({
+        ...item,
+        price: newPrice,
+        stock: newStock
+      });
+
+      showToast(`Plato "${updated.name}" actualizado: ${newPrice.toFixed(2)} € | Stock: ${newStock}.`, 'success');
       menuCatalog = await services.menuRepo.getAll();
       renderManagerDashboard();
     });
@@ -654,7 +789,7 @@ async function renderManagerDashboard() {
   });
 }
 
-// 8. Realtime Subscriptions & Refresh
+// 10. Realtime Subscriptions & Refresh
 async function refreshAll() {
   menuCatalog = await services.menuRepo.getAll();
   allOrders = await services.orderRepo.findAll();
@@ -676,9 +811,12 @@ function setupExportReport() {
   document.getElementById('btn-export-report')?.addEventListener('click', async () => {
     const report = await kpiUseCase.execute();
     const exportData = {
-      restaurant: 'Dine & Done Madrid',
+      restaurant: restaurantConfig.businessName,
+      tagline: restaurantConfig.tagline,
+      address: restaurantConfig.address,
       exportDate: new Date().toISOString(),
       report: report,
+      menuSnapshot: menuCatalog,
       ordersSnapshot: allOrders
     };
 
@@ -686,7 +824,7 @@ function setupExportReport() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `DineAndDone_InformeGerencial_${new Date().toISOString().substring(0, 10)}.json`;
+    a.download = `${restaurantConfig.businessName.replace(/\s+/g, '_')}_InformeGerencial_${new Date().toISOString().substring(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('Informe gerencial descargado con éxito.', 'success');
@@ -715,6 +853,9 @@ services.realtimeNotifier.subscribe((updatedOrder) => {
 
 // Boot Application
 async function initApp() {
+  applyBusinessBranding();
+  setupTableIdentification();
+
   menuCatalog = await services.menuRepo.getAll();
   allOrders = await services.orderRepo.findAll();
   allUsers = await services.userRepo.getAll();
