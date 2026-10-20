@@ -21,6 +21,13 @@ export interface CreateOrderDTO {
   waiterName?: string;
   chefId?: string;
   chefName?: string;
+  receiptType?: 'TICKET' | 'INVOICE';
+  invoiceDetails?: {
+    nifCif: string;
+    legalName: string;
+    address: string;
+    email: string;
+  };
 }
 
 export class CreateOrderUseCase {
@@ -92,6 +99,8 @@ export class CreateOrderUseCase {
       waiterName: dto.waiterName,
       chefId: dto.chefId,
       chefName: dto.chefName,
+      receiptType: dto.receiptType || 'TICKET',
+      invoiceDetails: dto.invoiceDetails,
       createdAt: new Date(),
       updatedAt: new Date()
     };

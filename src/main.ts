@@ -172,6 +172,8 @@ let currentCart: CartItem[] = [];
 let currentCategoryFilter = 'ALL';
 let currentTipPercent = 0.10;
 let currentPaymentMethod: PaymentMethod = PaymentMethod.STRIPE_CARD;
+let currentReceiptType: 'TICKET' | 'INVOICE' = 'TICKET';
+let lastConfirmedOrder: Order | null = null;
 let cutleryCount = 2;
 
 // Features 2 & 3: Dietary & Allergen Filter State
@@ -1101,17 +1103,26 @@ function updateCartUI() {
     const row = document.createElement('div');
     row.className = 'cart-item';
     row.innerHTML = `
-      <div class="cart-item-info">
-        <div class="cart-item-name">${displayName}</div>
-        <div class="cart-item-price">
-          <span>${netLine.toFixed(2)} €</span>
-          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-left:4px;">(${netUnitPrice.toFixed(2)} €/ud sin IVA)</span>
+      <div style="display:flex; align-items:center; gap:10px; width:100%; min-width:0;">
+        <div style="width:38px; height:38px; border-radius:6px; overflow:hidden; flex-shrink:0; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center;">
+          ${item.menuItem.imageUrl 
+            ? `<img src="${item.menuItem.imageUrl}" alt="${displayName}" style="width:100%; height:100%; object-fit:cover;">`
+            : `<span style="font-size:1.15rem;">🍽️</span>`
+          }
         </div>
-      </div>
-      <div class="cart-qty-ctrl">
-        <button class="btn-qty btn-minus" data-idx="${index}">-</button>
-        <span style="font-size:0.85rem; font-weight:700; width:16px; text-align:center;">${item.quantity}</span>
-        <button class="btn-qty btn-plus" data-idx="${index}">+</button>
+        <div class="cart-item-info">
+          <div class="cart-item-name" title="${displayName}">${displayName}</div>
+          <div class="cart-item-price">
+            <strong style="color:var(--text-main);">${netLine.toFixed(2)} €</strong>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:400; margin-left:3px;">(${netUnitPrice.toFixed(2)} €/ud sin IVA)</span>
+          </div>
+        </div>
+        <div class="cart-qty-ctrl">
+          <button class="btn-qty btn-minus" data-idx="${index}" title="Reducir cantidad">-</button>
+          <span style="font-size:0.85rem; font-weight:700; width:16px; text-align:center;">${item.quantity}</span>
+          <button class="btn-qty btn-plus" data-idx="${index}" title="Aumentar cantidad">+</button>
+          <button class="btn-qty btn-remove" data-idx="${index}" title="Eliminar plato" style="color:#ef4444; border-color:rgba(239,68,68,0.3); margin-left:4px;">🗑️</button>
+        </div>
       </div>
     `;
 
@@ -1130,6 +1141,11 @@ function updateCartUI() {
         return;
       }
       item.quantity++;
+      updateCartUI();
+    });
+
+    row.querySelector('.btn-remove')?.addEventListener('click', () => {
+      currentCart.splice(index, 1);
       updateCartUI();
     });
 
@@ -1249,6 +1265,25 @@ function setupCartControls() {
     currentPaymentMethod = PaymentMethod.CASH;
   });
 
+  // Receipt / Invoice type selection
+  const btnTypeTicket = document.getElementById('btn-type-ticket');
+  const btnTypeInvoice = document.getElementById('btn-type-invoice');
+  const invoiceContainer = document.getElementById('invoice-fields-container');
+
+  btnTypeTicket?.addEventListener('click', () => {
+    currentReceiptType = 'TICKET';
+    btnTypeTicket.classList.add('active');
+    btnTypeInvoice?.classList.remove('active');
+    if (invoiceContainer) invoiceContainer.style.display = 'none';
+  });
+
+  btnTypeInvoice?.addEventListener('click', () => {
+    currentReceiptType = 'INVOICE';
+    btnTypeInvoice.classList.add('active');
+    btnTypeTicket?.classList.remove('active');
+    if (invoiceContainer) invoiceContainer.style.display = 'flex';
+  });
+
   // Place Order Submit Button
   document.getElementById('btn-place-order')?.addEventListener('click', handlePlaceOrder);
 }
@@ -1277,6 +1312,216 @@ function setupMobileCartDrawer() {
   backdrop?.addEventListener('click', closeDrawer);
 }
 
+// 11. Modal: Pop-up de Confirmación de Pedido y Comprobante (Ticket / Factura)
+function showOrderConfirmedModal(order: Order) {
+  const modal = document.getElementById('order-confirmed-modal');
+  if (!modal) return;
+  lastConfirmedOrder = order;
+
+  (document.getElementById('conf-order-number') as HTMLElement).innerText = `#${order.orderNumber}`;
+  (document.getElementById('conf-order-table') as HTMLElement).innerText = order.tableNumber;
+  (document.getElementById('conf-order-date') as HTMLElement).innerText = new Date(order.createdAt).toLocaleString('es-ES', { 
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' 
+  });
+
+  const payStatusEl = document.getElementById('conf-payment-status') as HTMLElement;
+  if (order.paymentMethod === PaymentMethod.STRIPE_CARD) {
+    payStatusEl.innerHTML = '💳 Pagado con Tarjeta (Pasarela Stripe)';
+    payStatusEl.style.color = 'var(--accent-emerald)';
+  } else {
+    payStatusEl.innerHTML = '💵 Pago en Efectivo (A cobrar en mesa)';
+    payStatusEl.style.color = 'var(--accent-amber)';
+  }
+
+  const receiptBadge = document.getElementById('conf-receipt-badge') as HTMLElement;
+  const invoiceBox = document.getElementById('conf-invoice-box') as HTMLElement;
+
+  if (order.receiptType === 'INVOICE' && order.invoiceDetails) {
+    receiptBadge.className = 'badge-tag tag-cooking';
+    receiptBadge.innerText = '📑 Factura Fiscal';
+    invoiceBox.style.display = 'block';
+    (document.getElementById('conf-inv-nif') as HTMLElement).innerText = order.invoiceDetails.nifCif;
+    (document.getElementById('conf-inv-name') as HTMLElement).innerText = order.invoiceDetails.legalName;
+    (document.getElementById('conf-inv-address') as HTMLElement).innerText = order.invoiceDetails.address || 'No indicada';
+    (document.getElementById('conf-inv-email') as HTMLElement).innerText = order.invoiceDetails.email || 'No indicado';
+  } else {
+    receiptBadge.className = 'badge-tag tag-stock';
+    receiptBadge.innerText = '🧾 Ticket de Pago';
+    invoiceBox.style.display = 'none';
+  }
+
+  // Populate generous scrollable product list
+  const itemsContainer = document.getElementById('conf-items-list') as HTMLElement;
+  const itemsCountEl = document.getElementById('conf-items-count') as HTMLElement;
+  itemsContainer.innerHTML = '';
+  const totalItems = order.items.reduce((acc, i) => acc + i.quantity, 0);
+  itemsCountEl.innerText = `${totalItems} productos en comanda`;
+
+  order.items.forEach(i => {
+    const netUnit = parseFloat((i.unitPrice * 0.79).toFixed(2));
+    const lineTotal = parseFloat((i.unitPrice * i.quantity).toFixed(2));
+    const itemRow = document.createElement('div');
+    itemRow.style.display = 'flex';
+    itemRow.style.justifyContent = 'space-between';
+    itemRow.style.alignItems = 'center';
+    itemRow.style.padding = '8px 12px';
+    itemRow.style.background = 'rgba(255,255,255,0.03)';
+    itemRow.style.borderRadius = 'var(--radius-sm)';
+    itemRow.style.border = '1px solid var(--border-subtle)';
+    itemRow.style.fontSize = '0.85rem';
+
+    itemRow.innerHTML = `
+      <div style="min-width:0; flex:1; padding-right:8px;">
+        <div style="font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <span style="color:var(--accent-orange); margin-right:4px;">${i.quantity}x</span> ${i.name}
+        </div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">
+          ${netUnit.toFixed(2)} €/ud base • ${i.unitPrice.toFixed(2)} € PVP
+        </div>
+      </div>
+      <div style="font-weight:700; color:var(--text-main); font-family:'JetBrains Mono',monospace; flex-shrink:0;">
+        ${lineTotal.toFixed(2)} €
+      </div>
+    `;
+    itemsContainer.appendChild(itemRow);
+  });
+
+  // Fiscal breakdown
+  (document.getElementById('conf-subtotal-net') as HTMLElement).innerText = `${(order.subtotalNet ?? (order.subtotal * 0.79)).toFixed(2)} €`;
+  (document.getElementById('conf-vat') as HTMLElement).innerText = `+${(order.vatAmount ?? (order.subtotal * 0.21)).toFixed(2)} €`;
+  (document.getElementById('conf-packaging') as HTMLElement).innerText = `${(order.packagingCost ?? 0).toFixed(2)} €`;
+  (document.getElementById('conf-tip') as HTMLElement).innerText = `${order.tipAmount.toFixed(2)} €`;
+  (document.getElementById('conf-total') as HTMLElement).innerText = `${order.total.toFixed(2)} €`;
+
+  modal.style.display = 'flex';
+}
+
+function setupConfirmedOrderModal() {
+  const modal = document.getElementById('order-confirmed-modal');
+  const btnClose = document.getElementById('btn-close-confirmed-modal');
+  const btnDismiss = document.getElementById('btn-dismiss-confirmed-modal');
+  const btnPrint = document.getElementById('btn-print-receipt');
+  const btnDownload = document.getElementById('btn-download-receipt');
+
+  function closeModal() {
+    if (modal) modal.style.display = 'none';
+  }
+
+  btnClose?.addEventListener('click', closeModal);
+  btnDismiss?.addEventListener('click', closeModal);
+
+  btnPrint?.addEventListener('click', () => {
+    if (!lastConfirmedOrder) return;
+    const isInvoice = lastConfirmedOrder.receiptType === 'INVOICE';
+    const docTitle = isInvoice ? `Factura_${lastConfirmedOrder.orderNumber}` : `Ticket_${lastConfirmedOrder.orderNumber}`;
+    
+    const printWindow = window.open('', '_blank', 'width=450,height=600');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+    
+    const itemsHtml = lastConfirmedOrder.items.map(i => `
+      <tr>
+        <td style="padding:4px 0;">${i.quantity}x ${i.name}</td>
+        <td style="text-align:right; padding:4px 0;">${(i.unitPrice * i.quantity).toFixed(2)} €</td>
+      </tr>
+    `).join('');
+
+    const invoiceHeader = isInvoice && lastConfirmedOrder.invoiceDetails ? `
+      <div style="border-top:1px dashed #999; border-bottom:1px dashed #999; padding:8px 0; margin:10px 0; font-size:12px;">
+        <strong>DATOS FISCALES DEL CLIENTE:</strong><br>
+        NIF/CIF: ${lastConfirmedOrder.invoiceDetails.nifCif}<br>
+        Nombre/Razón: ${lastConfirmedOrder.invoiceDetails.legalName}<br>
+        Dirección: ${lastConfirmedOrder.invoiceDetails.address || 'N/A'}<br>
+        Email: ${lastConfirmedOrder.invoiceDetails.email || 'N/A'}
+      </div>
+    ` : '';
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${docTitle}</title>
+        <style>
+          body { font-family: 'Courier New', monospace; font-size: 13px; color: #000; padding: 20px; max-width: 380px; margin: 0 auto; }
+          .center { text-align: center; }
+          .bold { font-weight: bold; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          hr { border: none; border-top: 1px dashed #000; margin: 10px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="center">
+          <h2 style="margin:0;">BISTRO GRAN VÍA</h2>
+          <div>CIF: B-87654321 • Calle Gran Vía 28, Madrid</div>
+          <div class="bold" style="margin-top:6px;">${isInvoice ? 'FACTURA FISCAL SIMPLIFICADA' : 'TICKET DE VENTA'}</div>
+          <div>Comanda: #${lastConfirmedOrder.orderNumber} • ${lastConfirmedOrder.tableNumber}</div>
+          <div>Fecha: ${new Date(lastConfirmedOrder.createdAt).toLocaleString('es-ES')}</div>
+        </div>
+        ${invoiceHeader}
+        <hr>
+        <table>
+          <thead>
+            <tr style="border-bottom:1px solid #000;">
+              <th style="text-align:left; padding:4px 0;">Concepto</th>
+              <th style="text-align:right; padding:4px 0;">Importe</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        <hr>
+        <div style="display:flex; justify-content:space-between;">
+          <span>Base Imponible (neto):</span>
+          <span>${(lastConfirmedOrder.subtotalNet ?? (lastConfirmedOrder.subtotal * 0.79)).toFixed(2)} €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span>IVA (21%):</span>
+          <span>${(lastConfirmedOrder.vatAmount ?? (lastConfirmedOrder.subtotal * 0.21)).toFixed(2)} €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span>Empaques Ley 7/2022:</span>
+          <span>${(lastConfirmedOrder.packagingCost ?? 0).toFixed(2)} €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span>Propina:</span>
+          <span>${lastConfirmedOrder.tipAmount.toFixed(2)} €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:bold; margin-top:8px; border-top:1px solid #000; padding-top:6px;">
+          <span>TOTAL:</span>
+          <span>${lastConfirmedOrder.total.toFixed(2)} €</span>
+        </div>
+        <div style="margin-top:14px; text-align:center; font-size:11px;">
+          Pago: ${lastConfirmedOrder.paymentMethod === PaymentMethod.STRIPE_CARD ? 'Tarjeta (Stripe Verificado)' : 'Efectivo en mesa'}<br>
+          ¡Gracias por su visita a Bistro Gran Vía!
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  });
+
+  btnDownload?.addEventListener('click', () => {
+    if (!lastConfirmedOrder) return;
+    const isInvoice = lastConfirmedOrder.receiptType === 'INVOICE';
+    const content = JSON.stringify(lastConfirmedOrder, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${isInvoice ? 'Factura' : 'Ticket'}_${lastConfirmedOrder.orderNumber}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Comprobante ${lastConfirmedOrder.orderNumber} descargado con éxito.`, 'success');
+  });
+}
+
 async function handlePlaceOrder() {
   if (currentCart.length === 0) {
     showToast('Por favor añade al menos un plato a la comanda.', 'warning');
@@ -1291,6 +1536,20 @@ async function handlePlaceOrder() {
 
   const hasBags = (document.getElementById('pack-bags') as HTMLInputElement).checked;
   const hasPlastic = (document.getElementById('pack-plastic') as HTMLInputElement).checked;
+
+  let invoiceDetails: { nifCif: string; legalName: string; address: string; email: string; } | undefined = undefined;
+  if (currentReceiptType === 'INVOICE') {
+    const nif = (document.getElementById('inv-nif') as HTMLInputElement)?.value.trim();
+    const name = (document.getElementById('inv-name') as HTMLInputElement)?.value.trim();
+    const address = (document.getElementById('inv-address') as HTMLInputElement)?.value.trim();
+    const email = (document.getElementById('inv-email') as HTMLInputElement)?.value.trim();
+
+    if (!nif || !name) {
+      showToast('Por favor completa al menos el NIF/CIF y Razón Social para emitir la factura.', 'warning');
+      return;
+    }
+    invoiceDetails = { nifCif: nif, legalName: name, address, email };
+  }
 
   const orderItems: OrderItem[] = currentCart.map(c => ({
     menuItemId: c.menuItem.id,
@@ -1318,7 +1577,9 @@ async function handlePlaceOrder() {
       },
       paymentMethod: currentPaymentMethod,
       tipAmount: tipAmount,
-      stripeToken: 'tok_visa_success'
+      stripeToken: 'tok_visa_success',
+      receiptType: currentReceiptType,
+      invoiceDetails: invoiceDetails
     });
 
     const payMsg = createdOrder.paymentMethod === PaymentMethod.STRIPE_CARD
@@ -1338,6 +1599,9 @@ async function handlePlaceOrder() {
     cartPanel?.classList.remove('mobile-drawer-open');
     backdrop?.classList.remove('active');
     document.body.style.overflow = '';
+
+    // Show Order Confirmation Popup & Receipt / Invoice
+    showOrderConfirmedModal(createdOrder);
 
     // Reload menu to show updated stock
     menuCatalog = await services.menuRepo.getAll();
@@ -2379,6 +2643,7 @@ async function initApp() {
   setupMobileCartDrawer();
   setupExportReport();
   setupManagerModals();
+  setupConfirmedOrderModal();
 
   renderMenu();
   updateCartUI();

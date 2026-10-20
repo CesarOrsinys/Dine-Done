@@ -465,6 +465,44 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(reloadedWaiter?.name, 'Carlos Ruiz Promovido');
     assert.strictEqual(reloadedWaiter?.role, UserRole.MANAGER);
   });
+
+  it('Payment & Invoicing: Should create order with Invoice request and preserve fiscal details', async () => {
+    const orderWithInvoice = await createOrderUseCase.execute({
+      tableNumber: 'Mesa 7',
+      customerName: 'Tech Solutions S.L.',
+      items: [
+        {
+          menuItemId: 'menu_1',
+          name: 'Hamburguesa Trufada Angus Corregida',
+          unitPrice: 15.50,
+          quantity: 2,
+          requiresCooking: true
+        }
+      ],
+      packaging: {
+        bags: true,
+        plasticContainers: false,
+        cutleryCount: 1
+      },
+      paymentMethod: PaymentMethod.STRIPE_CARD,
+      tipAmount: 3.00,
+      receiptType: 'INVOICE',
+      invoiceDetails: {
+        nifCif: 'B98765432',
+        legalName: 'Tech Solutions S.L.',
+        address: 'Paseo de la Castellana 100, Madrid',
+        email: 'contabilidad@techsolutions.es'
+      }
+    });
+
+    assert.ok(orderWithInvoice.id);
+    assert.strictEqual(orderWithInvoice.receiptType, 'INVOICE');
+    assert.ok(orderWithInvoice.invoiceDetails);
+    assert.strictEqual(orderWithInvoice.invoiceDetails.nifCif, 'B98765432');
+    assert.strictEqual(orderWithInvoice.invoiceDetails.legalName, 'Tech Solutions S.L.');
+    assert.strictEqual(orderWithInvoice.paymentStatus, PaymentStatus.PAID);
+    assert.strictEqual(orderWithInvoice.vatAmount, parseFloat((31.00 * 0.21).toFixed(2)));
+  });
 });
 
 

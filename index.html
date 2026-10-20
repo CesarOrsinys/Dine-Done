@@ -923,13 +923,47 @@
     }
 
     .cart-items-list {
-      flex: 1;
+      flex: none;
+      min-height: 180px;
+      max-height: 280px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 10px;
       margin-bottom: 14px;
-      padding-right: 4px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .cart-items-list::-webkit-scrollbar,
+    .conf-items-scroll-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .cart-items-list::-webkit-scrollbar-track,
+    .conf-items-scroll-box::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-full);
+    }
+
+    .cart-items-list::-webkit-scrollbar-thumb,
+    .conf-items-scroll-box::-webkit-scrollbar-thumb {
+      background: var(--accent-orange);
+      border-radius: var(--radius-full);
+    }
+
+    .btn-receipt-type {
+      transition: all 0.2s ease;
+    }
+
+    .btn-receipt-type.active {
+      background: var(--accent-gradient) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35) !important;
     }
 
     .cart-item {
@@ -2682,6 +2716,32 @@
             </div>
           </div>
 
+          <!-- Comprobante / Factura Selection -->
+          <div class="receipt-selection-box" style="margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 14px;">
+            <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-main); margin-bottom:8px;">
+              🧾 Comprobante de Pago:
+            </label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <button type="button" class="btn-receipt-type active" id="btn-type-ticket" data-type="TICKET" style="padding:8px 6px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-dark); color:var(--text-main); font-size:0.78rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; transition:all 0.2s;">
+                <span>🧾 Ticket de Pago</span>
+              </button>
+              <button type="button" class="btn-receipt-type" id="btn-type-invoice" data-type="INVOICE" style="padding:8px 6px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-dark); color:var(--text-muted); font-size:0.78rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; transition:all 0.2s;">
+                <span>📑 Solicitar Factura</span>
+              </button>
+            </div>
+
+            <!-- Formulario desplegable para Factura Fiscal -->
+            <div id="invoice-fields-container" style="display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle); flex-direction:column; gap:8px;">
+              <span style="font-size:0.75rem; color:var(--accent-orange); font-weight:600;">📋 Datos Fiscales para la Factura:</span>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <input type="text" id="inv-nif" placeholder="NIF / CIF (ej. B12345678)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+                <input type="text" id="inv-name" placeholder="Razón Social / Nombre" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+              </div>
+              <input type="text" id="inv-address" placeholder="Dirección Fiscal (Calle, CP, Ciudad)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+              <input type="email" id="inv-email" placeholder="Email para envío de la factura" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+            </div>
+          </div>
+
           <!-- Bill Summary -->
           <div class="bill-row">
             <span id="txt-bill-subtotal-label">Subtotal productos (sin IVA):</span>
@@ -3168,6 +3228,105 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMACIÓN DE PEDIDO Y COMPROBANTE (TICKET / FACTURA) -->
+  <div class="modal-overlay" id="order-confirmed-modal" style="display:none;">
+    <div class="modal-card" style="max-width:560px; width:95%; max-height:92vh; overflow-y:auto; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.6rem;">🎉</span>
+          <div>
+            <h3 style="font-size:1.25rem; font-weight:800; margin:0; color:var(--text-main);">¡Pedido Confirmado!</h3>
+            <span style="font-size:0.78rem; color:var(--accent-emerald); font-weight:600;">Comanda enviada a sala y cocina</span>
+          </div>
+        </div>
+        <button id="btn-close-confirmed-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+      </div>
+
+      <!-- Header de comanda / ticket -->
+      <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Número de Comanda</div>
+          <div style="font-size:1.2rem; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--accent-orange);" id="conf-order-number">#DND-0000</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Mesa</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--text-main);" id="conf-order-table">Mesa 4</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Comprobante</div>
+          <span class="badge-tag tag-stock" id="conf-receipt-badge" style="font-size:0.75rem; padding:3px 8px;">🧾 Ticket de Pago</span>
+        </div>
+      </div>
+
+      <!-- Estado de pago y fecha -->
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted); margin-bottom:12px; padding:0 4px;">
+        <span id="conf-order-date">20/10/2026 23:00</span>
+        <span id="conf-payment-status" style="font-weight:600; color:var(--accent-emerald);">💳 Pagado con Tarjeta (Stripe)</span>
+      </div>
+
+      <!-- Contenedor con buen espacio y scroll para ver todos los productos pedidos -->
+      <div style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:0.82rem; font-weight:700; color:var(--text-main);">📋 Productos Solicitados:</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="conf-items-count">0 ítems</span>
+        </div>
+        <div id="conf-items-list" class="conf-items-scroll-box" style="max-height:220px; min-height:120px; overflow-y:auto; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:10px; display:flex; flex-direction:column; gap:8px;">
+          <!-- Items generados dinámicamente -->
+        </div>
+      </div>
+
+      <!-- Datos de Facturación (si solicitó Factura) -->
+      <div id="conf-invoice-box" style="display:none; background:rgba(249,115,22,0.06); border:1px dashed var(--accent-orange); border-radius:var(--radius-md); padding:12px 14px; margin-bottom:14px; font-size:0.8rem;">
+        <div style="font-weight:700; color:var(--accent-orange); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+          <span>📑 Factura Fiscal Emitida</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; color:var(--text-main);">
+          <div><span style="color:var(--text-muted);">NIF/CIF:</span> <strong id="conf-inv-nif"></strong></div>
+          <div><span style="color:var(--text-muted);">Razón Social:</span> <strong id="conf-inv-name"></strong></div>
+          <div style="grid-column:1/-1;"><span style="color:var(--text-muted);">Dirección:</span> <span id="conf-inv-address"></span></div>
+          <div style="grid-column:1/-1;"><span style="color:var(--text-muted);">Email:</span> <span id="conf-inv-email"></span></div>
+        </div>
+      </div>
+
+      <!-- Desglose económico detallado con IVA 21% -->
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:18px; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
+          <span>Base Imponible (sin IVA):</span>
+          <span id="conf-subtotal-net">0.00 €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--accent-orange); font-weight:600;">
+          <span>IVA (21%):</span>
+          <span id="conf-vat">0.00 €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
+          <span>Empaque y bolsas (Ley 7/2022):</span>
+          <span id="conf-packaging">0.00 €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
+          <span>Propina:</span>
+          <span id="conf-tip">0.00 €</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.15rem; color:var(--text-main); border-top:1px solid var(--border-subtle); padding-top:8px; margin-top:2px;">
+          <span>Total:</span>
+          <span id="conf-total" style="color:var(--accent-orange);">0.00 €</span>
+        </div>
+      </div>
+
+      <!-- Acciones de Comprobante: Imprimir / Descargar / Cerrar -->
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="button" id="btn-print-receipt" class="btn-action" style="flex:1; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); padding:10px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          🖨️ Imprimir
+        </button>
+        <button type="button" id="btn-download-receipt" class="btn-action" style="flex:1; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); padding:10px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          📥 Descargar
+        </button>
+        <button type="button" id="btn-dismiss-confirmed-modal" class="btn-action" style="flex:1.2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
+          Aceptar
+        </button>
+      </div>
     </div>
   </div>
 

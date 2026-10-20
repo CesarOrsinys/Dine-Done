@@ -119,6 +119,15 @@ created_at: "2026-10-20"
   - **Desapilado y prioridad en móvil:** En resoluciones móviles (`<= 768px`), la sección de analítica gerencial abandona la cuadrícula rígida de 2 columnas (`1fr 1fr`) y se convierte en un flujo vertical apilado, ubicando la sección de **📦 Control de Carta, Precios y Stock** con prioridad superior (`order: -1`) para visualización y gestión inmediata sin desplazamientos horizontales ni elementos cortados.
   - **Tarjetas táctiles de producto:** En pantallas móviles, las filas de la tabla de stock se transforman automáticamente en tarjetas táctiles independientes (`stock-table-row`) que muestran claramente el nombre del plato, insignia de categoría y alérgenos, campos numéricos cómodos para modificar precio y stock en dos columnas, y botones de acción a todo el ancho (`✏️ Editar` para el modal completo y `💾 Guardar` para persistencia rápida).
   - **Eliminación de trampas de scroll:** Se elimina la restricción de altura rígida y doble barra de scroll en móvil, permitiendo un desplazamiento fluido nativo a lo largo de toda la carta del restaurante.
+- [Regla 26: Visualización espaciosa de productos en comanda y solicitud de Ticket / Factura al pagar]
+  - **Espacio generoso con scroll para productos:** En el panel/drawer de confirmar comanda, el contenedor de productos pedidos (`cart-items-list`) cuenta con dimensiones amplias dedicadas (`min-height: 180px; max-height: 280px; overflow-y: auto`), barra de scroll estilizada e interactiva, miniaturas de imagen de plato, controles de cantidad y botón directo de borrado `🗑️`.
+  - **Elección entre Ticket de Pago y Factura Fiscal:** En la pasarela de pago, el cliente dispone de selector entre **🧾 Ticket de Pago** (simplificado estándar) y **📑 Solicitar Factura**.
+  - **Formulario fiscal desplegable:** Al seleccionar factura, se despliegan campos obligatorios para NIF/CIF y Razón Social, junto con dirección fiscal y correo electrónico de facturación.
+  - **Pop-up de Confirmación de Pedido y Comprobante:** Al confirmar el pedido se despliega un modal enriquecido con:
+    - Espacio generoso con scroll para revisar todos los platos pedidos con detalle de cantidades y precios base.
+    - Desglose económico completo (Base imponible neta, IVA al 21%, empaques Ley 7/2022, propinas y total).
+    - Encabezado oficial con datos del restaurante y datos fiscales del cliente si solicitó factura.
+    - Botones integrados de **🖨️ Imprimir** (formato térmico / fiscal limpio) y **📥 Descargar** (archivo de comprobante .JSON).
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

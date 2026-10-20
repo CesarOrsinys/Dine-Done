@@ -5,6 +5,21 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.9] - 2026-10-20
+### Added
+- **Espacio Generoso con Scroll para Productos Pedidos en Checkout y Confirmación:**
+  - Amplitud y altura dedicada (`min-height: 180px; max-height: 280px; overflow-y: auto`) con barra de desplazamiento estilizada (`-webkit-scrollbar`) en el panel/drawer de comanda (`.cart-items-list`).
+  - Presentación enriquecida de cada plato: miniatura de imagen/icono, nombre con tooltip, desglose de precio base sin IVA e importe por línea, botones de incremento/decremento y botón directo de borrado `🗑️`.
+- **Opción de Selección entre Ticket de Pago y Factura Fiscal al Pagar:**
+  - Selector interactivo de comprobante: **🧾 Ticket de Pago** o **📑 Solicitar Factura**.
+  - Formulario fiscal desplegable para facturas nominativas: captura de NIF/CIF, Razón Social o Nombre, Dirección fiscal y Email de recepción.
+  - Soporte en la entidad de dominio `Order` (`receiptType`, `invoiceDetails`) y en el caso de uso hexagonal `CreateOrderUseCase`.
+- **Modal Enriquecido de Confirmación de Pedido y Comprobante:**
+  - Ventana modal emergente al confirmar el pedido con visualización espaciosa de todos los productos solicitados con scroll.
+  - Desglose fiscal completo: Base imponible neta, IVA 21%, empaques Ley 7/2022, propina y total a pagar.
+  - Opciones integradas para **🖨️ Imprimir** (formato térmico / fiscal limpio para tickets y facturas) y **📥 Descargar** en formato digital.
+  - Nueva prueba unitaria añadida en `domain_and_usecases.test.ts` con 17 pruebas automáticas validadas.
+
 ## [1.6.8] - 2026-10-20
 ### Fixed
 - **Visibilidad y Gestión Responsiva de Control de Carta, Precios y Stock en Móvil:**

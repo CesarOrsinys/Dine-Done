@@ -24,6 +24,13 @@ export interface Order {
   waiterName?: string;
   chefId?: string;
   chefName?: string;
+  receiptType?: 'TICKET' | 'INVOICE';
+  invoiceDetails?: {
+    nifCif: string;
+    legalName: string;
+    address: string;
+    email: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
