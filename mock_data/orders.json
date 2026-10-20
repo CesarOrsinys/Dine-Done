@@ -1,0 +1,120 @@
+[
+  {
+    "id": "ord_1001",
+    "orderNumber": "DND-1001",
+    "tableNumber": "Mesa 4",
+    "customerName": "Carlos Sainz",
+    "items": [
+      {
+        "menuItemId": "menu_3",
+        "name": "Hamburguesa Trufada Angus Premium",
+        "unitPrice": 14.90,
+        "quantity": 2,
+        "requiresCooking": true,
+        "notes": "Punto medio, sin cebolla"
+      },
+      {
+        "menuItemId": "menu_8",
+        "name": "Cerveza Artesanal IPA Madrid",
+        "unitPrice": 3.80,
+        "quantity": 2,
+        "requiresCooking": false
+      }
+    ],
+    "packaging": {
+      "bags": true,
+      "plasticContainers": false,
+      "cutleryCount": 2
+    },
+    "status": "IN_KITCHEN",
+    "paymentStatus": "PAID",
+    "paymentMethod": "STRIPE_CARD",
+    "subtotal": 37.40,
+    "tipAmount": 3.74,
+    "total": 41.14,
+    "waiterId": "usr_waiter_1",
+    "waiterName": "David García",
+    "chefId": "usr_chef_1",
+    "chefName": "Chef Antonio Martín",
+    "createdAt": "2026-10-20T12:30:00.000Z",
+    "updatedAt": "2026-10-20T12:35:00.000Z"
+  },
+  {
+    "id": "ord_1002",
+    "orderNumber": "DND-1002",
+    "tableNumber": "Mesa 2",
+    "customerName": "Ana Morales",
+    "items": [
+      {
+        "menuItemId": "menu_5",
+        "name": "Pizza Napolitana Margarita D.O.P.",
+        "unitPrice": 12.00,
+        "quantity": 1,
+        "requiresCooking": true
+      },
+      {
+        "menuItemId": "menu_9",
+        "name": "Copa de Vino Tinto Ribera del Duero",
+        "unitPrice": 4.20,
+        "quantity": 1,
+        "requiresCooking": false
+      }
+    ],
+    "packaging": {
+      "bags": false,
+      "plasticContainers": false,
+      "cutleryCount": 1
+    },
+    "status": "READY_TO_SERVE",
+    "paymentStatus": "PENDING_CASH",
+    "paymentMethod": "CASH",
+    "subtotal": 16.20,
+    "tipAmount": 1.50,
+    "total": 17.70,
+    "waiterId": "usr_waiter_2",
+    "waiterName": "Lucía Ramos",
+    "chefId": "usr_chef_2",
+    "chefName": "Chef Elena Vega",
+    "createdAt": "2026-10-20T12:40:00.000Z",
+    "updatedAt": "2026-10-20T12:50:00.000Z"
+  },
+  {
+    "id": "ord_1003",
+    "orderNumber": "DND-1003",
+    "tableNumber": "Mesa 8",
+    "customerName": "Javier Gómez",
+    "items": [
+      {
+        "menuItemId": "menu_4",
+        "name": "Salmón Noruego a la Plancha con Verduras",
+        "unitPrice": 17.50,
+        "quantity": 1,
+        "requiresCooking": true
+      },
+      {
+        "menuItemId": "menu_6",
+        "name": "Tarta de Queso Fluida al Horno",
+        "unitPrice": 6.50,
+        "quantity": 1,
+        "requiresCooking": false
+      }
+    ],
+    "packaging": {
+      "bags": true,
+      "plasticContainers": true,
+      "cutleryCount": 1
+    },
+    "status": "DELIVERED",
+    "paymentStatus": "PAID",
+    "paymentMethod": "STRIPE_CARD",
+    "subtotal": 24.00,
+    "tipAmount": 3.60,
+    "total": 27.60,
+    "waiterId": "usr_waiter_1",
+    "waiterName": "David García",
+    "chefId": "usr_chef_1",
+    "chefName": "Chef Antonio Martín",
+    "createdAt": "2026-10-20T11:45:00.000Z",
+    "updatedAt": "2026-10-20T12:20:00.000Z"
+  }
+]

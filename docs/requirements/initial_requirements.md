@@ -8,21 +8,25 @@ created_at: "2026-10-20"
 # Project Kickoff Requirements: Dine & Done
 
 ## 1. Executive Summary
-- **Objective:** [Escribe aquí el objetivo principal de Dine & Done, p. ej. Gestión ágil de reservas, comandas, mesas y cobro rápido para restaurantes/comensales]
-- **Target Audience:** [Escribe aquí el público objetivo, p. ej. Comensales, Camareros, Administradores de sala, Cocina]
+- **Objective:** Aplicación para agilizar y asegurar la gestion de pedidos en los restaurantes
+- **Target Audience:** Comensales, Camareros, Cocineros, Gerente
 
 ## 2. Business Requirements (Target: @functional)
 ### 2.1. User Roles
-- **Role A:** [p. ej. Cliente / Comensal] - [Responsabilidades o acciones permitidas]
-- **Role B:** [p. ej. Camarero / Personal de Sala] - [Responsabilidades o acciones permitidas]
-- **Role C:** [p. ej. Administrador / Dueño de Restaurante] - [Responsabilidades o acciones permitidas]
+- **Role A:** Comensal - Ver el menu, realizar su pedido, pagar con tarjeta, o marcar pago con efectivo
+- **Role B:** Camarero - Ver comandas asignadas y nuevos pedidos y preparar pedidos, o llevar a las mesas
+- **Role C:** Cocinero - vera si es necesario cocinar algo para los pedidos
+- **Role D:** Gerente - puede ver todos los pedidos, y generar KPI, aparte del stock y generar informes
 
 ### 2.2. Core Features (Epics / Funcionalidades Clave)
-- **Feature 1:** [Describe la funcionalidad 1]
-- **Feature 2:** [Describe la funcionalidad 2]
-- **Feature 3:** [Describe la funcionalidad 3]
-- **Feature 4:** [Describe la funcionalidad 4]
-- **Feature 5:** [Describe la funcionalidad 5]
+- **Feature 1:** Ver menu (se puede cargar bolsas, plastico y solicitud de cubiertos) 
+- **Feature 2:** Pagar el pedido con una pasarela de pago (stripe) se podra dar propina al servicio
+- **Feature 3:** Ver comandas
+- **Feature 4:** Ver requerimientos de cocina por pedido
+- **Feature 5:** Ver kpi y generar informes
+- **Feature 6:** Control de stock 
+- **Feature 7:** Control de usuarios
+- **Feature 8:** ver el camarero y cocinero asignado a cada pedido
 
 ### 2.3. Business Rules & Edge Cases (Reglas de Negocio)
 - [Regla 1: p. ej. Tiempos límite, estados de las comandas/cuentas, cierres de mesa]
