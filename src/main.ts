@@ -158,6 +158,7 @@ let menuCatalog: MenuItem[] = [];
 let allOrders: Order[] = [];
 let allUsers: User[] = [];
 let openProductEditorModal: (item?: MenuItem) => void = () => {};
+let openUserEditorModal: (user?: User) => void = () => {};
 
 // Cart & Table State (Customer View)
 let currentAssignedTable = 'Mesa 4';
@@ -1714,7 +1715,12 @@ async function renderManagerDashboard() {
             <span class="user-status-dot ${u.active ? 'active' : 'inactive'}" title="${u.active ? 'Usuario Activo' : 'Usuario Inactivo'}"></span>
           </div>
           <div class="user-card-info">
-            <h4 class="user-card-name" title="${u.name}">${u.name}</h4>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
+              <h4 class="user-card-name" title="${u.name}">${u.name}</h4>
+              <button class="btn-action btn-edit-user" data-id="${u.id}" title="Editar Empleado" style="padding:2px 7px; font-size:0.72rem; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; border-radius:4px; cursor:pointer; font-weight:600; flex-shrink:0; display:inline-flex; align-items:center; gap:3px;">
+                ✏️ Editar
+              </button>
+            </div>
             <div class="user-card-meta">
               <span class="badge-tag ${roleTagClass}" style="font-size:0.72rem; padding:2px 7px;">${roleLabel}</span>
               <span class="badge-tag ${u.active ? 'tag-stock' : 'tag-cooking'}" style="font-size:0.68rem; padding:1px 6px;">
@@ -1739,6 +1745,11 @@ async function renderManagerDashboard() {
           </div>
         </div>
       `;
+
+      card.querySelector('.btn-edit-user')?.addEventListener('click', () => {
+        openUserEditorModal(u);
+      });
+
       usersGrid.appendChild(card);
     });
   }
@@ -1763,35 +1774,95 @@ async function renderManagerDashboard() {
 
 // 13. Setup Manager Modals: Añadir Usuario y Añadir Producto al Stock (Requisito 4)
 function setupManagerModals() {
-  // Modal Añadir Usuario
+  // Modal Añadir / Editar Usuario
   const modalAddUser = document.getElementById('add-user-modal')!;
   const btnOpenAddUser = document.getElementById('btn-open-add-user');
   const btnCloseAddUser = document.getElementById('btn-close-add-user-modal');
   const btnCancelAddUser = document.getElementById('btn-cancel-add-user');
   const formAddUser = document.getElementById('add-user-form') as HTMLFormElement;
-
-  btnOpenAddUser?.addEventListener('click', () => {
-    formAddUser.reset();
-    modalAddUser.style.display = 'flex';
-  });
+  const editUserIdInput = document.getElementById('edit-user-id') as HTMLInputElement;
+  const userModalTitle = document.getElementById('user-modal-title');
+  const userModalSubtitle = document.getElementById('user-modal-subtitle');
+  const btnSubmitUser = document.getElementById('btn-submit-user') as HTMLButtonElement;
+  const userActiveWrap = document.getElementById('user-active-wrap');
+  const editUserActive = document.getElementById('edit-user-active') as HTMLInputElement;
+  const passwordInput = document.getElementById('new-user-password') as HTMLInputElement;
+  const passwordLabel = document.getElementById('lbl-user-password');
 
   function closeAddUserModal() {
     modalAddUser.style.display = 'none';
   }
+
+  openUserEditorModal = (user?: User) => {
+    formAddUser.reset();
+    if (user) {
+      if (editUserIdInput) editUserIdInput.value = user.id;
+      if (userModalTitle) userModalTitle.textContent = `✏️ Editar Empleado: ${user.name}`;
+      if (userModalSubtitle) {
+        userModalSubtitle.textContent = 'Modifica los datos del empleado. Deja la contraseña en blanco si deseas conservar la actual.';
+      }
+      if (btnSubmitUser) btnSubmitUser.textContent = '💾 Guardar Cambios';
+
+      (document.getElementById('new-user-name') as HTMLInputElement).value = user.name;
+      (document.getElementById('new-user-username') as HTMLInputElement).value = user.username || '';
+      (document.getElementById('new-user-email') as HTMLInputElement).value = user.email;
+      (document.getElementById('new-user-role') as HTMLSelectElement).value = user.role;
+      (document.getElementById('new-user-avatar') as HTMLInputElement).value = user.avatarUrl || '';
+
+      if (userActiveWrap) userActiveWrap.style.display = 'flex';
+      if (editUserActive) editUserActive.checked = user.active !== false;
+
+      passwordInput.required = false;
+      passwordInput.placeholder = '•••••••• (Dejar en blanco para conservar actual)';
+      if (passwordLabel) {
+        passwordLabel.textContent = 'Contraseña de Acceso (opcional para mantener):';
+      }
+    } else {
+      if (editUserIdInput) editUserIdInput.value = '';
+      if (userModalTitle) userModalTitle.textContent = '👤 Registrar Nuevo Empleado';
+      if (userModalSubtitle) {
+        userModalSubtitle.textContent = 'Añade un nuevo miembro al equipo interno del restaurante. Por política estricta de privacidad (RGPD), no se admiten roles de cliente.';
+      }
+      if (btnSubmitUser) btnSubmitUser.textContent = '💾 Guardar Empleado';
+
+      if (userActiveWrap) userActiveWrap.style.display = 'none';
+      if (editUserActive) editUserActive.checked = true;
+
+      passwordInput.required = true;
+      passwordInput.placeholder = '••••••••';
+      if (passwordLabel) {
+        passwordLabel.textContent = 'Contraseña de Acceso:';
+      }
+    }
+    modalAddUser.style.display = 'flex';
+  };
+
+  btnOpenAddUser?.addEventListener('click', () => {
+    openUserEditorModal();
+  });
 
   btnCloseAddUser?.addEventListener('click', closeAddUserModal);
   btnCancelAddUser?.addEventListener('click', closeAddUserModal);
 
   formAddUser?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const isEditing = Boolean(editUserIdInput && editUserIdInput.value.trim());
+    const targetUserId = isEditing ? editUserIdInput.value.trim() : '';
+
     const name = (document.getElementById('new-user-name') as HTMLInputElement).value.trim();
     const username = (document.getElementById('new-user-username') as HTMLInputElement).value.trim();
     const email = (document.getElementById('new-user-email') as HTMLInputElement).value.trim();
     const roleVal = (document.getElementById('new-user-role') as HTMLSelectElement).value;
-    const password = (document.getElementById('new-user-password') as HTMLInputElement).value.trim();
+    const password = passwordInput.value.trim();
+    const isActive = editUserActive ? editUserActive.checked : true;
 
-    if (!name || !username || !email || !password) {
-      showToast('Por favor completa todos los campos del nuevo empleado.', 'warning');
+    if (!name || !username || !email) {
+      showToast('Por favor completa los campos obligatorios del empleado.', 'warning');
+      return;
+    }
+
+    if (!isEditing && !password) {
+      showToast('Por favor ingresa una contraseña para el nuevo empleado.', 'warning');
       return;
     }
 
@@ -1808,27 +1879,58 @@ function setupManagerModals() {
     } else if (roleVal === UserRole.CHEF) {
       defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
     }
-    const avatarUrl = avatarInput || defaultAvatar;
-
-    const newUser: User = {
-      id: `usr_${Date.now()}`,
-      name,
-      username,
-      email,
-      role: roleVal as UserRole,
-      password,
-      active: true,
-      avatarUrl
-    };
 
     try {
-      await services.userRepo.create(newUser);
-      allUsers = await services.userRepo.getAll();
-      renderManagerDashboard();
-      closeAddUserModal();
-      showToast(`¡Empleado ${newUser.name} registrado con éxito como ${newUser.role}!`, 'success');
+      if (isEditing) {
+        const existingUser = allUsers.find(u => u.id === targetUserId);
+        if (!existingUser) {
+          showToast('No se encontró el empleado a editar.', 'danger');
+          return;
+        }
+
+        const updatedUser: User = {
+          ...existingUser,
+          name,
+          username,
+          email,
+          role: roleVal as UserRole,
+          active: isActive,
+          avatarUrl: avatarInput || existingUser.avatarUrl || defaultAvatar,
+          password: password ? password : existingUser.password
+        };
+
+        await services.userRepo.update(updatedUser);
+        allUsers = await services.userRepo.getAll();
+
+        if (currentUser.id === updatedUser.id) {
+          currentUser = updatedUser;
+          sessionStorage.setItem('DND_LOGGED_USER', JSON.stringify(currentUser));
+        }
+
+        renderManagerDashboard();
+        closeAddUserModal();
+        showToast(`¡Empleado ${updatedUser.name} actualizado con éxito!`, 'success');
+      } else {
+        const avatarUrl = avatarInput || defaultAvatar;
+        const newUser: User = {
+          id: `usr_${Date.now()}`,
+          name,
+          username,
+          email,
+          role: roleVal as UserRole,
+          password,
+          active: true,
+          avatarUrl
+        };
+
+        await services.userRepo.create(newUser);
+        allUsers = await services.userRepo.getAll();
+        renderManagerDashboard();
+        closeAddUserModal();
+        showToast(`¡Empleado ${newUser.name} registrado con éxito como ${newUser.role}!`, 'success');
+      }
     } catch (err: any) {
-      showToast(`Error al crear usuario: ${err.message}`, 'danger');
+      showToast(`Error al guardar empleado: ${err.message}`, 'danger');
     }
   });
 

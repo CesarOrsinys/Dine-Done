@@ -111,6 +111,10 @@ created_at: "2026-10-20"
   - **Reemplazo de tabla por tarjetas de perfil:** La sección de control de usuarios en la vista de Gerente sustituye la tabla tradicional por una cuadrícula de tarjetas de perfil (`user-profile-card`) compactas, intuitivas y elegantes.
   - **Información relevante y visible:** Cada tarjeta incluye foto/avatar circular con reborde temático según rol (Gerente, Cocinero, Camarero), indicador luminoso de estado (`ACTIVO` / `INACTIVO`), nombre completo, insignia de cargo, correo electrónico, y las credenciales de acceso (`🔑 Login: usuario` e ID interno).
   - **Privacidad mantenida:** Se preserva la exclusión total de comensales para cumplir estrictamente con la normativa de privacidad y protección de datos.
+- [Regla 24: Edición de tarjetas de perfil de trabajadores]
+  - **Botón de edición en tarjeta:** Cada tarjeta de trabajador en el panel de Gerencia cuenta con un botón directo `✏️ Editar` en la cabecera.
+  - **Modal de edición integral:** Permite actualizar nombre y apellidos, nombre de usuario (`username`), email corporativo, rol laboral (`Gerente`, `Cocinero`, `Camarero`), estado activo/inactivo mediante checkbox, y URL del avatar o foto de perfil.
+  - **Gestión segura de credenciales:** El campo de contraseña es opcional durante la edición, permitiendo conservar la contraseña existente si se deja en blanco o actualizarla si se introduce una nueva. Si el usuario editado es el que ha iniciado sesión, su sesión activa se sincroniza en tiempo real.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack

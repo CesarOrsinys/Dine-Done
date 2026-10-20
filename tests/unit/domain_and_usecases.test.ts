@@ -22,6 +22,7 @@ import { MenuItem } from '../../src/core/domain/entities/MenuItem.js';
 describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
   let orderRepo: JsonOrderRepository;
   let menuRepo: JsonMenuRepository;
+  let userRepo: JsonUserRepository;
   let paymentGateway: StripePaymentGatewayMock;
   let notifier: LocalEventRealtimeNotifier;
 
@@ -35,6 +36,7 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
   beforeEach(() => {
     orderRepo = new JsonOrderRepository();
     menuRepo = new JsonMenuRepository();
+    userRepo = new JsonUserRepository();
     paymentGateway = new StripePaymentGatewayMock();
     notifier = new LocalEventRealtimeNotifier();
 
@@ -437,6 +439,31 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(reloaded?.name, 'Hamburguesa Trufada Angus Corregida');
     assert.strictEqual(reloaded?.price, 15.50);
     assert.strictEqual(reloaded?.stock, 45);
+  });
+
+  it('Manager Staff Edit: Should allow editing worker profile card info (name, role, email, avatar, status)', async () => {
+    const waiter = await userRepo.getById('usr_waiter_1');
+    assert.ok(waiter, 'Waiter must exist in mock users');
+    assert.strictEqual(waiter.role, UserRole.WAITER);
+
+    const updatedWaiter = await userRepo.update({
+      ...waiter,
+      name: 'Carlos Ruiz Promovido',
+      email: 'carlos.jefe@dinedone.local',
+      role: UserRole.MANAGER,
+      active: true,
+      avatarUrl: 'https://images.unsplash.com/photo-custom?w=150'
+    });
+
+    assert.strictEqual(updatedWaiter.name, 'Carlos Ruiz Promovido');
+    assert.strictEqual(updatedWaiter.email, 'carlos.jefe@dinedone.local');
+    assert.strictEqual(updatedWaiter.role, UserRole.MANAGER);
+    assert.strictEqual(updatedWaiter.avatarUrl, 'https://images.unsplash.com/photo-custom?w=150');
+    assert.strictEqual(updatedWaiter.password, waiter.password, 'Existing password must be preserved when not overwritten');
+
+    const reloadedWaiter = await userRepo.getById('usr_waiter_1');
+    assert.strictEqual(reloadedWaiter?.name, 'Carlos Ruiz Promovido');
+    assert.strictEqual(reloadedWaiter?.role, UserRole.MANAGER);
   });
 });
 

@@ -5,6 +5,15 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.7] - 2026-10-20
+### Added
+- **Edición de Tarjetas de Perfil de Empleados en Gerencia:**
+  - Botón `✏️ Editar` incorporado en la cabecera de cada tarjeta de empleado dentro del panel de control de usuarios.
+  - Modal unificado de Registro/Edición de Empleados: precarga de forma inmediata los datos actuales del trabajador (nombre completo, usuario de login, correo electrónico, rol interno, foto de perfil/avatar y estado de activación).
+  - Gestión flexible de credenciales: el campo de contraseña se convierte en opcional durante la edición, permitiendo actualizarla únicamente si se desea o conservar la contraseña previa en caso de dejarlo en blanco.
+  - Sincronización en tiempo real de la sesión activa en caso de editar el propio perfil del gerente logueado.
+  - Cobertura de pruebas unitarias añadidas en `tests/unit/domain_and_usecases.test.ts` con 16 pruebas automatizadas aprobadas.
+
 ## [1.6.6] - 2026-10-20
 ### Fixed
 - **Ajuste de Dimensiones de Botones de Acción y Añadir en Gerencia:**
