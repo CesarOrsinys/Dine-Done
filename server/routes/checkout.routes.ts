@@ -31,7 +31,7 @@ checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Respo
         enabled: false,
       },
       submit_type: "auto",
-      integration_identifier: "custom_embedded_web_0001",
+      integration_identifier: "custom_embedded_web_0002",
     };
 
     if (mode === "subscription") {
@@ -81,6 +81,21 @@ export const handleStripeWebhook = (req: Request, res: Response): void => {
         console.log('Customer opted in for promotional emails:', email);
         // Add email to your marketing list
       }
+      break;
+    }
+    case 'invoice.paid': {
+      const invoice = event.data.object;
+      console.log('Invoice paid successfully:', invoice.id);
+      break;
+    }
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object;
+      console.warn('Invoice payment failed:', invoice.id);
+      break;
+    }
+    case 'payment_intent.succeeded': {
+      const paymentIntent = event.data.object;
+      console.log('PaymentIntent succeeded:', paymentIntent.id);
       break;
     }
     default:

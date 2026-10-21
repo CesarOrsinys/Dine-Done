@@ -18,6 +18,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api', checkoutRouter);
+app.use('/', checkoutRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/orders', ordersRouter);
