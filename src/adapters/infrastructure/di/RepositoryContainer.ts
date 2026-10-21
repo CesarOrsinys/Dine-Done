@@ -8,10 +8,9 @@ import { JsonMenuRepository } from '../../storage/JsonMenuRepository.js';
 import { JsonOrderRepository } from '../../storage/JsonOrderRepository.js';
 import { JsonUserRepository } from '../../storage/JsonUserRepository.js';
 import { StripePaymentGatewayMock } from '../../storage/StripePaymentGatewayMock.js';
-import { SupabaseMenuRepository } from '../repositories/SupabaseMenuRepository.js';
-import { SupabaseOrderRepository } from '../repositories/SupabaseOrderRepository.js';
-import { SupabaseUserRepository } from '../repositories/SupabaseUserRepository.js';
-import { SupabaseRealtimeNotifier } from '../realtime/SupabaseRealtimeNotifier.js';
+import { ApiMenuRepository } from '../repositories/ApiMenuRepository.js';
+import { ApiOrderRepository } from '../repositories/ApiOrderRepository.js';
+import { ApiUserRepository } from '../repositories/ApiUserRepository.js';
 
 export interface AppServices {
   menuRepo: IMenuRepository;
@@ -41,13 +40,13 @@ export class RepositoryContainer {
           realtimeNotifier: new LocalEventRealtimeNotifier()
         };
       } else {
-        console.info('🔌 Inicializando repositorio con Supabase (REST & Realtime)');
+        console.info('🛡️ Inicializando repositorios protegidos a través del Servidor BFF (/api/*)');
         this.instance = {
-          menuRepo: new SupabaseMenuRepository(),
-          orderRepo: new SupabaseOrderRepository(),
-          userRepo: new SupabaseUserRepository(),
+          menuRepo: new ApiMenuRepository(),
+          orderRepo: new ApiOrderRepository(),
+          userRepo: new ApiUserRepository(),
           paymentGateway: new StripePaymentGatewayMock(),
-          realtimeNotifier: new SupabaseRealtimeNotifier()
+          realtimeNotifier: new LocalEventRealtimeNotifier()
         };
       }
     }
