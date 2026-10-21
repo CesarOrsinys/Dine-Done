@@ -38,9 +38,31 @@ checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Respo
       sessionParams.payment_method_collection = "always"; // Use the fixed_by_ui value from Field Intents
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    res.json({ client_secret: session.client_secret });
+    try {
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      res.json({ client_secret: session.client_secret });
+    } catch (createErr: any) {
+      // If the placeholder price_... does not exist in Stripe Dashboard, fallback to price_data
+      if (createErr.message?.includes('price') || createErr.param === 'line_items') {
+        const dynamicParams = {
+          ...sessionParams,
+          line_items: [
+            {
+              price_data: {
+                currency: 'eur',
+                product_data: { name: 'Comanda Restaurante Dine & Done' },
+                unit_amount: Math.round((Number(_req.body?.amount) || 15) * 100),
+              },
+              quantity: 1,
+            },
+          ],
+        };
+        const session = await stripe.checkout.sessions.create(dynamicParams);
+        res.json({ client_secret: session.client_secret });
+        return;
+      }
+      throw createErr;
+    }
   } catch (error: any) {
     console.error("Error creating Stripe Checkout Session:", error);
     res.status(500).json({ error: error.message || "Failed to create checkout session" });
