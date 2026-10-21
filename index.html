@@ -833,9 +833,15 @@
     .badge-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.68rem;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: var(--radius-full);
       font-weight: 600;
+      white-space: nowrap !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      line-height: 1.2;
     }
 
     .tag-cooking { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
@@ -1568,6 +1574,42 @@
       text-align: center;
     }
 
+    /* Desktop Stock Table Columns & Typography */
+    .stock-table td {
+      vertical-align: middle;
+    }
+
+    .stock-td-category-desktop {
+      white-space: nowrap !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+      min-width: 150px;
+    }
+
+    #th-stock-cat {
+      text-align: center;
+      min-width: 150px;
+    }
+
+    #th-stock-price, .stock-td-price {
+      text-align: center;
+      min-width: 95px;
+    }
+
+    #th-stock-qty, .stock-td-stock {
+      text-align: center;
+      min-width: 85px;
+    }
+
+    #th-stock-actions, .stock-td-actions {
+      text-align: center;
+      min-width: 165px;
+    }
+
+    .stock-table .stock-actions-flex {
+      justify-content: center;
+    }
+
     /* FOOTER (FEATURE 5 - BRANDING DESACOPLADO) */
     footer {
       background: var(--bg-surface);
@@ -1771,6 +1813,13 @@
       align-items: center;
       justify-content: space-between;
       animation: slideUpFloat 0.3s ease;
+    }
+
+    @media (min-width: 1025px) {
+      .mobile-cart-bar,
+      #mobile-cart-bar {
+        display: none !important;
+      }
     }
 
     @keyframes slideUpFloat {
@@ -2977,7 +3026,7 @@
               <span>⚙️</span> <span id="txt-btn-manage-roles">Gestionar Roles</span>
             </button>
             <button type="button" class="btn-action" id="btn-open-create-role-manager" style="background:rgba(249,115,22,0.15); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:7px 12px; border-radius:var(--radius-sm); font-size:0.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-              <span>🎭</span> <span id="txt-btn-create-role-manager">Nuevo Rol</span>
+              <span id="txt-btn-create-role-manager">➕ Nuevo Rol</span>
             </button>
             <!-- Botón compacto de añadir usuario (sólo icono) -->
             <button class="btn-action btn-compact-add" id="btn-open-add-user" title="Añadir Usuario" aria-label="Añadir Usuario" style="background:var(--accent-orange); color:#fff; box-shadow:var(--shadow-glow);">
@@ -3066,7 +3115,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <label for="new-user-role" id="lbl-new-user-role" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Rol de Personal:</label>
             <button type="button" id="btn-open-create-role" style="background:none; border:none; color:var(--accent-orange); font-size:0.75rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
-              <span>➕</span> <span id="txt-btn-create-role">Nuevo Rol</span>
+              <span id="txt-btn-create-role">➕ Nuevo Rol</span>
             </button>
           </div>
           <select id="new-user-role" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; cursor:pointer;">
@@ -3421,7 +3470,7 @@
 
       <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
         <button type="button" class="btn-action" id="btn-create-role-from-manager" style="background:var(--accent-gradient); color:#fff; border:none; padding:8px 14px; border-radius:var(--radius-sm); font-size:0.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; box-shadow:var(--shadow-glow);">
-          <span>➕</span> <span id="txt-btn-create-role-inner">Crear Nuevo Rol</span>
+          <span id="txt-btn-create-role-inner">➕ Crear Nuevo Rol</span>
         </button>
       </div>
 

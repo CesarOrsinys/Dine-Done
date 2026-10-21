@@ -1892,7 +1892,8 @@ function updateBillTotals(rawSubtotal: number) {
   }
   const mobileCartBar = document.getElementById('mobile-cart-bar');
   if (mobileCartBar) {
-    if (totalCount > 0 && currentUser.role === UserRole.CUSTOMER) {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 1024;
+    if (totalCount > 0 && currentUser.role === UserRole.CUSTOMER && isMobile) {
       mobileCartBar.style.display = 'flex';
     } else {
       mobileCartBar.style.display = 'none';
@@ -2000,6 +2001,20 @@ function setupMobileCartDrawer() {
   btnOpen?.addEventListener('click', openDrawer);
   btnClose?.addEventListener('click', closeDrawer);
   backdrop?.addEventListener('click', closeDrawer);
+
+  window.addEventListener('resize', () => {
+    const isMobile = window.innerWidth <= 1024;
+    const mobileCartBar = document.getElementById('mobile-cart-bar');
+    const totalCount = currentCart.reduce((acc, c) => acc + c.quantity, 0);
+    if (!isMobile) {
+      closeDrawer();
+      if (mobileCartBar) mobileCartBar.style.display = 'none';
+    } else {
+      if (mobileCartBar) {
+        mobileCartBar.style.display = (totalCount > 0 && currentUser.role === UserRole.CUSTOMER) ? 'flex' : 'none';
+      }
+    }
+  });
 }
 
 // 11. Modal: Pop-up de Confirmación de Pedido y Comprobante (Ticket / Factura)

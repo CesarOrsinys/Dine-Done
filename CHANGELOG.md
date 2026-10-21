@@ -5,6 +5,19 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.15] - 2026-10-21
+### Fixed & Improved
+- **Ocultación Estricta de la Barra Flotante de Comanda en Escritorio (`#mobile-cart-bar`):**
+  - Añadida regla CSS `@media (min-width: 1025px) { .mobile-cart-bar, #mobile-cart-bar { display: none !important; } }`.
+  - En `src/main.ts`, `updateBillTotals` valida `window.innerWidth <= 1024` antes de aplicar `display: flex`, evitando que la barra flotante con "Ver Pedido" se muestre en resoluciones de escritorio donde el panel de carrito lateral ya está visible.
+  - Añadido listener de `resize` de ventana para sincronizar dinámicamente la visibilidad al alternar entre móvil y escritorio.
+- **Tipografía y Maquetación de la Tabla de Stock en Escritorio:**
+  - Corregido el wrapping defectuoso en la columna de Categoría (`.badge-tag`) añadiendo `white-space: nowrap !important`, `display: inline-flex`, `align-items: center`, `justify-content: center` y espaciado proporcional (`gap: 5px`).
+  - Ancho mínimo y centrado garantizado para `.stock-td-category-desktop` y `#th-stock-cat` (`min-width: 150px`), evitando saltos de línea antiestéticos en categorías largas (`Platos Principales`, `Hauptgerichte`, etc.) o desplazamientos del icono emoji.
+  - Centrado vertical (`vertical-align: middle`) de las celdas en modo tabla para alinearse armónicamente con productos que tienen varias líneas de alérgenos.
+- **Eliminación del Doble Icono en Creación de Roles (`➕ ➕ Nuevo Rol`):**
+  - Removidos los elementos `<span>➕</span>` y `<span>🎭</span>` duplicados en `index.html` de los botones `#btn-open-create-role`, `#btn-create-role-from-manager` y `#btn-open-create-role-manager`, los cuales ya reciben el icono integrado desde `t.btnCreateRole` (`"➕ Nuevo Rol"`) en todos los idiomas.
+
 ## [1.6.14] - 2026-10-21
 ### Added & Fixed
 - **Precio Unitario Condicional y Localizado en Comanda:**
