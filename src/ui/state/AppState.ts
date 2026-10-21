@@ -39,4 +39,7 @@ export class AppState {
   static isFilterNoAlcohol: boolean = false;
   static selectedAllergenToExclude: string = 'ALL';
   static currentViewMode: 'compact' | 'grid' = 'compact';
+
+  static skipStaffAssignment: boolean = typeof localStorage !== 'undefined' && localStorage.getItem('DND_SKIP_STAFF_ASSIGN') === 'true';
+  static lastConfirmedOrder: Order | null = null;
 }
