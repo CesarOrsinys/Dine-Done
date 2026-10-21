@@ -905,13 +905,20 @@
       backdrop-filter: var(--glass-blur);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 22px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       position: sticky;
-      top: 94px;
-      max-height: calc(100vh - 118px);
+      top: 88px;
       box-shadow: var(--shadow-elevation);
+    }
+
+    @media (min-width: 1026px) {
+      .cart-panel {
+        height: min-content !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+      }
     }
 
     .cart-title-row {
@@ -930,8 +937,8 @@
 
     .cart-items-list {
       flex: none;
-      min-height: 180px;
-      max-height: 280px;
+      min-height: 90px;
+      max-height: 210px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -1134,12 +1141,23 @@
     }
 
     /* BILL BREAKDOWN */
+    .bill-summary-segment {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .bill-row {
       display: flex;
       justify-content: space-between;
       font-size: 0.84rem;
       color: var(--text-muted);
-      margin-bottom: 5px;
+      margin-bottom: 2px;
     }
 
     .bill-row.total-row {
@@ -1148,8 +1166,8 @@
       color: var(--text-main);
       padding-top: 8px;
       border-top: 1px solid var(--border-subtle);
-      margin-top: 8px;
-      margin-bottom: 14px;
+      margin-top: 4px;
+      margin-bottom: 0;
     }
 
     .btn-submit-order {
@@ -1910,9 +1928,9 @@
     }
 
     /* ======================================================== */
-    /* TABLETS & SCREENS UNDER 1024px                           */
+    /* TABLETS & SCREENS UNDER 1026px                           */
     /* ======================================================== */
-    @media (max-width: 1024px) {
+    @media (max-width: 1025px) {
       main {
         padding: 18px 20px 90px;
       }
@@ -2817,26 +2835,28 @@
             </div>
           </div>
 
-          <!-- Bill Summary -->
-          <div class="bill-row">
-            <span id="txt-bill-subtotal-label">Subtotal productos (sin IVA):</span>
-            <span id="bill-subtotal">0.00 €</span>
-          </div>
-          <div class="bill-row">
-            <span id="txt-bill-vat-label">IVA (21%):</span>
-            <span id="bill-vat" style="color:var(--accent-orange); font-weight:600;">+0.00 €</span>
-          </div>
-          <div class="bill-row">
-            <span id="txt-bill-pack-label">Empaque y bolsas (Ley 7/2022):</span>
-            <span id="bill-packaging">0.00 €</span>
-          </div>
-          <div class="bill-row">
-            <span id="txt-bill-tip-label">Propina:</span>
-            <span id="bill-tip">0.00 €</span>
-          </div>
-          <div class="bill-row total-row">
-            <span id="txt-bill-total-label">Total a Pagar:</span>
-            <span id="bill-total" style="color:var(--accent-orange);">0.00 €</span>
+          <!-- Bill Summary Segment -->
+          <div class="bill-summary-segment">
+            <div class="bill-row">
+              <span id="txt-bill-subtotal-label">Subtotal productos (sin IVA):</span>
+              <span id="bill-subtotal">0.00 €</span>
+            </div>
+            <div class="bill-row">
+              <span id="txt-bill-vat-label">IVA (21%):</span>
+              <span id="bill-vat" style="color:var(--accent-orange); font-weight:600;">+0.00 €</span>
+            </div>
+            <div class="bill-row">
+              <span id="txt-bill-pack-label">Empaque y bolsas (Ley 7/2022):</span>
+              <span id="bill-packaging">0.00 €</span>
+            </div>
+            <div class="bill-row">
+              <span id="txt-bill-tip-label">Propina:</span>
+              <span id="bill-tip">0.00 €</span>
+            </div>
+            <div class="bill-row total-row">
+              <span id="txt-bill-total-label">Total a Pagar:</span>
+              <span id="bill-total" style="color:var(--accent-orange);">0.00 €</span>
+            </div>
           </div>
 
           <!-- Disclaimer sobre notas de cocina / peticiones especiales -->

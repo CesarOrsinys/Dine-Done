@@ -1892,7 +1892,7 @@ function updateBillTotals(rawSubtotal: number) {
   }
   const mobileCartBar = document.getElementById('mobile-cart-bar');
   if (mobileCartBar) {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 1024;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 1025;
     if (totalCount > 0 && currentUser.role === UserRole.CUSTOMER && isMobile) {
       mobileCartBar.style.display = 'flex';
     } else {
@@ -2003,7 +2003,7 @@ function setupMobileCartDrawer() {
   backdrop?.addEventListener('click', closeDrawer);
 
   window.addEventListener('resize', () => {
-    const isMobile = window.innerWidth <= 1024;
+    const isMobile = window.innerWidth <= 1025;
     const mobileCartBar = document.getElementById('mobile-cart-bar');
     const totalCount = currentCart.reduce((acc, c) => acc + c.quantity, 0);
     if (!isMobile) {

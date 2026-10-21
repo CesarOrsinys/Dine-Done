@@ -5,6 +5,15 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.16] - 2026-10-21
+### Fixed & Improved
+- **Panel de Pedido Responsivo en Escritorio (`height: min-content` desde 1026px):**
+  - Eliminado el `max-height: calc(100vh - ...)` rígido que provocaba desbordamientos o solapamiento de elementos en pantallas de escritorio.
+  - Aplicada regla `@media (min-width: 1026px)` con `height: min-content !important; max-height: none !important;` para que `.cart-panel` se adapte dinámicamente a su contenido sin cortar controles.
+  - Ajustada la lista `.cart-items-list` para desplazamiento interno contenido (`max-height: 210px`).
+- **Segmento Independiente de Desglose de Cuenta (`.bill-summary-segment`):**
+  - Encapsulado el bloque de Subtotal, IVA, Empaque, Propina y Total dentro de su propia tarjeta visual delimitada, garantizando separación limpia respecto a los comprobantes de pago.
+
 ## [1.6.15] - 2026-10-21
 ### Fixed & Improved
 - **Ocultación Estricta de la Barra Flotante de Comanda en Escritorio (`#mobile-cart-bar`):**
