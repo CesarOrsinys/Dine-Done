@@ -14,8 +14,32 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Response): Promise<void> => {
   try {
     const mode: string = "payment";
-    const origin = (_req.headers.origin as string) || (_req.headers.referer as string) || process.env.DOMAIN || 'http://localhost:5173';
-    const cleanOrigin = origin.replace(/\/$/, '');
+    // Auto-detect production / Vercel domain or fallback safely
+    const vercelDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : undefined;
+
+    const hostHeader = (_req.headers['x-forwarded-host'] as string) || (_req.headers.host as string);
+    const protoHeader = (_req.headers['x-forwarded-proto'] as string) || 'https';
+    const hostOrigin = hostHeader ? `${protoHeader}://${hostHeader}` : undefined;
+
+    const candidateOrigin = (_req.headers.origin as string)
+      || (_req.headers.referer as string)
+      || process.env.DOMAIN
+      || vercelDomain
+      || hostOrigin
+      || 'http://localhost:5173';
+
+    let cleanOrigin = candidateOrigin.replace(/\/$/, '');
+    try {
+      // Normalizes referer URLs or URLs with paths down to their base origin (scheme + host + port)
+      const parsedUrl = new URL(cleanOrigin);
+      cleanOrigin = parsedUrl.origin;
+    } catch {
+      // Keep candidateOrigin if not a standard URL
+    }
     const returnUrl = `${cleanOrigin}/?session_id={CHECKOUT_SESSION_ID}&payment_status=success`;
 
     const rawAmount = Number(_req.body?.amount) || 15;
