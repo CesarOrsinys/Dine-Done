@@ -3,6 +3,8 @@
  * Manages the Stripe Checkout modal popup (Dahlia SDK) on demand when placing card orders.
  */
 
+import { showCookingLoader, hideCookingLoader } from './CookingLoaderService.js';
+
 declare const Stripe: any;
 
 export interface StripePaymentOptions {
@@ -124,6 +126,9 @@ export async function openStripePaymentModal(options: StripePaymentOptions): Pro
           }
           if (errorEl) errorEl.style.display = 'none';
 
+          // Activa el loader culinario en el centro de la pantalla
+          showCookingLoader('Verificando pago seguro con Stripe...');
+
           // Stripe Checkout Session ya tiene configurado return_url en el servidor.
           // Por normativa de Stripe, no se debe enviar returnUrl en confirm() si ya existe en la sesión.
           const confirmResult = await loadActionsResult.actions.confirm({
@@ -136,14 +141,18 @@ export async function openStripePaymentModal(options: StripePaymentOptions): Pro
 
           // Si el pago no requirió redirección externa y se completó directamente:
           if (!confirmResult || confirmResult.status === 'succeeded' || !confirmResult.error) {
+            showCookingLoader('¡Pago aprobado! Cocinando tu comanda...');
+
             const successCb = activePaymentOptions?.onSuccess;
-            closeStripePaymentModal(false);
             if (successCb) {
               await successCb({ session_id });
             }
+            closeStripePaymentModal(false);
+            hideCookingLoader();
           }
         } catch (confirmError: any) {
           console.error('Payment confirmation error:', confirmError);
+          hideCookingLoader();
           if (loadingEl) loadingEl.style.display = 'none';
           if (errorEl) {
             errorEl.innerText = confirmError.message || 'Error al procesar el pago. Por favor revisa los datos de tu tarjeta.';

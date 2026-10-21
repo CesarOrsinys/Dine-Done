@@ -1,3 +1,4 @@
+import './ui/cooking-loader.css';
 import { UserRole } from './core/domain/enums/UserRole.js';
 import { AppState } from './ui/state/AppState.js';
 import { services } from './ui/services/UseCasesService.js';

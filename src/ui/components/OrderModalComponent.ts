@@ -9,6 +9,7 @@ import { createOrderUseCase, services } from '../services/UseCasesService.js';
 import { updateCartUI, calculatePackagingCost } from './CartComponent.js';
 import { renderMenu } from './MenuComponent.js';
 import { openStripePaymentModal } from '../services/StripeCheckoutService.js';
+import { showCookingLoader, hideCookingLoader } from '../services/CookingLoaderService.js';
 
 export function showOrderConfirmedModal(order: Order) {
   const modal = document.getElementById('order-confirmed-modal');
@@ -283,12 +284,15 @@ export async function handlePlaceOrder() {
   // CASO 1: Pago en Efectivo -> Se crea la comanda directamente con estado PENDING_CASH
   if (AppState.currentPaymentMethod === PaymentMethod.CASH) {
     try {
+      showCookingLoader(t.toastOrderProcessing || 'Cocinando tu comanda...');
       showToast(t.toastOrderProcessing || 'Procesando comanda en efectivo...', 'info');
 
       const createdOrder = await createOrderUseCase.execute({
         ...orderPayload,
         paymentMethod: PaymentMethod.CASH
       });
+
+      hideCookingLoader();
 
       // Reset Cart
       AppState.currentCart = [];
@@ -318,6 +322,7 @@ export async function handlePlaceOrder() {
       renderMenu();
       AppState.allOrders = await services.orderRepo.findAll();
     } catch (error: any) {
+      hideCookingLoader();
       showToast((t.toastOrderError || '❌ Error al procesar el pedido: {error}').replace('{error}', error.message), 'danger');
     }
     return;
@@ -394,6 +399,7 @@ export async function checkStripeRedirectSuccess(): Promise<void> {
 
   if (sessionId && pendingRaw && (paymentStatus === 'success' || !paymentStatus)) {
     try {
+      showCookingLoader('Verificando pago y confirmando tu comanda...');
       const payload = JSON.parse(pendingRaw);
       sessionStorage.removeItem('DND_PENDING_STRIPE_ORDER');
 
@@ -404,6 +410,8 @@ export async function checkStripeRedirectSuccess(): Promise<void> {
         ...payload,
         stripeToken: sessionId
       });
+
+      hideCookingLoader();
 
       AppState.currentCart = [];
       updateCartUI();
@@ -416,6 +424,7 @@ export async function checkStripeRedirectSuccess(): Promise<void> {
       renderMenu();
       AppState.allOrders = await services.orderRepo.findAll();
     } catch (err) {
+      hideCookingLoader();
       console.error('Error fulfilling pending Stripe order:', err);
     }
   }

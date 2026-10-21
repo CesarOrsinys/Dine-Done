@@ -3,6 +3,8 @@
  * Manages Dark / Light luxury themes and local storage persistence.
  */
 
+import { syncCookingLoaderWithAppTheme } from './CookingLoaderService.js';
+
 let currentTheme: string = (typeof localStorage !== 'undefined') ? localStorage.getItem('DND_THEME') || 'dark' : 'dark';
 
 export function applyTheme(theme: string) {
@@ -15,6 +17,7 @@ export function applyTheme(theme: string) {
   if (themeSelector && themeSelector.value !== theme) {
     themeSelector.value = theme;
   }
+  syncCookingLoaderWithAppTheme(theme);
 }
 
 export function setupThemeSelector() {
