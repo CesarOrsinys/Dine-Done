@@ -235,6 +235,141 @@
       color: var(--text-main);
     }
 
+    /* CUSTOM LANGUAGE DROPDOWN WITH FLAG IMAGES */
+    .custom-lang-selector {
+      position: relative;
+      display: inline-block;
+    }
+    .lang-select-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.84rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .lang-select-btn:hover,
+    .lang-select-btn:focus-visible {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+    }
+    .lang-btn-flag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .lang-flag-img {
+      width: 20px;
+      height: 14px;
+      object-fit: cover;
+      border-radius: 2px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.3);
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .lang-flag-emoji {
+      font-size: 1.15rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+    }
+    .lang-btn-code {
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .lang-btn-arrow {
+      font-size: 0.68rem;
+      opacity: 0.7;
+      transition: transform 0.2s ease;
+      margin-left: 1px;
+    }
+    .custom-lang-selector.open .lang-btn-arrow {
+      transform: rotate(180deg);
+    }
+    .custom-lang-selector.open .lang-select-btn {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 14px rgba(249, 115, 22, 0.3);
+    }
+    .lang-dropdown-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 175px;
+      max-height: 340px;
+      overflow-y: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-elevation);
+      padding: 6px;
+      display: none;
+      z-index: 1000;
+      backdrop-filter: var(--glass-blur);
+      animation: langDropdownFade 0.15s ease-out;
+    }
+    @keyframes langDropdownFade {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .custom-lang-selector.open .lang-dropdown-panel {
+      display: block;
+    }
+    .lang-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lang-dropdown-item:hover,
+    .lang-dropdown-item:focus-visible {
+      background: var(--bg-card-hover);
+      color: var(--accent-orange);
+    }
+    .lang-dropdown-item.active {
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--accent-orange);
+      font-weight: 700;
+    }
+    .lang-item-flag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      flex-shrink: 0;
+    }
+    .lang-item-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lang-item-code {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .lang-dropdown-item.active .lang-item-code {
+      color: var(--accent-orange);
+    }
+
     /* STAFF LOGIN / LOGOUT BUTTON */
     .btn-staff-auth {
       background: rgba(255, 255, 255, 0.06);
@@ -2044,7 +2179,8 @@
       }
 
       .theme-select,
-      .lang-select {
+      .lang-select,
+      .lang-select-btn {
         padding: 6px 10px;
         font-size: 0.8rem;
       }
@@ -2614,13 +2750,22 @@
         <option value="pastel" id="opt-theme-pastel">🌸 Pastel</option>
       </select>
 
-      <!-- Feature 6: Language Selector -->
-      <select class="lang-select" id="lang-selector" title="Seleccionar idioma">
-        <option value="es">🇪🇸 ES</option>
-        <option value="en">🇬🇧 EN</option>
-        <option value="fr">🇫🇷 FR</option>
-        <option value="de">🇩🇪 DE</option>
-      </select>
+      <!-- Feature 6: Language Selector with Real Regional Flag Images -->
+      <div class="custom-lang-selector" id="custom-lang-selector">
+        <button type="button" class="lang-select-btn" id="lang-select-btn" aria-haspopup="listbox" aria-expanded="false" title="Seleccionar idioma">
+          <span class="lang-btn-flag" id="lang-btn-flag">🇪🇸</span>
+          <span class="lang-btn-code" id="lang-btn-code">ES</span>
+          <span class="lang-btn-arrow">▾</span>
+        </button>
+        <div class="lang-dropdown-panel" id="lang-dropdown-panel" role="listbox"></div>
+        <!-- Native select maintained for DOM and test backwards-compatibility -->
+        <select class="lang-select" id="lang-selector" title="Seleccionar idioma" style="display:none;" tabindex="-1" aria-hidden="true">
+          <option value="es">🇪🇸 ES</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="de">🇩🇪 DE</option>
+        </select>
+      </div>
 
       <!-- Feature 1: Staff Login Button -->
       <button class="btn-staff-auth" id="btn-staff-login">

@@ -17,6 +17,8 @@ import { ManageStockUseCase } from './core/usecases/ManageStockUseCase.js';
 import { ProcessCashPaymentUseCase } from './core/usecases/ProcessCashPaymentUseCase.js';
 import { UpdateOrderStatusUseCase } from './core/usecases/UpdateOrderStatusUseCase.js';
 
+import { renderFlagHtml, getFlagDisplay } from './core/flags.js';
+
 // Types for i18n supporting all 14 international and regional languages
 export type Language = 'es' | 'en' | 'fr' | 'de' | 'zh' | 'ko' | 'uk' | 'pt' | 'ja' | 'ar' | 'ca' | 'va' | 'eu' | 'gl' | string;
 const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('DND_SELECTED_LANG') : null;
@@ -35,10 +37,10 @@ const LANGUAGE_META: Record<string, { flag: string; label: string; name: string 
   pt: { flag: '🇵🇹', label: 'PT', name: 'Português' },
   ja: { flag: '🇯🇵', label: 'JA', name: '日本語' },
   ar: { flag: '🇸🇦', label: 'AR', name: 'العربية' },
-  ca: { flag: '🟡🔴', label: 'CA', name: 'Català' },
-  va: { flag: '🔵🔴', label: 'VA', name: 'Valencià' },
-  eu: { flag: '🟢🔴', label: 'EU', name: 'Euskara' },
-  gl: { flag: '🔵⚪', label: 'GL', name: 'Galego' }
+  ca: { flag: '', label: 'CA', name: 'Català' },
+  va: { flag: '', label: 'VA', name: 'Valencià' },
+  eu: { flag: '', label: 'EU', name: 'Euskara' },
+  gl: { flag: '', label: 'GL', name: 'Galego' }
 };
 
 // Staff Roles Configuration & Dynamic Creation
@@ -362,9 +364,18 @@ function getAvailableMenuLanguages(): string[] {
   return available;
 }
 
+function closeLanguageDropdown() {
+  const container = document.getElementById('custom-lang-selector');
+  const btn = document.getElementById('lang-select-btn');
+  if (container) container.classList.remove('open');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
 function updateLanguageSelectorOptions() {
   const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
-  if (!langSelector) return;
+  const customPanel = document.getElementById('lang-dropdown-panel');
+  const btnFlag = document.getElementById('lang-btn-flag');
+  const btnCode = document.getElementById('lang-btn-code');
 
   const availableLangs = getAvailableMenuLanguages();
 
@@ -373,19 +384,51 @@ function updateLanguageSelectorOptions() {
     currentLanguage = 'es';
   }
 
-  langSelector.innerHTML = '';
-  availableLangs.forEach(lang => {
-    const meta = LANGUAGE_META[lang] || { flag: '🌐', label: lang.toUpperCase(), name: lang.toUpperCase() };
-    const opt = document.createElement('option');
-    opt.value = lang;
-    opt.textContent = `${meta.flag} ${meta.label}`;
-    opt.title = meta.name;
-    if (lang === currentLanguage) {
-      opt.selected = true;
-    }
-    langSelector.appendChild(opt);
-  });
-  langSelector.value = currentLanguage;
+  // 1. Sync hidden native select for DOM & test compatibility
+  if (langSelector) {
+    langSelector.innerHTML = '';
+    availableLangs.forEach(lang => {
+      const meta = LANGUAGE_META[lang] || { flag: '🌐', label: lang.toUpperCase(), name: lang.toUpperCase() };
+      const opt = document.createElement('option');
+      opt.value = lang;
+      opt.textContent = meta.flag ? `${meta.flag} ${meta.label}` : `${meta.label} (${meta.name})`;
+      opt.title = meta.name;
+      if (lang === currentLanguage) {
+        opt.selected = true;
+      }
+      langSelector.appendChild(opt);
+    });
+    langSelector.value = currentLanguage;
+  }
+
+  // 2. Populate custom visual dropdown with real flag images
+  if (customPanel) {
+    customPanel.innerHTML = '';
+    availableLangs.forEach(lang => {
+      const meta = LANGUAGE_META[lang] || { flag: '🌐', label: lang.toUpperCase(), name: lang.toUpperCase() };
+      const item = document.createElement('div');
+      item.className = `lang-dropdown-item ${lang === currentLanguage ? 'active' : ''}`;
+      item.setAttribute('role', 'option');
+      item.setAttribute('data-lang', lang);
+      item.setAttribute('aria-selected', lang === currentLanguage ? 'true' : 'false');
+      item.innerHTML = `
+        <span class="lang-item-flag">${renderFlagHtml(lang)}</span>
+        <span class="lang-item-name">${meta.name}</span>
+        <span class="lang-item-code">${meta.label}</span>
+      `;
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setLanguage(lang);
+        closeLanguageDropdown();
+      });
+      customPanel.appendChild(item);
+    });
+  }
+
+  // 3. Update active trigger button
+  const currentMeta = LANGUAGE_META[currentLanguage] || { label: currentLanguage.toUpperCase(), name: currentLanguage };
+  if (btnFlag) btnFlag.innerHTML = renderFlagHtml(currentLanguage);
+  if (btnCode) btnCode.textContent = currentMeta.label;
 }
 
 // 1. Initialize Hexagonal Services & Use Cases via DI
@@ -535,14 +578,39 @@ function applyBusinessBranding() {
 // 4. Feature 6: Selector de Idioma Multilingüe (i18n)
 function setupLanguageSelector() {
   const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
+  const langBtn = document.getElementById('lang-select-btn');
+  const customSelector = document.getElementById('custom-lang-selector');
+
+  if (langBtn && customSelector) {
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = customSelector.classList.toggle('open');
+      langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Close when clicking anywhere outside
+    document.addEventListener('click', (e) => {
+      if (!customSelector.contains(e.target as Node)) {
+        closeLanguageDropdown();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLanguageDropdown();
+      }
+    });
+  }
+
   if (langSelector) {
-    updateLanguageSelectorOptions();
-    langSelector.value = currentLanguage;
     langSelector.addEventListener('change', () => {
       setLanguage(langSelector.value);
     });
-    setLanguage(currentLanguage);
   }
+
+  updateLanguageSelectorOptions();
+  setLanguage(currentLanguage);
 }
 
 function setLanguage(lang: string) {
@@ -554,6 +622,32 @@ function setLanguage(lang: string) {
   currentLanguage = lang;
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('DND_SELECTED_LANG', lang);
+  }
+
+  // Update visual trigger button and custom dropdown active state
+  const btnFlag = document.getElementById('lang-btn-flag');
+  const btnCode = document.getElementById('lang-btn-code');
+  const currentMeta = LANGUAGE_META[currentLanguage] || { label: currentLanguage.toUpperCase(), name: currentLanguage };
+  if (btnFlag) btnFlag.innerHTML = renderFlagHtml(currentLanguage);
+  if (btnCode) btnCode.textContent = currentMeta.label;
+
+  const customPanel = document.getElementById('lang-dropdown-panel');
+  if (customPanel) {
+    customPanel.querySelectorAll('.lang-dropdown-item').forEach(el => {
+      const itemLang = el.getAttribute('data-lang');
+      if (itemLang === currentLanguage) {
+        el.classList.add('active');
+        el.setAttribute('aria-selected', 'true');
+      } else {
+        el.classList.remove('active');
+        el.setAttribute('aria-selected', 'false');
+      }
+    });
+  }
+
+  const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
+  if (langSelector && langSelector.value !== currentLanguage) {
+    langSelector.value = currentLanguage;
   }
 
   // RTL and Document Language attributes
@@ -883,7 +977,6 @@ function setLanguage(lang: string) {
   renderModalAllergensGrid();
 
   // Update language selector dropdown value
-  const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
   if (langSelector && langSelector.value !== lang) {
     langSelector.value = lang;
   }
@@ -3277,19 +3370,19 @@ function setupManagerModals() {
   let uploadedDishDataUrl: string = '';
 
   const ALL_ADD_LANGS = [
-    { code: 'en', flag: '🇬🇧', name: 'English' },
-    { code: 'fr', flag: '🇫🇷', name: 'Français' },
-    { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
-    { code: 'zh', flag: '🇨🇳', name: '中文' },
-    { code: 'ko', flag: '🇰🇷', name: '한국어' },
-    { code: 'uk', flag: '🇺🇦', name: 'Українська' },
-    { code: 'pt', flag: '🇵🇹', name: 'Português' },
-    { code: 'ja', flag: '🇯🇵', name: '日本語' },
-    { code: 'ar', flag: '🇸🇦', name: 'العربية' },
-    { code: 'ca', flag: '🟡🔴', name: 'Català' },
-    { code: 'va', flag: '🔵🔴', name: 'Valencià' },
-    { code: 'eu', flag: '🟢🔴', name: 'Euskara' },
-    { code: 'gl', flag: '🔵⚪', name: 'Galego' }
+    { code: 'en', flag: renderFlagHtml('en'), name: 'English' },
+    { code: 'fr', flag: renderFlagHtml('fr'), name: 'Français' },
+    { code: 'de', flag: renderFlagHtml('de'), name: 'Deutsch' },
+    { code: 'zh', flag: renderFlagHtml('zh'), name: '中文' },
+    { code: 'ko', flag: renderFlagHtml('ko'), name: '한국어' },
+    { code: 'uk', flag: renderFlagHtml('uk'), name: 'Українська' },
+    { code: 'pt', flag: renderFlagHtml('pt'), name: 'Português' },
+    { code: 'ja', flag: renderFlagHtml('ja'), name: '日本語' },
+    { code: 'ar', flag: renderFlagHtml('ar'), name: 'العربية' },
+    { code: 'ca', flag: renderFlagHtml('ca'), name: 'Català' },
+    { code: 'va', flag: renderFlagHtml('va'), name: 'Valencià' },
+    { code: 'eu', flag: renderFlagHtml('eu'), name: 'Euskara' },
+    { code: 'gl', flag: renderFlagHtml('gl'), name: 'Galego' }
   ];
 
   async function translateTextOnline(text: string, targetLang: string): Promise<string> {

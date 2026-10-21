@@ -5,6 +5,25 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.17] - 2026-10-21
+### Added & Improved
+- **Banderas Reales en el Selector de Idiomas para Lenguas Cooficiales (Gallego, Valenciano, Catalán y Euskera):**
+  - Sustituidos los iconos provisionales de círculos de colores (`🟡🔴`, `🔵🔴`, `🟢🔴`, `🔵⚪`) por gráficos optimizados de las banderas oficiales y representativas proporcionadas:
+    - **Galego (`gl`):** Bandera gallega con franja diagonal azul celeste y escudo tradicional.
+    - **Valencià (`va`):** Real Senyera Coronada con franja azul, florones dorados y pedrería.
+    - **Català (`ca`):** Senyera / Estelada con triángulo azul y estrella blanca sobre las cuatro barras.
+    - **Euskara (`eu`):** Ikurriña con aspa verde y cruz blanca sobre campo rojo.
+  - **Selector Visual Desplegable Personalizado (`.custom-lang-selector`):**
+    - Nuevo control visual con botón disparador (`.lang-select-btn`), panel flotante con backdrop blur (`.lang-dropdown-panel`) y microanimación de apertura.
+    - Muestra la bandera actual en el botón y una lista estilizada con todas las opciones disponibles con sus banderas (imágenes nítidas para lenguas regionales y emojis para países).
+    - Adaptación armónica a las 5 paletas de temas (Oscuro, Claro, Comida, Retro, Pastel) y maquetación responsive en pantallas de escritorio y móviles.
+    - Sincronización bidireccional total con el `<select id="lang-selector">` nativo para preservar la accesibilidad y total compatibilidad con la suite de pruebas de dominio.
+  - **Embebido y Carga de Alto Rendimiento:**
+    - Creado módulo `src/core/flags.ts` con assets vectorizados/minificados en Data URIs base64 para carga instantánea con 0 ms de latencia y sin peticiones HTTP externas.
+    - Almacenados assets de alta resolución en `public/flags/` (`gl.png`, `va.png`, `ca.png`, `eu.png`) y empaquetados en `dist/flags/`.
+  - **Formularios de Platos en Panel de Administración:**
+    - Actualizado `ALL_ADD_LANGS` en `src/main.ts` para que la cuadrícula de traducción de platos nuevos o editados muestre las banderas reales en sus encabezados.
+
 ## [1.6.16] - 2026-10-21
 ### Fixed & Improved
 - **Panel de Pedido Responsivo en Escritorio (`height: min-content` desde 1026px):**
