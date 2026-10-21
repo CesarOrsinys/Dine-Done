@@ -170,7 +170,90 @@ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- 5. POLÍTICAS ROW LEVEL SECURITY (RLS) - Permisivas para desarrollo inicial
+-- 5. PROCEDIMIENTOS ALMACENADOS DE SEGURIDAD (RPC SERVER-SIDE)
+-- Función para verificar login cifrado en el servidor sin descargar usuarios al navegador
+CREATE OR REPLACE FUNCTION verify_staff_login(p_identifier TEXT, p_password TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_user RECORD;
+  v_valid BOOLEAN := FALSE;
+BEGIN
+  SELECT id, name, username, email, password_hash, role_id, avatar_url, active
+  INTO v_user
+  FROM users
+  WHERE active = TRUE
+    AND role_id != 'CUSTOMER'
+    AND (
+      LOWER(email) = LOWER(TRIM(p_identifier))
+      OR LOWER(username) = LOWER(TRIM(p_identifier))
+      OR (LOWER(TRIM(p_identifier)) = 'gerente' AND role_id = 'MANAGER')
+      OR (LOWER(TRIM(p_identifier)) = 'camarero' AND role_id = 'WAITER')
+      OR (LOWER(TRIM(p_identifier)) = 'cocinero' AND role_id = 'CHEF')
+    )
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    RETURN NULL;
+  END IF;
+
+  -- Comprobación criptográfica (bcrypt o compatibilidad)
+  IF v_user.password_hash LIKE '$2%' THEN
+    v_valid := (v_user.password_hash = crypt(p_password, v_user.password_hash));
+  ELSE
+    v_valid := (v_user.password_hash = p_password);
+  END IF;
+
+  IF NOT v_valid THEN
+    RETURN NULL;
+  END IF;
+
+  -- Retornar perfil de sesión (NUNCA expone password_hash)
+  RETURN jsonb_build_object(
+    'id', v_user.id,
+    'name', v_user.name,
+    'username', v_user.username,
+    'email', v_user.email,
+    'role_id', v_user.role_id,
+    'avatar_url', v_user.avatar_url,
+    'active', v_user.active
+  );
+END;
+$$;
+
+-- Función para listar empleados para el panel de gerencia sin exponer contraseñas
+CREATE OR REPLACE FUNCTION get_staff_members()
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_staff JSONB;
+BEGIN
+  SELECT jsonb_agg(
+    jsonb_build_object(
+      'id', id,
+      'name', name,
+      'username', username,
+      'email', email,
+      'role_id', role_id,
+      'avatar_url', avatar_url,
+      'active', active
+    ) ORDER BY name ASC
+  )
+  INTO v_staff
+  FROM users
+  WHERE role_id != 'CUSTOMER';
+
+  RETURN COALESCE(v_staff, '[]'::jsonb);
+END;
+$$;
+
+-- 6. POLÍTICAS ROW LEVEL SECURITY (RLS) ESTRICTAS
 ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE menu_categories ENABLE ROW LEVEL SECURITY;

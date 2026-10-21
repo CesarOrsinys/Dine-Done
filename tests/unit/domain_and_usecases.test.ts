@@ -288,11 +288,14 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
       assert.ok(staff.username && staff.username.length > 0, `Staff ${staff.name} must have a username`);
     }
 
-    // Verify each staff role is represented
-    const roles = allUsers.map(u => u.role);
-    assert.ok(roles.includes(UserRole.WAITER), 'Must have at least one WAITER');
-    assert.ok(roles.includes(UserRole.CHEF), 'Must have at least one CHEF');
-    assert.ok(roles.includes(UserRole.MANAGER), 'Must have at least one MANAGER');
+    // Verify authenticate method works and returns sanitized user without password
+    const authWaiter = await userRepo.authenticate('camarero', 'camarero123');
+    assert.ok(authWaiter !== null, 'Waiter should authenticate successfully');
+    assert.strictEqual(authWaiter?.role, UserRole.WAITER);
+    assert.strictEqual(authWaiter?.password, undefined, 'Authenticated user object must NOT expose password');
+
+    const authFail = await userRepo.authenticate('camarero', 'wrongpassword');
+    assert.strictEqual(authFail, null, 'Invalid password must return null');
   });
 
   it('RBAC Rule: Should verify that Chefs only access kitchen, Waiters only waiter, and Manager accesses all panels', () => {

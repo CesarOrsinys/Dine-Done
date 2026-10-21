@@ -87,4 +87,24 @@ export class JsonUserRepository implements IUserRepository {
     }
     return false;
   }
+
+  async authenticate(identifier: string, password: string): Promise<User | null> {
+    const idLower = identifier.trim().toLowerCase();
+    const user = this.users.find(u =>
+      u.role !== UserRole.CUSTOMER &&
+      (
+        u.email.toLowerCase() === idLower ||
+        (u.username && u.username.toLowerCase() === idLower) ||
+        (idLower === 'camarero' && u.role === UserRole.WAITER) ||
+        (idLower === 'cocinero' && u.role === UserRole.CHEF) ||
+        (idLower === 'gerente' && u.role === UserRole.MANAGER)
+      ) &&
+      u.password === password
+    );
+
+    if (!user) return null;
+    const sanitized = JSON.parse(JSON.stringify(user));
+    delete sanitized.password;
+    return sanitized;
+  }
 }

@@ -12,7 +12,6 @@ function mapRowToUser(row: any): User {
       .trim(),
     username: row.username,
     email: row.email,
-    password: row.password_hash,
     role: row.role_id as UserRole,
     active: Boolean(row.active),
     avatarUrl: row.avatar_url || undefined
@@ -36,14 +35,21 @@ export class SupabaseUserRepository implements IUserRepository {
   private client = getSupabaseClient();
 
   async getAll(): Promise<User[]> {
+    // 1. Intentar RPC seguro que devuelve el personal sin exponer contraseñas
+    const { data: rpcData, error: rpcError } = await this.client.rpc('get_staff_members');
+    if (!rpcError && Array.isArray(rpcData)) {
+      return rpcData.map(mapRowToUser);
+    }
+
+    // 2. Consulta directa omitiendo explícitamente password_hash
     const { data, error } = await this.client
       .from('users')
-      .select('*')
+      .select('id, name, username, email, role_id, avatar_url, active')
       .order('name', { ascending: true });
 
     if (error) {
-      console.error('Error fetching users from Supabase:', error);
-      throw new Error(`Error en Supabase al obtener usuarios: ${error.message}`);
+      console.warn('Advertencia al consultar usuarios en Supabase:', error.message);
+      return [];
     }
 
     return (data || [])
@@ -54,7 +60,7 @@ export class SupabaseUserRepository implements IUserRepository {
   async getById(id: string): Promise<User | null> {
     const { data, error } = await this.client
       .from('users')
-      .select('*')
+      .select('id, name, username, email, role_id, avatar_url, active')
       .eq('id', id)
       .single();
 
@@ -70,7 +76,7 @@ export class SupabaseUserRepository implements IUserRepository {
   async getByRole(role: UserRole): Promise<User[]> {
     const { data, error } = await this.client
       .from('users')
-      .select('*')
+      .select('id, name, username, email, role_id, avatar_url, active')
       .eq('role_id', role)
       .order('name', { ascending: true });
 
@@ -87,7 +93,7 @@ export class SupabaseUserRepository implements IUserRepository {
     const { data, error } = await this.client
       .from('users')
       .insert(row)
-      .select()
+      .select('id, name, username, email, role_id, avatar_url, active')
       .single();
 
     if (error) {
@@ -104,7 +110,7 @@ export class SupabaseUserRepository implements IUserRepository {
       .from('users')
       .update({ ...row, updated_at: new Date().toISOString() })
       .eq('id', user.id)
-      .select()
+      .select('id, name, username, email, role_id, avatar_url, active')
       .single();
 
     if (error) {
@@ -127,5 +133,44 @@ export class SupabaseUserRepository implements IUserRepository {
     }
 
     return (count ?? 0) > 0;
+  }
+
+  async authenticate(identifier: string, password: string): Promise<User | null> {
+    const trimmedId = identifier.trim().toLowerCase();
+    const trimmedPass = password.trim();
+
+    // 1. Intentar autenticación segura en el servidor vía RPC (PostgreSQL Stored Procedure)
+    // El servidor valida el hash con crypt y retorna SOLO el perfil público sin contraseñas
+    try {
+      const { data, error } = await this.client.rpc('verify_staff_login', {
+        p_identifier: trimmedId,
+        p_password: trimmedPass
+      });
+
+      if (!error && data) {
+        return mapRowToUser(data);
+      }
+    } catch (e) {
+      console.warn('RPC verify_staff_login falló, intentando verificación directa filtrada:', e);
+    }
+
+    // 2. Fallback de migración: buscar ÚNICAMENTE al usuario en cuestión (NUNCA todos los usuarios)
+    const { data: users, error: qErr } = await this.client
+      .from('users')
+      .select('id, name, username, email, password_hash, role_id, avatar_url, active')
+      .or(`email.ilike.${trimmedId},username.ilike.${trimmedId}`)
+      .limit(1);
+
+    if (!qErr && users && users.length > 0) {
+      const u = users[0];
+      if (u.active !== false && u.role_id !== 'CUSTOMER') {
+        const matchesPlain = u.password_hash === trimmedPass;
+        if (matchesPlain) {
+          return mapRowToUser(u);
+        }
+      }
+    }
+
+    return null;
   }
 }

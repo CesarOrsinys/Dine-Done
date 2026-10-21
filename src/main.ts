@@ -1026,48 +1026,63 @@ function setupStaffAuth() {
     }
   });
 
-  loginForm?.addEventListener('submit', (e) => {
+  loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const userVal = usernameInput.value.trim().toLowerCase();
     const passVal = passwordInput.value.trim();
 
-    // Find staff user by email, username, or role keyword
-    const staffUser = allUsers.find(u => 
-      u.role !== UserRole.CUSTOMER &&
-      (
-        u.email.toLowerCase() === userVal || 
-        (u.username && u.username.toLowerCase() === userVal) ||
-        (userVal === 'camarero' && u.role === UserRole.WAITER) ||
-        (userVal === 'cocinero' && u.role === UserRole.CHEF) ||
-        (userVal === 'gerente' && u.role === UserRole.MANAGER)
-      )
-    );
+    const submitBtn = loginForm.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+    if (submitBtn) submitBtn.disabled = true;
 
-    if (staffUser && staffUser.password && staffUser.password === passVal) {
-      authenticatedStaffUser = staffUser;
-      modal.style.display = 'none';
-      btnLogin.style.display = 'none';
-      btnLogout.style.display = 'flex';
+    try {
+      // Autenticación segura del lado del servidor (RPC / Repositorio)
+      const staffUser = await services.userRepo.authenticate(userVal, passVal);
 
-      updateRoleSwitcherVisibility();
-      switchRole(staffUser.role);
-      updateTableControlsVisibility();
-      const curT = translations[currentLanguage] || translations['es'];
-      const welcomeMsg = (curT.toastStaffWelcome || '¡Bienvenido, {name}! Acceso verificado como {role}.')
-        .replace('{name}', staffUser.name)
-        .replace('{role}', getTranslatedRole(staffUser.role, curT));
-      showToast(welcomeMsg, 'success');
-    } else {
-      if (errorMsg) {
+      if (staffUser) {
+        authenticatedStaffUser = staffUser;
+        modal.style.display = 'none';
+        btnLogin.style.display = 'none';
+        btnLogout.style.display = 'flex';
+
+        updateRoleSwitcherVisibility();
+        await switchRole(staffUser.role);
+        updateTableControlsVisibility();
         const curT = translations[currentLanguage] || translations['es'];
-        errorMsg.innerText = curT.errInvalidCredentials || '❌ Credenciales no válidas. Revisa usuario y contraseña.';
+        const welcomeMsg = (curT.toastStaffWelcome || '¡Bienvenido, {name}! Acceso verificado como {role}.')
+          .replace('{name}', staffUser.name)
+          .replace('{role}', getTranslatedRole(staffUser.role, curT));
+        showToast(welcomeMsg, 'success');
+      } else {
+        if (errorMsg) {
+          const curT = translations[currentLanguage] || translations['es'];
+          errorMsg.innerText = curT.errInvalidCredentials || '❌ Credenciales no válidas. Revisa usuario y contraseña.';
+          errorMsg.style.display = 'block';
+        }
+      }
+    } catch (err: any) {
+      console.error('Error during staff authentication:', err);
+      if (errorMsg) {
+        errorMsg.innerText = `❌ Error en login: ${err.message || 'Error de conexión'}`;
         errorMsg.style.display = 'block';
       }
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 
-  btnLogout?.addEventListener('click', () => {
+  btnLogout?.addEventListener('click', async () => {
     authenticatedStaffUser = null;
+    allOrders = [];
+    allUsers = [];
+
+    // Limpiar DOM de los paneles de empleados
+    const waiterGrid = document.getElementById('waiter-orders-grid');
+    if (waiterGrid) waiterGrid.innerHTML = '';
+    const chefGrid = document.getElementById('chef-orders-grid');
+    if (chefGrid) chefGrid.innerHTML = '';
+    const usersGrid = document.getElementById('users-cards-grid');
+    if (usersGrid) usersGrid.innerHTML = '';
+
     updateRoleSwitcherVisibility();
     btnLogout.style.display = 'none';
     btnLogin.style.display = 'flex';
@@ -1081,7 +1096,7 @@ function setupStaffAuth() {
       active: true
     };
 
-    switchRole(UserRole.CUSTOMER);
+    await switchRole(UserRole.CUSTOMER);
     updateTableControlsVisibility();
     showToast(curT.toastStaffLogout || 'Sesión de empleado cerrada. Has vuelto al modo comensal.', 'info');
   });
@@ -1091,9 +1106,9 @@ function setupStaffAuth() {
 function setupRoleSwitcher() {
   const roleButtons = document.querySelectorAll('.role-btn');
   roleButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const selectedRole = btn.getAttribute('data-role') as UserRole;
-      switchRole(selectedRole);
+      await switchRole(selectedRole);
     });
   });
 }
@@ -1224,14 +1239,18 @@ async function switchRole(role: UserRole | string) {
   backdrop?.classList.remove('active');
   document.body.style.overflow = '';
 
-  // Trigger role-specific rendering
+  // Trigger role-specific rendering (Lazy loading de datos según el Rol autenticado)
   if (role === UserRole.CUSTOMER) {
     renderMenu();
   } else if (role === UserRole.WAITER) {
+    allOrders = await services.orderRepo.findAll();
     renderWaiterOrders();
   } else if (role === UserRole.CHEF) {
+    allOrders = await services.orderRepo.findAll();
     renderChefOrders();
   } else if (role === UserRole.MANAGER) {
+    allOrders = await services.orderRepo.findAll();
+    allUsers = await services.userRepo.getAll();
     renderManagerDashboard();
   }
 }
@@ -3711,16 +3730,18 @@ function setupManagerModals() {
 // 14. Realtime Subscriptions & Refresh
 async function refreshAll() {
   menuCatalog = await services.menuRepo.getAll();
-  allOrders = await services.orderRepo.findAll();
-  allUsers = await services.userRepo.getAll();
 
   if (currentUser.role === UserRole.CUSTOMER) {
     renderMenu();
   } else if (currentUser.role === UserRole.WAITER) {
+    allOrders = await services.orderRepo.findAll();
     renderWaiterOrders();
   } else if (currentUser.role === UserRole.CHEF) {
+    allOrders = await services.orderRepo.findAll();
     renderChefOrders();
   } else if (currentUser.role === UserRole.MANAGER) {
+    allOrders = await services.orderRepo.findAll();
+    allUsers = await services.userRepo.getAll();
     renderManagerDashboard();
   }
 }
@@ -3759,6 +3780,9 @@ function setupExportReport() {
 
 // Subscribe to real-time events across the app
 services.realtimeNotifier.subscribe((updatedOrder) => {
+  // Ignorar actualizaciones si el usuario es cliente en sala (protege la privacidad de comensales)
+  if (currentUser.role === UserRole.CUSTOMER) return;
+
   const idx = allOrders.findIndex(o => o.id === updatedOrder.id);
   if (idx >= 0) {
     allOrders[idx] = updatedOrder;
@@ -3778,9 +3802,11 @@ async function initApp() {
   applyBusinessBranding();
   setupTableIdentification();
 
+  // PRIVACIDAD & RENDIMIENTO: Solo se carga la carta pública del menú en el arranque.
+  // Las comandas y la lista de empleados NO se descargan hasta que un empleado autenticado inicia sesión.
   menuCatalog = await services.menuRepo.getAll();
-  allOrders = await services.orderRepo.findAll();
-  allUsers = await services.userRepo.getAll();
+  allOrders = [];
+  allUsers = [];
 
   setupRoleSwitcher();
   setupStaffAuth();
