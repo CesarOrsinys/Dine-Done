@@ -51,6 +51,9 @@ export function setupStaffAuth() {
 
       if (staffUser) {
         AppState.authenticatedStaffUser = staffUser;
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('DND_AUTH_STAFF', JSON.stringify(staffUser));
+        }
         modal.style.display = 'none';
         btnLogin.style.display = 'none';
         btnLogout.style.display = 'flex';
@@ -83,6 +86,9 @@ export function setupStaffAuth() {
 
   btnLogout?.addEventListener('click', async () => {
     AppState.authenticatedStaffUser = null;
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('DND_AUTH_STAFF');
+    }
     AppState.allOrders = [];
     AppState.allUsers = [];
 
@@ -111,4 +117,22 @@ export function setupStaffAuth() {
     updateTableControlsVisibility();
     showToast(curT.toastStaffLogout || 'Sesión de empleado cerrada. Has vuelto al modo comensal.', 'info');
   });
+
+  // Restaurar automáticamente la sesión del trabajador si ya estaba autenticado al recargar
+  if (typeof sessionStorage !== 'undefined') {
+    const savedStaffRaw = sessionStorage.getItem('DND_AUTH_STAFF');
+    if (savedStaffRaw) {
+      try {
+        const staffUser = JSON.parse(savedStaffRaw);
+        AppState.authenticatedStaffUser = staffUser;
+        if (btnLogin) btnLogin.style.display = 'none';
+        if (btnLogout) btnLogout.style.display = 'flex';
+        updateRoleSwitcherVisibility();
+        switchRole(staffUser.role);
+        updateTableControlsVisibility();
+      } catch (err) {
+        sessionStorage.removeItem('DND_AUTH_STAFF');
+      }
+    }
+  }
 }

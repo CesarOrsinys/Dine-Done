@@ -4,6 +4,10 @@ import { AppState } from '../state/AppState.js';
 import { translations, availableStaffRoles, getTranslatedRole } from '../i18n/LanguageManager.js';
 import { showToast } from '../services/ToastService.js';
 import { updateTableControlsVisibility } from './TableComponent.js';
+import { renderMenu } from './MenuComponent.js';
+import { renderWaiterOrders } from './WaiterBoardComponent.js';
+import { renderChefOrders } from './KitchenKdsComponent.js';
+import { renderManagerDashboard } from './ManagerDashboardComponent.js';
 
 type ViewRenderer = () => void | Promise<void>;
 
@@ -148,18 +152,35 @@ export async function switchRole(role: UserRole | string) {
   backdrop?.classList.remove('active');
   document.body.style.overflow = '';
 
-  // Trigger role-specific rendering (Lazy loading de datos según el Rol autenticado)
-  if (role === UserRole.CUSTOMER) {
+  // Trigger role-specific rendering (Real-time data fetching per role)
+  const isManager = (role === UserRole.MANAGER || baseRole === UserRole.MANAGER);
+  const isChef = (role === UserRole.CHEF || baseRole === UserRole.CHEF);
+  const isWaiter = (role === UserRole.WAITER || baseRole === UserRole.WAITER);
+  const isCustomer = (role === UserRole.CUSTOMER || baseRole === UserRole.CUSTOMER);
+
+  if (isCustomer) {
+    AppState.menuCatalog = await services.menuRepo.getAll();
+    renderMenu();
     if (onRenderMenu) onRenderMenu();
-  } else if (role === UserRole.WAITER) {
+  } else if (isWaiter) {
+    // 1. Carga en tiempo real de comandas para camareros
     AppState.allOrders = await services.orderRepo.findAll();
+    AppState.menuCatalog = await services.menuRepo.getAll();
+    renderWaiterOrders();
     if (onRenderWaiter) onRenderWaiter();
-  } else if (role === UserRole.CHEF) {
+  } else if (isChef) {
+    // 2. Carga en tiempo real de comandas para cocina (KDS)
     AppState.allOrders = await services.orderRepo.findAll();
+    AppState.menuCatalog = await services.menuRepo.getAll();
+    renderChefOrders();
     if (onRenderChef) onRenderChef();
-  } else if (role === UserRole.MANAGER) {
+  } else if (isManager) {
+    // 3. Carga en tiempo real para Gerente:
+    // Facturación cobrada, propinas, ticket promedio, comandas, platos más pedidos, stock y usuarios
     AppState.allOrders = await services.orderRepo.findAll();
     AppState.allUsers = await services.userRepo.getAll();
+    AppState.menuCatalog = await services.menuRepo.getAll();
+    await renderManagerDashboard();
     if (onRenderManager) onRenderManager();
   }
 }
@@ -171,5 +192,11 @@ export function setupRoleSwitcher() {
       const selectedRole = btn.getAttribute('data-role') as UserRole;
       await switchRole(selectedRole);
     });
+  });
+
+  const brandLogo = document.querySelector('.brand-logo');
+  brandLogo?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await switchRole(UserRole.CUSTOMER);
   });
 }
