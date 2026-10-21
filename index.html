@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/dahlia/stripe.js"></script>
 
   <style>
     /* 1. VERSIÓN OSCURA (DEFAULT DARK LUXURY) */
@@ -2952,6 +2953,11 @@
                 <small id="txt-pay-cash-sub" style="font-size:0.7rem; color:var(--text-dim);">Pagar en mesa</small>
               </button>
             </div>
+          </div>
+
+          <!-- Stripe Checkout Embedded Form Container -->
+          <div id="checkout-form-wrapper" style="margin-bottom:14px;">
+            <div id="checkout-form"></div>
           </div>
 
           <!-- Comprobante / Factura Selection -->

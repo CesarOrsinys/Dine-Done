@@ -18,6 +18,7 @@ import { ProcessCashPaymentUseCase } from './core/usecases/ProcessCashPaymentUse
 import { UpdateOrderStatusUseCase } from './core/usecases/UpdateOrderStatusUseCase.js';
 
 import { renderFlagHtml, getFlagDisplay } from './core/flags.js';
+import { initStripeCheckoutForm } from './ui/services/StripeCheckoutService.js';
 
 // Types for i18n supporting all 14 international and regional languages
 export type Language = 'es' | 'en' | 'fr' | 'de' | 'zh' | 'ko' | 'uk' | 'pt' | 'ja' | 'ar' | 'ca' | 'va' | 'eu' | 'gl' | string;
@@ -3821,6 +3822,7 @@ async function initApp() {
 
   renderMenu();
   updateCartUI();
+  initStripeCheckoutForm();
 }
 
 initApp();
