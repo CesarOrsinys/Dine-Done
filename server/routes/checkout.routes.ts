@@ -13,15 +13,21 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
  */
 checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Set mode to "subscription" if selling recurring products.
     const mode: string = "payment";
+    const origin = (_req.headers.origin as string) || (_req.headers.referer as string) || process.env.DOMAIN || 'http://localhost:5173';
+    const cleanOrigin = origin.replace(/\/$/, '');
+    const returnUrl = `${cleanOrigin}/?session_id={CHECKOUT_SESSION_ID}&payment_status=success`;
+
+    const rawAmount = Number(_req.body?.amount) || 15;
+    const amountInCents = Math.round(rawAmount * 100);
+    const tableName = _req.body?.table ? `Mesa: ${_req.body.table}` : 'Sala Principal';
 
     // Use the fixed_by_ui parameters from the Field Intents section.
-    // line_items is sample_only — replace with real values, then list in TODO.
-    // Only include payment_method_collection when mode is "subscription".
+    // return_url is mandatory for ui_mode: "form" in Stripe Checkout.
     const sessionParams: any = {
       ui_mode: "form",
       mode,
+      return_url: returnUrl,
       line_items: [{ price: "price_...", quantity: 1 }],
       billing_address_collection: "auto",
       phone_number_collection: {
@@ -35,14 +41,14 @@ checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Respo
     };
 
     if (mode === "subscription") {
-      sessionParams.payment_method_collection = "always"; // Use the fixed_by_ui value from Field Intents
+      sessionParams.payment_method_collection = "always";
     }
 
     try {
       const session = await stripe.checkout.sessions.create(sessionParams);
-      res.json({ client_secret: session.client_secret });
+      res.json({ client_secret: session.client_secret, session_id: session.id });
     } catch (createErr: any) {
-      // If the placeholder price_... does not exist in Stripe Dashboard, fallback to price_data
+      // If the placeholder price_... does not exist in Stripe Dashboard, fallback to dynamic price_data
       if (createErr.message?.includes('price') || createErr.param === 'line_items') {
         const dynamicParams = {
           ...sessionParams,
@@ -50,15 +56,18 @@ checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Respo
             {
               price_data: {
                 currency: 'eur',
-                product_data: { name: 'Comanda Restaurante Dine & Done' },
-                unit_amount: Math.round((Number(_req.body?.amount) || 15) * 100),
+                product_data: { 
+                  name: `Comanda Restaurante - ${tableName}`,
+                  description: `Servicio gastronómico en ${tableName}`
+                },
+                unit_amount: amountInCents > 0 ? amountInCents : 1500,
               },
               quantity: 1,
             },
           ],
         };
         const session = await stripe.checkout.sessions.create(dynamicParams);
-        res.json({ client_secret: session.client_secret });
+        res.json({ client_secret: session.client_secret, session_id: session.id });
         return;
       }
       throw createErr;
@@ -66,6 +75,26 @@ checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Respo
   } catch (error: any) {
     console.error("Error creating Stripe Checkout Session:", error);
     res.status(500).json({ error: error.message || "Failed to create checkout session" });
+  }
+});
+
+/**
+ * GET /api/checkout-session/:sessionId
+ * Checks session status and payment confirmation
+ */
+checkoutRouter.get('/checkout-session/:sessionId', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const sessionId = String(req.params.sessionId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    res.json({
+      id: session.id,
+      status: session.status,
+      payment_status: session.payment_status,
+      amount_total: session.amount_total,
+      client_secret: session.client_secret
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 });
 

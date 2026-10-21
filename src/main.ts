@@ -11,7 +11,7 @@ import { setupRoleSwitcher } from './ui/components/RoleSwitcherComponent.js';
 import { setupStaffAuth } from './ui/components/AuthComponent.js';
 import { setupCategoryFilters, setupDietaryAndAllergenFilters, renderMenu } from './ui/components/MenuComponent.js';
 import { setupCartControls, setupMobileCartDrawer, updateCartUI } from './ui/components/CartComponent.js';
-import { setupConfirmedOrderModal } from './ui/components/OrderModalComponent.js';
+import { setupConfirmedOrderModal, checkStripeRedirectSuccess } from './ui/components/OrderModalComponent.js';
 import { setupManagerModals, renderManagerDashboard } from './ui/components/ManagerDashboardComponent.js';
 import { renderWaiterOrders } from './ui/components/WaiterBoardComponent.js';
 import { renderChefOrders } from './ui/components/KitchenKdsComponent.js';
@@ -57,6 +57,7 @@ async function initApp() {
   renderMenu();
   updateCartUI();
   initStripeCheckoutForm();
+  await checkStripeRedirectSuccess();
 }
 
 initApp();

@@ -6,8 +6,9 @@ import { translations } from '../i18n/LanguageManager.js';
 import { showToast } from '../services/ToastService.js';
 import { formatTableDisplay } from './TableComponent.js';
 import { createOrderUseCase, services } from '../services/UseCasesService.js';
-import { updateCartUI } from './CartComponent.js';
+import { updateCartUI, calculatePackagingCost } from './CartComponent.js';
 import { renderMenu } from './MenuComponent.js';
+import { openStripePaymentModal } from '../services/StripeCheckoutService.js';
 
 export function showOrderConfirmedModal(order: Order) {
   const modal = document.getElementById('order-confirmed-modal');
@@ -262,59 +263,160 @@ export async function handlePlaceOrder() {
 
   const subtotal = AppState.currentCart.reduce((acc, c) => acc + (c.menuItem.price * c.quantity), 0);
   const tipAmount = parseFloat((subtotal * AppState.currentTipPercent).toFixed(2));
+  const packagingCost = calculatePackagingCost();
+  const totalAmount = parseFloat((subtotal + packagingCost + tipAmount).toFixed(2));
 
-  try {
-    showToast(t.toastOrderProcessing || 'Procesando pedido y verificando existencias...', 'info');
+  const orderPayload = {
+    tableNumber: tableInput,
+    customerName: AppState.currentUser.name,
+    items: orderItems,
+    packaging: {
+      bags: hasBags,
+      plasticContainers: hasPlastic,
+      cutleryCount: AppState.cutleryCount
+    },
+    tipAmount: tipAmount,
+    receiptType: AppState.currentReceiptType,
+    invoiceDetails: invoiceDetails
+  };
 
-    const createdOrder = await createOrderUseCase.execute({
-      tableNumber: tableInput,
-      customerName: AppState.currentUser.name,
-      items: orderItems,
-      packaging: {
-        bags: hasBags,
-        plasticContainers: hasPlastic,
-        cutleryCount: AppState.cutleryCount
-      },
-      paymentMethod: AppState.currentPaymentMethod,
-      tipAmount: tipAmount,
-      stripeToken: 'tok_visa_success',
-      receiptType: AppState.currentReceiptType,
-      invoiceDetails: invoiceDetails
-    });
+  // CASO 1: Pago en Efectivo -> Se crea la comanda directamente con estado PENDING_CASH
+  if (AppState.currentPaymentMethod === PaymentMethod.CASH) {
+    try {
+      showToast(t.toastOrderProcessing || 'Procesando comanda en efectivo...', 'info');
 
-    const payMsg = createdOrder.paymentMethod === PaymentMethod.STRIPE_CARD
-      ? (t.orderPaidCardMsg || '¡Pago con tarjeta verificado mediante Stripe!')
-      : (t.orderPendingCashMsg || 'Cobro marcado en efectivo. El camarero cobrará en mesa.');
+      const createdOrder = await createOrderUseCase.execute({
+        ...orderPayload,
+        paymentMethod: PaymentMethod.CASH
+      });
 
-    const packNotice = createdOrder.packagingCost ? ` (${t.servicePackaging}: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
-    const confToast = (t.toastOrderConfirmed || '🎉 ¡Comanda {orderNumber} confirmada para la {table}!{packNotice} {payMsg}')
-      .replace('{orderNumber}', createdOrder.orderNumber)
-      .replace('{table}', formatTableDisplay(createdOrder.tableNumber, t))
-      .replace('{packaging}', packNotice)
-      .replace('{packNotice}', packNotice)
-      .replace('{payment}', payMsg)
-      .replace('{payMsg}', payMsg);
-    showToast(confToast, 'success');
+      // Reset Cart
+      AppState.currentCart = [];
+      updateCartUI();
 
-    // Reset Cart
-    AppState.currentCart = [];
-    updateCartUI();
+      // Close mobile drawer if open
+      const cartPanel = document.getElementById('cart-panel');
+      const backdrop = document.getElementById('cart-backdrop');
+      cartPanel?.classList.remove('mobile-drawer-open');
+      backdrop?.classList.remove('active');
+      document.body.style.overflow = '';
 
-    // Close mobile cart drawer if open
-    const cartPanel = document.getElementById('cart-panel');
-    const backdrop = document.getElementById('cart-backdrop');
-    cartPanel?.classList.remove('mobile-drawer-open');
-    backdrop?.classList.remove('active');
-    document.body.style.overflow = '';
+      const payMsg = t.orderPendingCashMsg || 'Cobro marcado en efectivo. El camarero cobrará en mesa.';
+      const packNotice = createdOrder.packagingCost ? ` (${t.servicePackaging}: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
+      const confToast = (t.toastOrderConfirmed || '🎉 ¡Comanda {orderNumber} confirmada para la {table}!{packNotice} {payMsg}')
+        .replace('{orderNumber}', createdOrder.orderNumber)
+        .replace('{table}', formatTableDisplay(createdOrder.tableNumber, t))
+        .replace('{packaging}', packNotice)
+        .replace('{packNotice}', packNotice)
+        .replace('{payment}', payMsg)
+        .replace('{payMsg}', payMsg);
+      showToast(confToast, 'success');
 
-    // Show Order Confirmation Popup & Receipt / Invoice
-    showOrderConfirmedModal(createdOrder);
+      showOrderConfirmedModal(createdOrder);
 
-    // Reload menu to show updated stock
-    AppState.menuCatalog = await services.menuRepo.getAll();
-    renderMenu();
-    AppState.allOrders = await services.orderRepo.findAll();
-  } catch (error: any) {
-    showToast((t.toastOrderError || '❌ Error al procesar el pedido: {error}').replace('{error}', error.message), 'danger');
+      AppState.menuCatalog = await services.menuRepo.getAll();
+      renderMenu();
+      AppState.allOrders = await services.orderRepo.findAll();
+    } catch (error: any) {
+      showToast((t.toastOrderError || '❌ Error al procesar el pedido: {error}').replace('{error}', error.message), 'danger');
+    }
+    return;
+  }
+
+  // CASO 2: Pago con Tarjeta (Stripe) -> NO se crea la comanda todavía.
+  // Se abre el popup modal con la pasarela de pago. Solo si el pago se completa con éxito se crea la comanda.
+  sessionStorage.setItem('DND_PENDING_STRIPE_ORDER', JSON.stringify({
+    ...orderPayload,
+    paymentMethod: PaymentMethod.STRIPE_CARD
+  }));
+
+  await openStripePaymentModal({
+    amount: totalAmount,
+    tableNumber: tableInput,
+    onSuccess: async (paymentData) => {
+      try {
+        showToast(t.toastOrderProcessing || 'Verificando pago y confirmando comanda...', 'info');
+
+        const createdOrder = await createOrderUseCase.execute({
+          ...orderPayload,
+          paymentMethod: PaymentMethod.STRIPE_CARD,
+          stripeToken: paymentData.session_id || 'stripe_verified'
+        });
+
+        sessionStorage.removeItem('DND_PENDING_STRIPE_ORDER');
+
+        // Reset Cart
+        AppState.currentCart = [];
+        updateCartUI();
+
+        // Close mobile drawer if open
+        const cartPanel = document.getElementById('cart-panel');
+        const backdrop = document.getElementById('cart-backdrop');
+        cartPanel?.classList.remove('mobile-drawer-open');
+        backdrop?.classList.remove('active');
+        document.body.style.overflow = '';
+
+        const payMsg = t.orderPaidCardMsg || '¡Pago con tarjeta verificado mediante Stripe!';
+        const packNotice = createdOrder.packagingCost ? ` (${t.servicePackaging}: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
+        const confToast = (t.toastOrderConfirmed || '🎉 ¡Comanda {orderNumber} confirmada para la {table}!{packNotice} {payMsg}')
+          .replace('{orderNumber}', createdOrder.orderNumber)
+          .replace('{table}', formatTableDisplay(createdOrder.tableNumber, t))
+          .replace('{packaging}', packNotice)
+          .replace('{packNotice}', packNotice)
+          .replace('{payment}', payMsg)
+          .replace('{payMsg}', payMsg);
+        showToast(confToast, 'success');
+
+        showOrderConfirmedModal(createdOrder);
+
+        AppState.menuCatalog = await services.menuRepo.getAll();
+        renderMenu();
+        AppState.allOrders = await services.orderRepo.findAll();
+      } catch (err: any) {
+        showToast((t.toastOrderError || '❌ Error al registrar comanda: {error}').replace('{error}', err.message), 'danger');
+      }
+    },
+    onCancel: () => {
+      sessionStorage.removeItem('DND_PENDING_STRIPE_ORDER');
+      showToast(t.toastPaymentCancelled || 'Pago con tarjeta cancelado. No se ha generado la comanda.', 'info');
+    }
+  });
+}
+
+/**
+ * Revisa si la aplicación cargó tras una redirección 3DS de Stripe con éxito
+ */
+export async function checkStripeRedirectSuccess(): Promise<void> {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id');
+  const paymentStatus = urlParams.get('payment_status');
+  const pendingRaw = sessionStorage.getItem('DND_PENDING_STRIPE_ORDER');
+
+  if (sessionId && pendingRaw && (paymentStatus === 'success' || !paymentStatus)) {
+    try {
+      const payload = JSON.parse(pendingRaw);
+      sessionStorage.removeItem('DND_PENDING_STRIPE_ORDER');
+
+      // Limpia la URL de parámetros para mantenerla limpia
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      const createdOrder = await createOrderUseCase.execute({
+        ...payload,
+        stripeToken: sessionId
+      });
+
+      AppState.currentCart = [];
+      updateCartUI();
+
+      const t = translations[AppState.currentLanguage] || translations['es'];
+      showToast(t.orderPaidCardMsg || '💳 ¡Pago con tarjeta verificado mediante Stripe!', 'success');
+      showOrderConfirmedModal(createdOrder);
+
+      AppState.menuCatalog = await services.menuRepo.getAll();
+      renderMenu();
+      AppState.allOrders = await services.orderRepo.findAll();
+    } catch (err) {
+      console.error('Error fulfilling pending Stripe order:', err);
+    }
   }
 }
