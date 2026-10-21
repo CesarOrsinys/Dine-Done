@@ -24,10 +24,12 @@ checkoutRouter.post('/create-checkout-session', async (_req: Request, res: Respo
 
     // Use the fixed_by_ui parameters from the Field Intents section.
     // return_url is mandatory for ui_mode: "form" in Stripe Checkout.
+    // payment_method_types: ["card"] restricts checkout exclusively to credit/debit card.
     const sessionParams: any = {
       ui_mode: "form",
       mode,
       return_url: returnUrl,
+      payment_method_types: ["card"],
       line_items: [{ price: "price_...", quantity: 1 }],
       billing_address_collection: "auto",
       phone_number_collection: {
