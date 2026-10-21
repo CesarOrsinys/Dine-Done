@@ -77,4 +77,14 @@ export class JsonUserRepository implements IUserRepository {
     this.save();
     return JSON.parse(JSON.stringify(user));
   }
+
+  async delete(id: string): Promise<boolean> {
+    const initialLen = this.users.length;
+    this.users = this.users.filter(u => u.id !== id);
+    if (this.users.length !== initialLen) {
+      this.save();
+      return true;
+    }
+    return false;
+  }
 }

@@ -5,6 +5,28 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.14] - 2026-10-21
+### Added & Fixed
+- **Precio Unitario Condicional y Localizado en Comanda:**
+  - El precio unitario base sin IVA (`unitPriceExclVat`) ahora se formatea dinámicamente según el idioma activo (`{price} €/ud sin IVA`, `{price} €/unit excl. VAT`, `{price} €/份（不含税）`, etc.).
+  - Solo se renderiza cuando la cantidad del producto es mayor a 1 (`quantity > 1`), evitando la redundancia visual cuando el cliente pide una sola unidad.
+- **Notas de Cocina por Plato y Aviso Legal en Pasarela de Pago:**
+  - Cada plato en el carrito dispone de un campo de texto estilizado (`dishNotePlaceholder`) para notas culinarias (punto de carne, salsas, etc.) transmitidas a cocina (KDS).
+  - Incorporación de un cuadro de aviso legal destacado (`notesPolicyDisclaimer`) antes del botón de confirmación en los 14 idiomas, advirtiendo que las notas son solicitudes no vinculantes que se elaborarán con receta estándar si implican sobrecostes o inviabilidad.
+- **Gestión, Edición y Eliminación Completa de Roles de Personal:**
+  - Nuevo modal dedicado `#manage-roles-modal` con botón de acceso en el panel de gerencia (`txt-btn-manage-roles`).
+  - Permite visualizar todos los roles del restaurante, editar su nombre en español con re-traducción automática con IA a los otros 13 idiomas, icono emoji y permisos base, o eliminarlos previa confirmación modal.
+- **Eliminación de Empleados:**
+  - Botón directo de eliminación (`🗑️`) tanto en cada tarjeta de perfil de trabajador como en el modal de edición de usuarios (`btn-delete-user`).
+  - Implementación de `IUserRepository.delete(id)` en `JsonUserRepository` con diálogo de confirmación localizado y actualización reactiva inmediata de la cuadrícula.
+- **Correcciones Visuales en Móvil y Modal de Comprobante:**
+  - Eliminados los emojis duplicados en los botones móviles de `🖨️ Imprimir` y `📥 Descargar`.
+  - Eliminados los dobles dos puntos (`::`) en las etiquetas fiscales del modal de comanda confirmada.
+  - Corrección de las variables de sustitución en el toast de confirmación (`{packNotice}` / `{packaging}` y `{payMsg}` / `{payment}`).
+- **Paridad i18n al 100%:**
+  - Ampliación a 356 claves por idioma en `mock_data/translations.json`.
+  - 24/24 pruebas unitarias automatizadas superadas con éxito.
+
 ## [1.6.13] - 2026-10-21
 ### Added & Fixed
 - **Roles de Personal en Configuración y Creación Dinámica con Traducción IA:**

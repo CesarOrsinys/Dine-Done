@@ -2790,6 +2790,12 @@
             <span id="bill-total" style="color:var(--accent-orange);">0.00 €</span>
           </div>
 
+          <!-- Disclaimer sobre notas de cocina / peticiones especiales -->
+          <div id="notes-policy-disclaimer-box" style="margin: 12px 0 14px 0; padding: 10px 12px; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: var(--radius-sm); font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; display: flex; gap: 8px; align-items: flex-start;">
+            <span style="font-size: 1.05rem; line-height: 1; flex-shrink: 0;">⚠️</span>
+            <span id="txt-notes-disclaimer-content" style="flex:1;">Aviso sobre notas de cocina: Las peticiones especiales son solicitudes. Si implican costes adicionales o resultan inviables, el producto se elaborará según su receta estándar sin modificaciones.</span>
+          </div>
+
           <button class="btn-submit-order" id="btn-place-order">
             <span id="txt-btn-place-order">Confirmar Pedido (Dine & Done)</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -2966,7 +2972,10 @@
       <div class="manager-section-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap;">
           <h3 id="txt-users-section-title" style="font-size:1.1rem; margin:0;">👥 Control de Usuarios y Personal</h3>
-          <div style="display:flex; gap:8px; align-items:center;">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn-action" id="btn-open-manage-roles" style="background:rgba(59,130,246,0.12); border:1px solid #3b82f6; color:#60a5fa; padding:7px 12px; border-radius:var(--radius-sm); font-size:0.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+              <span>⚙️</span> <span id="txt-btn-manage-roles">Gestionar Roles</span>
+            </button>
             <button type="button" class="btn-action" id="btn-open-create-role-manager" style="background:rgba(249,115,22,0.15); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:7px 12px; border-radius:var(--radius-sm); font-size:0.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
               <span>🎭</span> <span id="txt-btn-create-role-manager">Nuevo Rol</span>
             </button>
@@ -3082,7 +3091,10 @@
           <input type="password" id="new-user-password" placeholder="••••••••" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:8px;">
+        <div style="display:flex; gap:10px; margin-top:8px; align-items:center;">
+          <button type="button" id="btn-delete-user" class="btn-action" style="display:none; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:10px 14px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
+            <span id="txt-btn-delete-user">🗑️ Eliminar</span>
+          </button>
           <button type="button" id="btn-cancel-add-user" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
             <span id="txt-btn-cancel-add-user">Cancelar</span>
           </button>
@@ -3341,10 +3353,10 @@
       <!-- Acciones de Comprobante: Imprimir / Descargar / Cerrar -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button type="button" id="btn-print-receipt" class="btn-action" style="flex:1; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); padding:10px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-          🖨️ <span id="txt-btn-print-receipt">Imprimir</span>
+          <span id="txt-btn-print-receipt">🖨️ Imprimir</span>
         </button>
         <button type="button" id="btn-download-receipt" class="btn-action" style="flex:1; background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); padding:10px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-          📥 <span id="txt-btn-download-receipt">Descargar</span>
+          <span id="txt-btn-download-receipt">📥 Descargar</span>
         </button>
         <button type="button" id="btn-dismiss-confirmed-modal" class="btn-action" style="flex:1.2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
           <span id="txt-btn-dismiss-confirmed-modal">Aceptar</span>
@@ -3364,6 +3376,7 @@
         Define el rol en español y se traducirá automáticamente a los 14 idiomas con IA.
       </p>
       <form id="create-role-form" style="display:flex; flex-direction:column; gap:14px;">
+        <input type="hidden" id="edit-role-id" value="">
         <div style="display:flex; flex-direction:column; gap:6px;">
           <label for="new-role-name" id="lbl-role-name-es" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Nombre del Rol (en Español):</label>
           <input type="text" id="new-role-name" placeholder="p. ej. Maître, Sommelier, Barista, Pizzero" required style="width:100%; box-sizing:border-box; padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
@@ -3392,6 +3405,35 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GESTIONAR ROLES (EDITAR Y ELIMINAR ROLES) -->
+  <div class="modal-overlay" id="manage-roles-modal" style="display:none;">
+    <div class="modal-card" style="max-width:560px; width:95%; max-height:90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 id="txt-manage-roles-title" style="font-size:1.2rem; font-weight:700;">🎭 Gestionar Roles de Personal</h3>
+        <button id="btn-close-manage-roles-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <p id="txt-manage-roles-sub" style="font-size:0.84rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
+        Visualiza, edita o elimina los roles configurados en el restaurante.
+      </p>
+
+      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+        <button type="button" class="btn-action" id="btn-create-role-from-manager" style="background:var(--accent-gradient); color:#fff; border:none; padding:8px 14px; border-radius:var(--radius-sm); font-size:0.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; box-shadow:var(--shadow-glow);">
+          <span>➕</span> <span id="txt-btn-create-role-inner">Crear Nuevo Rol</span>
+        </button>
+      </div>
+
+      <div id="roles-management-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+        <!-- Dynamically rendered roles -->
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" id="btn-dismiss-manage-roles" class="btn-action" style="background:var(--bg-surface); color:var(--text-main); border:1px solid var(--border-subtle); padding:9px 18px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer;">
+          <span id="txt-btn-dismiss-manage-roles">Cerrar</span>
+        </button>
+      </div>
     </div>
   </div>
 

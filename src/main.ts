@@ -456,6 +456,11 @@ let allOrders: Order[] = [];
 let allUsers: User[] = [];
 let openProductEditorModal: (item?: MenuItem) => void = () => {};
 let openUserEditorModal: (user?: User) => void = () => {};
+let handleDeleteUser: (userId: string, userName: string) => Promise<void> = async () => {};
+let deleteStaffRole: (roleId: string) => Promise<boolean> = async () => false;
+let openManageRolesModal: () => void = () => {};
+let closeManageRolesModal: () => void = () => {};
+let renderRolesManagementList: () => void = () => {};
 
 // Cart & Table State (Customer View)
 let currentAssignedTable = 'Mesa 4';
@@ -725,18 +730,25 @@ function setLanguage(lang: string) {
     'txt-conf-receipt-label': t.lblReceiptType || 'Comprobante',
     'txt-conf-items-title': t.lblRequestedProducts || '📋 Productos Solicitados:',
     'txt-conf-inv-title': t.lblFiscalInvoiceIssued || '📑 Factura Fiscal Emitida',
-    'txt-conf-inv-nif-lbl': `${t.lblTaxId || 'NIF/CIF'}:`,
-    'txt-conf-inv-name-lbl': `${t.lblLegalName || 'Razón Social'}:`,
-    'txt-conf-inv-address-lbl': `${t.lblFiscalAddress || 'Dirección'}:`,
-    'txt-conf-inv-email-lbl': `${t.lblFiscalEmail || 'Email'}:`,
-    'txt-conf-net-label': `${t.lblNetBase || 'Base Imponible (sin IVA)'}:`,
-    'txt-conf-vat-label': `${t.lblVat21 || 'IVA (21%)'}:`,
-    'txt-conf-pack-label': `${t.lblPackagingFees || 'Empaque y bolsas (Ley 7/2022)'}:`,
-    'txt-conf-tip-label': `${t.lblTip || 'Propina'}:`,
-    'txt-conf-total-label': `${t.lblTotal || 'Total'}:`,
-    'txt-btn-print-receipt': t.btnPrint || 'Imprimir',
-    'txt-btn-download-receipt': t.btnDownload || 'Descargar',
-    'txt-btn-dismiss-confirmed-modal': t.btnAccept || 'Aceptar'
+    'txt-conf-inv-nif-lbl': `${(t.lblTaxId || 'NIF/CIF').replace(/:+$/, '')}:`,
+    'txt-conf-inv-name-lbl': `${(t.lblLegalName || 'Razón Social').replace(/:+$/, '')}:`,
+    'txt-conf-inv-address-lbl': `${(t.lblFiscalAddress || 'Dirección').replace(/:+$/, '')}:`,
+    'txt-conf-inv-email-lbl': `${(t.lblFiscalEmail || 'Email').replace(/:+$/, '')}:`,
+    'txt-conf-net-label': `${(t.lblNetBase || 'Base Imponible (sin IVA)').replace(/:+$/, '')}:`,
+    'txt-conf-vat-label': `${(t.lblVat21 || 'IVA (21%)').replace(/:+$/, '')}:`,
+    'txt-conf-pack-label': `${(t.lblPackagingFees || 'Empaque y bolsas (Ley 7/2022)').replace(/:+$/, '')}:`,
+    'txt-conf-tip-label': `${(t.lblTip || 'Propina').replace(/:+$/, '')}:`,
+    'txt-conf-total-label': `${(t.lblTotal || 'Total').replace(/:+$/, '')}:`,
+    'txt-btn-print-receipt': t.btnPrint || '🖨️ Imprimir',
+    'txt-btn-download-receipt': t.btnDownload || '📥 Descargar',
+    'txt-btn-dismiss-confirmed-modal': t.btnAccept || 'Aceptar',
+    'txt-notes-disclaimer-content': t.notesPolicyDisclaimer || 'Aviso sobre notas de cocina: Las peticiones especiales son solicitudes. Si implican costes adicionales o resultan inviables, el producto se elaborará según su receta estándar sin modificaciones.',
+    'txt-btn-manage-roles': t.btnManageRoles || 'Gestionar Roles',
+    'txt-manage-roles-title': t.modalManageRolesTitle || '🎭 Gestionar Roles de Personal',
+    'txt-manage-roles-sub': t.modalManageRolesSub || 'Visualiza, edita o elimina los roles configurados en el restaurante.',
+    'txt-btn-dismiss-manage-roles': t.btnClose || 'Cerrar',
+    'txt-btn-create-role-inner': t.btnCreateRole || 'Crear Nuevo Rol',
+    'txt-btn-delete-user': t.btnDeleteUser || '🗑️ Eliminar'
   };
 
   for (const [id, val] of Object.entries(elMap)) {
@@ -1759,8 +1771,18 @@ function updateCartUI() {
     const netUnitPrice = parseFloat((item.menuItem.price * 0.79).toFixed(2));
     const netLine = parseFloat((netUnitPrice * item.quantity).toFixed(2));
 
+    const unitPriceFormatted = (t.unitPriceExclVat || '{price} €/ud sin IVA').replace('{price}', netUnitPrice.toFixed(2));
+    const unitPriceSpan = item.quantity > 1
+      ? `<span style="font-size:0.72rem; color:var(--text-muted); font-weight:400; margin-left:3px;">(${unitPriceFormatted})</span>`
+      : '';
+
     const row = document.createElement('div');
     row.className = 'cart-item';
+    row.style.display = 'flex';
+    row.style.flexDirection = 'column';
+    row.style.alignItems = 'stretch';
+    row.style.gap = '6px';
+
     row.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; width:100%; min-width:0;">
         <div style="width:38px; height:38px; border-radius:6px; overflow:hidden; flex-shrink:0; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center;">
@@ -1773,7 +1795,7 @@ function updateCartUI() {
           <div class="cart-item-name" title="${displayName}">${displayName}</div>
           <div class="cart-item-price">
             <strong style="color:var(--text-main);">${netLine.toFixed(2)} €</strong>
-            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:400; margin-left:3px;">(${netUnitPrice.toFixed(2)} €/ud sin IVA)</span>
+            ${unitPriceSpan}
           </div>
         </div>
         <div class="cart-qty-ctrl">
@@ -1783,7 +1805,15 @@ function updateCartUI() {
           <button class="btn-qty btn-remove" data-idx="${index}" title="Eliminar plato" style="color:#ef4444; border-color:rgba(239,68,68,0.3); margin-left:4px;">🗑️</button>
         </div>
       </div>
+      <div style="width:100%;">
+        <input type="text" class="cart-item-note-input" data-idx="${index}" value="${item.notes || ''}" placeholder="${t.dishNotePlaceholder || 'Nota de cocina (ej. sin cebolla, punto de carne...)'}" style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:4px; padding:3px 8px; font-size:0.72rem; color:var(--text-main); outline:none;">
+      </div>
     `;
+
+    const noteInput = row.querySelector('.cart-item-note-input') as HTMLInputElement;
+    noteInput?.addEventListener('input', (e) => {
+      item.notes = (e.target as HTMLInputElement).value;
+    });
 
     row.querySelector('.btn-minus')?.addEventListener('click', () => {
       if (item.quantity > 1) {
@@ -2253,11 +2283,13 @@ async function handlePlaceOrder() {
       : (t.orderPendingCashMsg || 'Cobro marcado en efectivo. El camarero cobrará en mesa.');
 
     const packNotice = createdOrder.packagingCost ? ` (${t.servicePackaging}: +${createdOrder.packagingCost.toFixed(2)} €)` : '';
-    const confToast = (t.toastOrderConfirmed || '🎉 ¡Comanda {orderNumber} confirmada para la {table}!{packaging} {payment}')
+    const confToast = (t.toastOrderConfirmed || '🎉 ¡Comanda {orderNumber} confirmada para la {table}!{packNotice} {payMsg}')
       .replace('{orderNumber}', createdOrder.orderNumber)
       .replace('{table}', formatTableDisplay(createdOrder.tableNumber, t))
       .replace('{packaging}', packNotice)
-      .replace('{payment}', payMsg);
+      .replace('{packNotice}', packNotice)
+      .replace('{payment}', payMsg)
+      .replace('{payMsg}', payMsg);
     showToast(confToast, 'success');
 
     // Reset Cart
@@ -2705,9 +2737,14 @@ async function renderManagerDashboard() {
           <div class="user-card-info">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
               <h4 class="user-card-name" title="${u.name}">${u.name}</h4>
-              <button class="btn-action btn-edit-user" data-id="${u.id}" title="${t.btnEdit || 'Editar'}" style="padding:2px 7px; font-size:0.72rem; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; border-radius:4px; cursor:pointer; font-weight:600; flex-shrink:0; display:inline-flex; align-items:center; gap:3px;">
-                ${t.btnEdit || '✏️ Editar'}
-              </button>
+              <div style="display:flex; gap:4px; align-items:center; flex-shrink:0;">
+                <button class="btn-action btn-edit-user" data-id="${u.id}" title="${t.btnEdit || 'Editar'}" style="padding:2px 7px; font-size:0.72rem; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; border-radius:4px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:3px;">
+                  ${t.btnEdit || '✏️ Editar'}
+                </button>
+                <button class="btn-action btn-delete-user-card" data-id="${u.id}" data-name="${u.name}" title="${t.btnDeleteUser || 'Eliminar'}" style="padding:2px 6px; font-size:0.72rem; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:4px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center;">
+                  🗑️
+                </button>
+              </div>
             </div>
             <div class="user-card-meta">
               <span class="badge-tag ${roleTagClass}" style="font-size:0.72rem; padding:2px 7px;">${roleLabel}</span>
@@ -2736,6 +2773,11 @@ async function renderManagerDashboard() {
 
       card.querySelector('.btn-edit-user')?.addEventListener('click', () => {
         openUserEditorModal(u);
+      });
+
+      card.querySelector('.btn-delete-user-card')?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await handleDeleteUser(u.id, u.name);
       });
 
       usersGrid.appendChild(card);
@@ -2785,6 +2827,7 @@ function setupManagerModals() {
     formAddUser.reset();
     const t = translations[currentLanguage] || translations['es'];
     updateRoleSelectorOptions(user ? user.role : undefined);
+    const btnDeleteUser = document.getElementById('btn-delete-user');
 
     if (user) {
       if (editUserIdInput) editUserIdInput.value = user.id;
@@ -2808,6 +2851,13 @@ function setupManagerModals() {
       if (passwordLabel) {
         passwordLabel.textContent = t.lblAccessPasswordOptional || 'Contraseña de Acceso (opcional para mantener):';
       }
+
+      if (btnDeleteUser) {
+        btnDeleteUser.style.display = 'inline-flex';
+        btnDeleteUser.onclick = () => {
+          handleDeleteUser(user.id, user.name);
+        };
+      }
     } else {
       if (editUserIdInput) editUserIdInput.value = '';
       if (userModalTitle) userModalTitle.textContent = t.modalNewUserTitle || '👤 Registrar Nuevo Empleado';
@@ -2824,8 +2874,34 @@ function setupManagerModals() {
       if (passwordLabel) {
         passwordLabel.textContent = t.lblAccessPassword || 'Contraseña de Acceso:';
       }
+
+      if (btnDeleteUser) {
+        btnDeleteUser.style.display = 'none';
+        btnDeleteUser.onclick = null;
+      }
     }
     modalAddUser.style.display = 'flex';
+  };
+
+  handleDeleteUser = async (userId: string, userName: string) => {
+    const t = translations[currentLanguage] || translations['es'];
+    const confirmMsg = (t.confirmDeleteUser || '¿Estás seguro de que deseas eliminar permanentemente al empleado "{name}"? Esta acción no se puede deshacer.')
+      .replace('{name}', userName);
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      const deleted = await services.userRepo.delete(userId);
+      if (deleted) {
+        allUsers = await services.userRepo.getAll();
+        closeAddUserModal();
+        renderManagerDashboard();
+        showToast((t.toastUserDeleted || 'Empleado {name} eliminado correctamente.').replace('{name}', userName), 'success');
+      } else {
+        showToast('No se pudo eliminar el usuario', 'danger');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error al eliminar usuario', 'danger');
+    }
   };
 
   btnOpenAddUser?.addEventListener('click', () => {
@@ -2835,7 +2911,7 @@ function setupManagerModals() {
   btnCloseAddUser?.addEventListener('click', closeAddUserModal);
   btnCancelAddUser?.addEventListener('click', closeAddUserModal);
 
-  // Hook up Create Role Modal handlers
+  // Hook up Create / Edit Role Modal handlers
   const modalCreateRole = document.getElementById('create-role-modal');
   const btnOpenCreateRole = document.getElementById('btn-open-create-role');
   const btnOpenCreateRoleManager = document.getElementById('btn-open-create-role-manager');
@@ -2852,23 +2928,146 @@ function setupManagerModals() {
     if (btnSubmitRole) btnSubmitRole.disabled = false;
   }
 
-  function openCreateRoleModal() {
+  function openCreateRoleModal(roleToEdit?: StaffRoleConfig) {
     if (formCreateRole) formCreateRole.reset();
     if (roleTransStatus) roleTransStatus.innerText = '';
     if (btnSubmitRole) btnSubmitRole.disabled = false;
-    const roleIconInput = document.getElementById('new-role-icon') as HTMLInputElement;
-    if (roleIconInput) roleIconInput.value = '💼';
+    const editRoleIdInput = document.getElementById('edit-role-id') as HTMLInputElement;
+    const roleTitle = document.getElementById('txt-create-role-title');
+    const nameInput = document.getElementById('new-role-name') as HTMLInputElement;
+    const iconInput = document.getElementById('new-role-icon') as HTMLInputElement;
+    const permSelect = document.getElementById('new-role-permission') as HTMLSelectElement;
+    const t = translations[currentLanguage] || translations['es'];
+
+    if (roleToEdit) {
+      if (editRoleIdInput) editRoleIdInput.value = roleToEdit.id;
+      if (nameInput) nameInput.value = roleToEdit.name;
+      if (iconInput) iconInput.value = roleToEdit.icon || '💼';
+      if (permSelect) permSelect.value = roleToEdit.baseRole || 'WAITER';
+      if (roleTitle) roleTitle.textContent = `${t.btnEdit || '✏️ Editar Rol'}: ${roleToEdit.name}`;
+      if (btnSubmitRole) btnSubmitRole.innerText = t.btnUpdateUser || '💾 Guardar Cambios';
+    } else {
+      if (editRoleIdInput) editRoleIdInput.value = '';
+      if (iconInput) iconInput.value = '💼';
+      if (roleTitle) roleTitle.textContent = t.btnCreateRole || '🎭 Crear Nuevo Rol de Personal';
+      if (btnSubmitRole) btnSubmitRole.innerText = t.btnSaveRole || '✨ Traducir y Guardar Rol';
+    }
+
     if (modalCreateRole) modalCreateRole.style.display = 'flex';
   }
 
-  btnOpenCreateRole?.addEventListener('click', openCreateRoleModal);
-  btnOpenCreateRoleManager?.addEventListener('click', openCreateRoleModal);
+  btnOpenCreateRole?.addEventListener('click', () => openCreateRoleModal());
+  btnOpenCreateRoleManager?.addEventListener('click', () => openCreateRoleModal());
   btnCloseCreateRole?.addEventListener('click', closeCreateRoleModal);
   btnCancelCreateRole?.addEventListener('click', closeCreateRoleModal);
+
+  // Hook up Manage Roles Modal
+  const modalManageRoles = document.getElementById('manage-roles-modal');
+  const btnOpenManageRoles = document.getElementById('btn-open-manage-roles');
+  const btnCloseManageRoles = document.getElementById('btn-close-manage-roles-modal');
+  const btnDismissManageRoles = document.getElementById('btn-dismiss-manage-roles');
+  const btnCreateRoleFromManager = document.getElementById('btn-create-role-from-manager');
+
+  deleteStaffRole = async (roleId: string): Promise<boolean> => {
+    const t = translations[currentLanguage] || translations['es'];
+    const role = availableStaffRoles.find(r => r.id === roleId);
+    if (!role) return false;
+    const confirmMsg = (t.confirmDeleteRole || '¿Estás seguro de que deseas eliminar el rol "{role}"?')
+      .replace('{role}', role.name);
+    if (!window.confirm(confirmMsg)) return false;
+
+    availableStaffRoles = availableStaffRoles.filter(r => r.id !== roleId);
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('DND_CUSTOM_ROLES', JSON.stringify(availableStaffRoles));
+      } catch (e) {
+        console.error('Error persisting custom roles:', e);
+      }
+    }
+    updateRoleSelectorOptions();
+    renderRolesManagementList();
+    renderManagerDashboard();
+    showToast((t.toastRoleDeleted || 'Rol "{role}" eliminado con éxito.').replace('{role}', role.name), 'success');
+    return true;
+  };
+
+  renderRolesManagementList = () => {
+    const listContainer = document.getElementById('roles-management-list');
+    if (!listContainer) return;
+    const t = translations[currentLanguage] || translations['es'];
+    listContainer.innerHTML = '';
+
+    availableStaffRoles.forEach(role => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.alignItems = 'center';
+      row.style.padding = '8px 12px';
+      row.style.background = 'rgba(255,255,255,0.03)';
+      row.style.border = '1px solid var(--border-subtle)';
+      row.style.borderRadius = 'var(--radius-sm)';
+      row.style.fontSize = '0.85rem';
+
+      const localizedName = role.translations?.[currentLanguage] || role.name;
+      const baseRoleBadge = `<span class="badge-tag ${role.baseRole === 'MANAGER' ? 'tag-stock' : role.baseRole === 'CHEF' ? 'tag-cooking' : 'tag-direct'}" style="font-size:0.68rem; padding:2px 6px;">${role.baseRole}</span>`;
+
+      row.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
+          <span style="font-size:1.2rem; flex-shrink:0;">${role.icon || '💼'}</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              ${localizedName} ${role.name !== localizedName ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:400;">(${role.name})</span>` : ''}
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; margin-top:2px;">
+              <span>ID: <code>${role.id}</code></span> • ${baseRoleBadge}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+          <button type="button" class="btn-action btn-edit-role-item" data-id="${role.id}" title="${t.btnEdit || 'Editar'}" style="padding:4px 8px; font-size:0.75rem; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; border-radius:4px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:3px;">
+            ✏️
+          </button>
+          <button type="button" class="btn-action btn-delete-role-item" data-id="${role.id}" title="${t.btnDeleteRole || 'Eliminar rol'}" style="padding:4px 8px; font-size:0.75rem; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:4px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center;">
+            🗑️
+          </button>
+        </div>
+      `;
+
+      row.querySelector('.btn-edit-role-item')?.addEventListener('click', () => {
+        closeManageRolesModal();
+        openCreateRoleModal(role);
+      });
+
+      row.querySelector('.btn-delete-role-item')?.addEventListener('click', async () => {
+        await deleteStaffRole(role.id);
+      });
+
+      listContainer.appendChild(row);
+    });
+  };
+
+  openManageRolesModal = () => {
+    renderRolesManagementList();
+    if (modalManageRoles) modalManageRoles.style.display = 'flex';
+  };
+
+  closeManageRolesModal = () => {
+    if (modalManageRoles) modalManageRoles.style.display = 'none';
+  };
+
+  btnOpenManageRoles?.addEventListener('click', openManageRolesModal);
+  btnCloseManageRoles?.addEventListener('click', closeManageRolesModal);
+  btnDismissManageRoles?.addEventListener('click', closeManageRolesModal);
+  btnCreateRoleFromManager?.addEventListener('click', () => {
+    closeManageRolesModal();
+    openCreateRoleModal();
+  });
 
   formCreateRole?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const t = translations[currentLanguage] || translations['es'];
+    const editRoleIdInput = document.getElementById('edit-role-id') as HTMLInputElement;
+    const editRoleId = editRoleIdInput?.value.trim();
     const nameInput = document.getElementById('new-role-name') as HTMLInputElement;
     const iconInput = document.getElementById('new-role-icon') as HTMLInputElement;
     const permSelect = document.getElementById('new-role-permission') as HTMLSelectElement;
@@ -2881,31 +3080,67 @@ function setupManagerModals() {
 
     if (btnSubmitRole) {
       btnSubmitRole.disabled = true;
-      btnSubmitRole.innerText = '⏳ Traduciendo a 14 idiomas...';
+      btnSubmitRole.innerText = '⏳ Guardando y traduciendo a 14 idiomas...';
     }
     if (roleTransStatus) {
-      roleTransStatus.innerText = '🌐 Traduciendo rol automáticamente con IA a 14 idiomas...';
+      roleTransStatus.innerText = '🌐 Procesando rol y traducciones automáticamente con IA...';
       roleTransStatus.style.color = 'var(--accent-orange)';
     }
 
     try {
-      const createdRole = await createNewStaffRole(
-        spanishName,
-        iconInput.value.trim() || '💼',
-        permSelect.value || 'WAITER'
-      );
-      if (roleTransStatus) {
-        roleTransStatus.innerText = '✅ Rol traducido y guardado exitosamente.';
-        roleTransStatus.style.color = '#34d399';
+      if (editRoleId) {
+        const existingRole = availableStaffRoles.find(r => r.id === editRoleId);
+        if (existingRole) {
+          existingRole.name = spanishName;
+          existingRole.icon = iconInput.value.trim() || '💼';
+          existingRole.baseRole = permSelect.value || 'WAITER';
+          if (!existingRole.translations) existingRole.translations = { es: spanishName };
+          existingRole.translations.es = spanishName;
+
+          const allLangs = ['en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+          for (const lang of allLangs) {
+            try {
+              const trans = await translateTextOnline(spanishName, lang);
+              if (trans) existingRole.translations[lang] = trans;
+            } catch {
+              // keep fallback
+            }
+          }
+
+          if (typeof localStorage !== 'undefined') {
+            try {
+              localStorage.setItem('DND_CUSTOM_ROLES', JSON.stringify(availableStaffRoles));
+            } catch (errStorage) {
+              console.error('Error persisting custom roles:', errStorage);
+            }
+          }
+          updateRoleSelectorOptions(existingRole.id);
+          renderRolesManagementList();
+          renderManagerDashboard();
+          showToast((t.toastRoleUpdated || 'Rol "{role}" actualizado correctamente.').replace('{role}', spanishName), 'success');
+          closeCreateRoleModal();
+        }
+      } else {
+        const createdRole = await createNewStaffRole(
+          spanishName,
+          iconInput.value.trim() || '💼',
+          permSelect.value || 'WAITER'
+        );
+        if (roleTransStatus) {
+          roleTransStatus.innerText = '✅ Rol traducido y guardado exitosamente.';
+          roleTransStatus.style.color = '#34d399';
+        }
+        showToast((t.toastRoleCreated || '¡Rol "{name}" creado y traducido a 14 idiomas con éxito!').replace('{name}', createdRole.name), 'success');
+        renderRolesManagementList();
+        renderManagerDashboard();
+        setTimeout(() => {
+          closeCreateRoleModal();
+          updateRoleSelectorOptions(createdRole.id);
+        }, 500);
       }
-      showToast((t.toastRoleCreated || '¡Rol "{name}" creado y traducido a 14 idiomas con éxito!').replace('{name}', createdRole.name), 'success');
-      setTimeout(() => {
-        closeCreateRoleModal();
-        updateRoleSelectorOptions(createdRole.id);
-      }, 500);
     } catch (err: any) {
       if (roleTransStatus) {
-        roleTransStatus.innerText = '⚠️ Error al generar traducciones del rol.';
+        roleTransStatus.innerText = '⚠️ Error al procesar rol.';
         roleTransStatus.style.color = '#f87171';
       }
       showToast(err.message || 'Error al guardar el rol', 'danger');

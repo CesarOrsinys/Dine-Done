@@ -148,7 +148,14 @@ created_at: "2026-10-20"
   - **Alérgenos e iconos gráficos en sección de stock y modal de producto:** Se sustituye la visualización rígida en español en la tabla de stock gerencial por `getLocalizedAllergenDisplay(a, currentLanguage)`, mostrando el nombre oficial del alérgeno en el idioma activo junto a su icono normativo. En el modal de producto, el grid de alérgenos se genera de forma dinámica con nombres e iconos localizados, al igual que las etiquetas dietéticas (`Vegano`, `Vegetariano`, `0,0% Sin Alcohol`).
   - **Desplegable de categorías con i18n:** Las opciones del desplegable de categorías en el modal de producto (`Entrante`, `Plato Principal`, `Postre`, `Bebida`, `Guarnición`) se traducen reactivamente al idioma activo en cada cambio de lengua.
   - **Corrección de maquetación en formulario de factura fiscal:** Se corrigen los desbordamientos de anchura de los inputs de factura mediante la clase `.invoice-field-input` con `width: 100% !important; box-sizing: border-box !important; min-width: 0 !important;` y reajuste responsive de la cuadrícula a una sola columna en pantallas móviles.
-  - **Paridad estricta al 100% con 341 claves:** El diccionario `mock_data/translations.json` alcanza 341 claves por idioma sin excepciones ni fallbacks en blanco, verificado mediante 23 pruebas unitarias automatizadas.
+- [Regla 31: Precio unitario condicional localizado, notas de cocina con aviso legal, gestión y eliminación de roles y empleados, y correcciones visuales de botones y toasts]
+  - **Precio unitario condicional e internacionalizado:** El precio unitario base sin IVA en el carrito ahora utiliza la traducción oficial (`unitPriceExclVat`) en los 14 idiomas y solo se muestra si la cantidad del plato es estrictamente superior a 1 (`quantity > 1`), evitando redundancias cuando se solicita una sola unidad.
+  - **Notas de cocina en cada plato:** En cada elemento del carrito el cliente puede especificar notas especiales para cocina (`item.notes`) mediante un campo de texto estilizado, el cual se transmite a la comanda y a la pantalla de cocina (KDS).
+  - **Aviso legal sobre peticiones especiales:** Encima del botón de confirmación de pedido se incorpora un aviso formal en los 14 idiomas advirtiendo que las notas son solicitudes no contractuales y que, si implican sobrecostes o resultan inviables, el producto se elaborará según su receta estándar sin modificaciones.
+  - **Eliminación y edición completa de roles de personal:** Botón y modal dedicado (`#manage-roles-modal`) en el panel de gerencia para inspeccionar todos los roles del restaurante, editar su nombre en español (re-traduciendo automáticamente con IA a los otros 13 idiomas), icono y permisos base, o eliminarlos previa confirmación.
+  - **Eliminación de empleados:** Botón de borrado directo (`🗑️`) tanto en cada tarjeta de perfil como en el modal de edición de usuarios (`btn-delete-user`), implementando el método `IUserRepository.delete(id)` con confirmación explícita y actualización reactiva.
+  - **Corrección de iconos dobles y etiquetas de comanda:** Se corrigen los botones móviles de comprobante (`🖨️ Imprimir` y `📥 Descargar`) para eliminar el duplicado de emojis, se eliminan los dobles dos puntos (`::`) en las etiquetas fiscales y se resuelven adecuadamente las variables `{packNotice}` / `{packaging}` y `{payMsg}` / `{payment}` en las notificaciones toast.
+  - **Paridad estricta al 100% con 356 claves:** Cobertura absoluta en 14 idiomas verificada mediante 24 pruebas automatizadas.
 
 ## 3. Technical Specifications (Target: @architect & @dev)
 ### 3.1. Tech Stack
@@ -161,6 +168,7 @@ created_at: "2026-10-20"
 ### 3.2. Architecture & Design Patterns
 - **Pattern:** Repository Pattern & Ports and Adapters (Hexagonal Architecture).
 - **Strict Guidelines:**
+  - **CRITICAL - i18n:** 100% i18n coverage is mandatory from day one. Hardcoded strings are forbidden.
   - **Zero Vendor Lock-in:** El núcleo de la lógica de dominio no depende de ningún BaaS o base de datos externa.
   - **Interfaces First:** Todos los accesos a datos pasan por contratos / puertos (`IPort`).
   - **Dependency Injection:** Contenedor de inyección para intercambiar implementaciones entre mock y base de datos real.

@@ -589,19 +589,19 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     }
   });
 
-  it('HU-16 & Full i18n Parity: Should verify 100% key parity across all 14 supported languages with 341 keys', () => {
+  it('HU-16 & Full i18n Parity: Should verify 100% key parity across all 14 supported languages with 356 keys', () => {
     const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
     const trans = translations as Record<string, Record<string, string>>;
     const baseKeys = Object.keys(trans['es']);
-    assert.strictEqual(baseKeys.length, 341, `Spanish base dictionary must have exactly 341 keys (found: ${baseKeys.length})`);
+    assert.strictEqual(baseKeys.length, 356, `Spanish base dictionary must have exactly 356 keys (found: ${baseKeys.length})`);
 
     for (const lang of requiredLanguages) {
       assert.ok(trans[lang], `Language dictionary '${lang}' must exist`);
       const langKeys = Object.keys(trans[lang]);
       assert.strictEqual(
         langKeys.length,
-        341,
-        `Language '${lang}' must have exactly 341 keys for 100% parity (found: ${langKeys.length})`
+        356,
+        `Language '${lang}' must have exactly 356 keys for 100% parity (found: ${langKeys.length})`
       );
 
       // Verify every key exists and has non-empty text
@@ -613,6 +613,24 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
         );
       }
     }
+  });
+
+  it('HU-18: Should successfully delete an employee from JsonUserRepository', async () => {
+    const newUser = await userRepo.create({
+      id: 'test_delete_user',
+      name: 'Empleado Temporal',
+      email: 'temporal@restaurante.local',
+      role: UserRole.WAITER,
+      active: true
+    });
+    const found = await userRepo.getById('test_delete_user');
+    assert.ok(found);
+
+    const deleted = await userRepo.delete('test_delete_user');
+    assert.strictEqual(deleted, true);
+
+    const afterDelete = await userRepo.getById('test_delete_user');
+    assert.strictEqual(afterDelete, null);
   });
 
   it('HU-16 & Employee Names Sanitization: Staff names in repository must be clean personal names without role tags', async () => {
