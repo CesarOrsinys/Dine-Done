@@ -124,13 +124,15 @@ export async function openStripePaymentModal(options: StripePaymentOptions): Pro
           }
           if (errorEl) errorEl.style.display = 'none';
 
-          const cleanOrigin = window.location.origin.replace(/\/$/, '');
-          const returnUrl = `${cleanOrigin}/?session_id=${session_id || '{CHECKOUT_SESSION_ID}'}&payment_status=success`;
-
+          // Stripe Checkout Session ya tiene configurado return_url en el servidor.
+          // Por normativa de Stripe, no se debe enviar returnUrl en confirm() si ya existe en la sesión.
           const confirmResult = await loadActionsResult.actions.confirm({
-            formConfirmEvent: event,
-            returnUrl: returnUrl
+            formConfirmEvent: event
           });
+
+          if (confirmResult?.error) {
+            throw new Error(confirmResult.error.message || 'Error al procesar el pago.');
+          }
 
           // Si el pago no requirió redirección externa y se completó directamente:
           if (!confirmResult || confirmResult.status === 'succeeded' || !confirmResult.error) {
