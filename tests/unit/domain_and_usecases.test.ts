@@ -589,19 +589,19 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     }
   });
 
-  it('HU-16 & Full i18n Parity: Should verify 100% key parity across all 14 supported languages with 325 keys', () => {
+  it('HU-16 & Full i18n Parity: Should verify 100% key parity across all 14 supported languages with 341 keys', () => {
     const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
     const trans = translations as Record<string, Record<string, string>>;
     const baseKeys = Object.keys(trans['es']);
-    assert.strictEqual(baseKeys.length, 325, `Spanish base dictionary must have exactly 325 keys (found: ${baseKeys.length})`);
+    assert.strictEqual(baseKeys.length, 341, `Spanish base dictionary must have exactly 341 keys (found: ${baseKeys.length})`);
 
     for (const lang of requiredLanguages) {
       assert.ok(trans[lang], `Language dictionary '${lang}' must exist`);
       const langKeys = Object.keys(trans[lang]);
       assert.strictEqual(
         langKeys.length,
-        325,
-        `Language '${lang}' must have exactly 325 keys for 100% parity (found: ${langKeys.length})`
+        341,
+        `Language '${lang}' must have exactly 341 keys for 100% parity (found: ${langKeys.length})`
       );
 
       // Verify every key exists and has non-empty text
@@ -644,14 +644,14 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
     const trans = translations as Record<string, Record<string, string>>;
 
-    const roleKeys = ['roleWaiter', 'roleChef', 'roleManager', 'roleCustomer'];
+    const roleKeys = ['roleWaiter', 'roleChef', 'roleManager', 'roleCustomer', 'payAtTable', 'btnCreateRole'];
     const modalKeys = [
       'modalNewUserTitle', 'modalEditUserTitle', 'modalNewUserSub', 'modalEditUserSub',
       'lblUsername', 'btnSaveUser', 'btnUpdateUser',
       'modalNewProductTitle', 'modalEditProductTitle', 'modalNewProductSub', 'modalEditProductSub',
       'lblProductImagesTitle', 'lblProductImagesSub', 'btnSaveProduct', 'btnSaveProductChanges',
       'orderConfirmedTitle', 'orderConfirmedSub', 'receiptTicket', 'receiptInvoice',
-      'lblRequestedProducts'
+      'lblRequestedProducts', 'modalCreateRoleTitle', 'modalCreateRoleSub', 'btnSaveRole'
     ];
 
     for (const lang of requiredLanguages) {
@@ -681,6 +681,30 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(trans['en'].roleManager, 'Manager');
     assert.strictEqual(trans['fr'].roleManager, 'Gérant');
     assert.strictEqual(trans['de'].roleManager, 'Geschäftsführer');
+  });
+
+  it('HU-17 & Hospitality Worker Roles in Config: Should verify restaurant_config.json contains basic hospitality staff roles with complete 14-language translations', () => {
+    const requiredLanguages = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+    const roles = (restaurantConfig as any).staffRoles;
+    assert.ok(Array.isArray(roles), 'staffRoles must be an array in restaurant_config.json');
+    assert.ok(roles.length >= 6, `staffRoles should include at least 6 hospitality roles (found: ${roles.length})`);
+
+    const expectedRoleIds = ['MANAGER', 'WAITER', 'CHEF', 'BARTENDER', 'SOMMELIER', 'HOST'];
+    for (const id of expectedRoleIds) {
+      const found = roles.find((r: any) => r.id === id);
+      assert.ok(found, `Expected role ID '${id}' must be configured`);
+      assert.ok(found.name, `Role '${id}' must have a name`);
+      assert.ok(found.icon, `Role '${id}' must have an icon`);
+      assert.ok(found.baseRole, `Role '${id}' must define baseRole`);
+      assert.ok(found.translations, `Role '${id}' must define translations`);
+
+      for (const lang of requiredLanguages) {
+        assert.ok(
+          found.translations[lang] && found.translations[lang].length > 0,
+          `Role '${id}' must have translation for '${lang}'`
+        );
+      }
+    }
   });
 });
 

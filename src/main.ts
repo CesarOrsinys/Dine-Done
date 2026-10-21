@@ -41,14 +41,293 @@ const LANGUAGE_META: Record<string, { flag: string; label: string; name: string 
   gl: { flag: '🔵⚪', label: 'GL', name: 'Galego' }
 };
 
+// Staff Roles Configuration & Dynamic Creation
+export interface StaffRoleConfig {
+  id: string;
+  name: string;
+  icon?: string;
+  baseRole: 'MANAGER' | 'WAITER' | 'CHEF' | string;
+  translations?: Record<string, string>;
+}
+
+export let availableStaffRoles: StaffRoleConfig[] = [];
+
+export function initStaffRoles() {
+  const defaultRoles: StaffRoleConfig[] = (restaurantConfig as any).staffRoles || [];
+  let customRoles: StaffRoleConfig[] = [];
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('DND_CUSTOM_ROLES');
+      if (stored) customRoles = JSON.parse(stored);
+    } catch (e) {
+      console.error('Error loading custom roles:', e);
+    }
+  }
+  availableStaffRoles = [...defaultRoles, ...customRoles];
+}
+
+initStaffRoles();
+
+// Online text translation helper with Google GTX API and regional fallbacks
+export async function translateTextOnline(text: string, targetLang: string): Promise<string> {
+  if (!text || !text.trim()) return '';
+  const langMap: Record<string, string> = {
+    zh: 'zh-CN',
+    va: 'ca' // El valenciano comparte soporte lexicográfico con catalán en la API
+  };
+  const gtxLang = langMap[targetLang] || targetLang;
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=${encodeURIComponent(gtxLang)}&dt=t&q=${encodeURIComponent(text)}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (Array.isArray(data) && Array.isArray(data[0])) {
+      const translated = data[0].map((chunk: any) => chunk[0]).join('');
+      return translated || text;
+    }
+    return text;
+  } catch {
+    return text; // Fallback seguro
+  }
+}
+
+// 14 Alérgenos Oficiales de la Unión Europea (Reglamento UE 1169/2011) en los 14 idiomas
+export const OFFICIAL_ALLERGENS_I18N: Record<string, { icon: string; translations: Record<string, string> }> = {
+  gluten: {
+    icon: '🌾',
+    translations: {
+      es: 'Gluten', en: 'Gluten', fr: 'Gluten', de: 'Gluten', zh: '麸质', ko: '글루텐',
+      uk: 'Глютен', pt: 'Glúten', ja: '小麦(グルテン)', ar: 'غلوتين', ca: 'Gluten', va: 'Gluten', eu: 'Glutena', gl: 'Glute'
+    }
+  },
+  crustaceos: {
+    icon: '🦐',
+    translations: {
+      es: 'Crustáceos', en: 'Crustaceans', fr: 'Crustacés', de: 'Krebstiere', zh: '甲壳类', ko: '갑각류',
+      uk: 'Ракоподібні', pt: 'Crustáceos', ja: '甲殻類', ar: 'قشريات', ca: 'Crustacis', va: 'Crustacis', eu: 'Krustazeoak', gl: 'Crustáceos'
+    }
+  },
+  huevos: {
+    icon: '🥚',
+    translations: {
+      es: 'Huevos', en: 'Eggs', fr: 'Œufs', de: 'Eier', zh: '蛋类', ko: '계란',
+      uk: 'Яйця', pt: 'Ovos', ja: '卵', ar: 'بيض', ca: 'Ous', va: 'Ous', eu: 'Arrautzak', gl: 'Ovos'
+    }
+  },
+  pescado: {
+    icon: '🐟',
+    translations: {
+      es: 'Pescado', en: 'Fish', fr: 'Poisson', de: 'Fisch', zh: '鱼类', ko: '생선',
+      uk: 'Риба', pt: 'Peixe', ja: '魚介類', ar: 'أسماك', ca: 'Peix', va: 'Peix', eu: 'Arraina', gl: 'Peixe'
+    }
+  },
+  cacahuetes: {
+    icon: '🥜',
+    translations: {
+      es: 'Cacahuetes', en: 'Peanuts', fr: 'Arachides', de: 'Erdnüsse', zh: '花生', ko: '땅콩',
+      uk: 'Арахіс', pt: 'Amendoins', ja: 'ピーナッツ', ar: 'فول سوداني', ca: 'Cacauets', va: 'Cacauets', eu: 'Kakahueteak', gl: 'Amendoíns'
+    }
+  },
+  soja: {
+    icon: '🌱',
+    translations: {
+      es: 'Soja', en: 'Soybeans', fr: 'Soja', de: 'Soja', zh: '大豆', ko: '대두',
+      uk: 'Соя', pt: 'Soja', ja: '大豆', ar: 'صويا', ca: 'Soja', va: 'Soja', eu: 'Soja', gl: 'Soia'
+    }
+  },
+  lacteos: {
+    icon: '🥛',
+    translations: {
+      es: 'Lácteos', en: 'Milk / Dairy', fr: 'Lait', de: 'Milch', zh: '乳制品', ko: '유제품',
+      uk: 'Лактоза / Молоко', pt: 'Laticínios', ja: '乳製品', ar: 'مشتقات الحليب', ca: 'Làctics', va: 'Lactis', eu: 'Esnekiak', gl: 'Lácteos'
+    }
+  },
+  frutos_de_cascara: {
+    icon: '🌰',
+    translations: {
+      es: 'F. Cáscara', en: 'Tree Nuts', fr: 'Fruits à coque', de: 'Schalenfrüchte', zh: '坚果', ko: '견과류',
+      uk: 'Горіхи', pt: 'Frutos de casca rija', ja: 'ナッツ類', ar: 'مكسرات', ca: 'Fruits de closca', va: 'Fruits de corfa', eu: 'Fruitu lehorrak', gl: 'Froitos de casca'
+    }
+  },
+  apio: {
+    icon: '🌿',
+    translations: {
+      es: 'Apio', en: 'Celery', fr: 'Céleri', de: 'Sellerie', zh: '芹菜', ko: '샐러리',
+      uk: 'Селера', pt: 'Aipo', ja: 'セロリ', ar: 'كرفس', ca: 'Api', va: 'Api', eu: 'Ziazerba', gl: 'Apio'
+    }
+  },
+  mostaza: {
+    icon: '🌭',
+    translations: {
+      es: 'Mostaza', en: 'Mustard', fr: 'Moutarde', de: 'Senf', zh: '芥末', ko: '겨자',
+      uk: 'Гірчиця', pt: 'Mostarda', ja: 'マスタード', ar: 'خردل', ca: 'Mostassa', va: 'Mostassa', eu: 'Mostaza', gl: 'Mostarda'
+    }
+  },
+  sesamo: {
+    icon: '🥯',
+    translations: {
+      es: 'Sésamo', en: 'Sesame seeds', fr: 'Graines de sésame', de: 'Sesamsamen', zh: '芝麻', ko: '참깨',
+      uk: 'Кунжут', pt: 'Sementes de sésamo', ja: 'ごま', ar: 'سمسم', ca: 'Sèsam', va: 'Sèsam', eu: 'Sesamoa', gl: 'Sésamo'
+    }
+  },
+  sulfitos: {
+    icon: '🍷',
+    translations: {
+      es: 'Sulfitos', en: 'Sulphites', fr: 'Sulfites', de: 'Sulfite', zh: '亚硫酸盐', ko: '아황산염',
+      uk: 'Сульфіти', pt: 'Sulfitos', ja: '亜硫酸塩', ar: 'كبريتات', ca: 'Sulfits', va: 'Sulfits', eu: 'Sulfitoak', gl: 'Sulfitos'
+    }
+  },
+  altramuces: {
+    icon: '🌾',
+    translations: {
+      es: 'Altramuces', en: 'Lupin', fr: 'Lupin', de: 'Lupinen', zh: '羽扇豆', ko: '루핀',
+      uk: 'Люпин', pt: 'Tremoço', ja: 'ルピナス', ar: 'ترمس', ca: 'Llobí', va: 'Llobins', eu: 'Lupinuak', gl: 'Tremoce'
+    }
+  },
+  moluscos: {
+    icon: '🦪',
+    translations: {
+      es: 'Moluscos', en: 'Molluscs', fr: 'Mollusques', de: 'Weichtiere', zh: '软体动物', ko: '연체동물',
+      uk: 'Молюски', pt: 'Moluscos', ja: '軟体動物', ar: 'رخويات', ca: 'Mol·luscs', va: 'Mol·luscs', eu: 'Moluskuak', gl: 'Moluscos'
+    }
+  }
+};
+
+// Helper: Canonicalize allergen string in Spanish/English to official key
+export function getCanonicalAllergenKey(allergenName: string): string {
+  const norm = (allergenName || '').toLowerCase().trim();
+  if (norm.includes('gluten') || norm.includes('trigo') || norm.includes('wheat') || norm.includes('blé') || norm.includes('weizen')) return 'gluten';
+  if (norm.includes('crustác') || norm.includes('crustac') || norm.includes('shrimp') || norm.includes('crevette') || norm.includes('gamba')) return 'crustaceos';
+  if (norm.includes('huevo') || norm.includes('egg') || norm.includes('oeuf') || norm.includes('eier') || norm.includes('ou')) return 'huevos';
+  if (norm.includes('pescad') || norm.includes('fish') || norm.includes('poisson') || norm.includes('fisch') || norm.includes('peix')) return 'pescado';
+  if (norm.includes('cacahuet') || norm.includes('peanut') || norm.includes('arachid') || norm.includes('erdnuss') || norm.includes('cacauet')) return 'cacahuetes';
+  if (norm.includes('soja') || norm.includes('soy') || norm.includes('soia')) return 'soja';
+  if (norm.includes('lácte') || norm.includes('lacte') || norm.includes('leche') || norm.includes('milk') || norm.includes('dairy') || norm.includes('lait') || norm.includes('llet')) return 'lacteos';
+  if (norm.includes('cáscara') || norm.includes('cascara') || norm.includes('nut') || norm.includes('noix') || norm.includes('nüsse') || norm.includes('closca')) return 'frutos_de_cascara';
+  if (norm.includes('apio') || norm.includes('celery') || norm.includes('céleri') || norm.includes('sellerie') || norm.includes('api')) return 'apio';
+  if (norm.includes('mostaza') || norm.includes('mustard') || norm.includes('moutarde') || norm.includes('senf') || norm.includes('mostassa')) return 'mostaza';
+  if (norm.includes('sésamo') || norm.includes('sesamo') || norm.includes('sesame') || norm.includes('sèsam')) return 'sesamo';
+  if (norm.includes('sulfit') || norm.includes('sulphit')) return 'sulfitos';
+  if (norm.includes('altramuz') || norm.includes('altramuces') || norm.includes('lupin') || norm.includes('tremoço') || norm.includes('llobí')) return 'altramuces';
+  if (norm.includes('molusc') || norm.includes('mollusc') || norm.includes('mollusk') || norm.includes('weichtier')) return 'moluscos';
+  return '';
+}
+
+// Helper: Get localized allergen display name and icon
+export function getLocalizedAllergenDisplay(rawAllergen: string, lang: string = currentLanguage): { name: string; icon: string } {
+  const key = getCanonicalAllergenKey(rawAllergen);
+  if (key && OFFICIAL_ALLERGENS_I18N[key]) {
+    const item = OFFICIAL_ALLERGENS_I18N[key];
+    const name = item.translations[lang] || item.translations['es'] || rawAllergen;
+    return { name, icon: item.icon };
+  }
+  return { name: rawAllergen, icon: getAllergenIcon(rawAllergen) };
+}
+
+// Function to render modal allergen checkboxes in the active language
+export function renderModalAllergensGrid(selectedAllergens: string[] = []) {
+  const grid = document.getElementById('modal-allergens-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const canonicalSelected = new Set(selectedAllergens.map(a => getCanonicalAllergenKey(a)).filter(Boolean));
+
+  for (const [key, item] of Object.entries(OFFICIAL_ALLERGENS_I18N)) {
+    const isChecked = canonicalSelected.has(key) || selectedAllergens.includes(item.translations['es']);
+    const localizedName = item.translations[currentLanguage] || item.translations['es'];
+    const label = document.createElement('label');
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
+    label.style.gap = '5px';
+    label.style.cursor = 'pointer';
+    label.innerHTML = `
+      <input type="checkbox" name="new-product-allergen" value="${item.translations['es']}" data-key="${key}" ${isChecked ? 'checked' : ''} style="accent-color:var(--accent-orange);">
+      <span>${item.icon} ${localizedName}</span>
+    `;
+    grid.appendChild(label);
+  }
+}
+
+// Function to dynamically update role selector dropdown options in Add/Edit User modal
+export function updateRoleSelectorOptions(selectedRole?: string) {
+  const select = document.getElementById('new-user-role') as HTMLSelectElement;
+  if (!select) return;
+  const t = translations[currentLanguage] || translations['es'];
+  const curVal = selectedRole || select.value;
+  select.innerHTML = '';
+
+  availableStaffRoles.forEach(role => {
+    const opt = document.createElement('option');
+    opt.value = role.id;
+    const name = role.translations?.[currentLanguage] || role.name;
+    opt.textContent = `${role.icon ? role.icon + ' ' : ''}${name}`;
+    if (role.id === curVal || role.name === curVal) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+// Function to create a new role dynamically and translate to all 14 languages with AI
+export async function createNewStaffRole(spanishName: string, icon: string = '💼', baseRole: string = 'WAITER'): Promise<StaffRoleConfig> {
+  const cleanName = spanishName.trim();
+  const id = cleanName.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_]/g, '');
+  const allLangs = ['es', 'en', 'fr', 'de', 'zh', 'ko', 'uk', 'pt', 'ja', 'ar', 'ca', 'va', 'eu', 'gl'];
+  const translationsMap: Record<string, string> = { es: cleanName };
+
+  for (const lang of allLangs) {
+    if (lang === 'es') continue;
+    try {
+      const translated = await translateTextOnline(cleanName, lang);
+      translationsMap[lang] = translated || cleanName;
+    } catch {
+      translationsMap[lang] = cleanName;
+    }
+  }
+
+  const newRoleConfig: StaffRoleConfig = {
+    id,
+    name: cleanName,
+    icon: icon.trim() || '💼',
+    baseRole,
+    translations: translationsMap
+  };
+
+  availableStaffRoles.push(newRoleConfig);
+
+  // Persist to localStorage
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('DND_CUSTOM_ROLES');
+      const customList: StaffRoleConfig[] = stored ? JSON.parse(stored) : [];
+      customList.push(newRoleConfig);
+      localStorage.setItem('DND_CUSTOM_ROLES', JSON.stringify(customList));
+    } catch (e) {
+      console.error('Error saving custom role:', e);
+    }
+  }
+
+  updateRoleSelectorOptions(newRoleConfig.id);
+  return newRoleConfig;
+}
+
 // Role translation helper across all views, cards, badges and notifications
 export function getTranslatedRole(role: UserRole | string, t?: any): string {
   const curT = t || translations[currentLanguage] || translations['es'];
-  const r = (role || '').toString().toLowerCase();
-  if (r === 'waiter' || r === 'camarero') return curT.roleWaiter || 'Camarero';
-  if (r === 'chef' || r === 'cocinero') return curT.roleChef || 'Cocinero';
-  if (r === 'manager' || r === 'gerente') return curT.roleManager || 'Gerente';
-  if (r === 'customer' || r === 'cliente') return curT.roleCustomer || 'Cliente';
+  const r = (role || '').toString().trim();
+  const rLower = r.toLowerCase();
+
+  // Search in available staff roles
+  const matchedRole = availableStaffRoles.find(
+    sr => sr.id.toLowerCase() === rLower || sr.name.toLowerCase() === rLower
+  );
+  if (matchedRole) {
+    const translatedName = matchedRole.translations?.[currentLanguage] || matchedRole.name;
+    return `${matchedRole.icon ? matchedRole.icon + ' ' : ''}${translatedName}`;
+  }
+
+  if (rLower === 'waiter' || rLower === 'camarero') return curT.roleWaiter || 'Camarero';
+  if (rLower === 'chef' || rLower === 'cocinero') return curT.roleChef || 'Cocinero';
+  if (rLower === 'manager' || rLower === 'gerente') return curT.roleManager || 'Gerente';
+  if (rLower === 'customer' || rLower === 'cliente' || rLower === 'comensal') return curT.roleCustomer || 'Cliente';
   return role;
 }
 
@@ -391,12 +670,23 @@ function setLanguage(lang: string) {
     'lbl-new-user-username': t.lblUsername || 'Nombre de Usuario (Login):',
     'lbl-new-user-email': t.lblEmail || 'Correo Electrónico Corporativo:',
     'lbl-new-user-role': t.lblStaffRole || 'Cargo / Rol en el Restaurante:',
-    'opt-new-user-waiter': t.roleWaiter || 'Camarero',
-    'opt-new-user-chef': t.roleChef || 'Cocinero',
-    'opt-new-user-manager': t.roleManager || 'Gerente',
+    'txt-btn-create-role': t.btnCreateRole || 'Nuevo Rol',
+    'txt-btn-create-role-manager': t.btnCreateRole || 'Nuevo Rol',
     'lbl-new-user-avatar': t.lblAvatarUrl || 'URL Foto de Perfil (Opcional):',
     'lbl-edit-user-active': t.lblActiveEmployee || 'Empleado Activo (Permite Iniciar Sesión)',
     'txt-btn-cancel-add-user': t.btnCancel || 'Cancelar',
+
+    // Modal Crear Rol
+    'txt-create-role-title': t.modalCreateRoleTitle || '🎭 Crear Nuevo Rol de Personal',
+    'txt-create-role-sub': t.modalCreateRoleSub || 'Define el rol en español y se traducirá automáticamente a los 14 idiomas con IA.',
+    'lbl-role-name-es': t.lblRoleNameEs || 'Nombre del Rol (en Español):',
+    'lbl-role-icon': t.lblRoleIcon || 'Icono / Emoji:',
+    'lbl-role-base-perm': t.lblRoleBasePermission || 'Perfil de Permiso / Acceso:',
+    'opt-perm-waiter': t.optPermWaiter || '🏃 Servicio de Sala / Barra (Camarero)',
+    'opt-perm-chef': t.optPermChef || '👨‍🍳 Cocina / Elaboración (KDS)',
+    'opt-perm-manager': t.optPermManager || '📊 Administración / Dirección (Gerente)',
+    'txt-btn-cancel-create-role': t.btnCancel || 'Cancelar',
+    'txt-btn-submit-create-role': t.btnSaveRole || '✨ Traducir y Guardar Rol',
 
     // Add / Edit Product Modal
     'lbl-new-product-name': t.lblDishName || 'Nombre del Plato (en Español):',
@@ -404,11 +694,11 @@ function setLanguage(lang: string) {
     'txt-btn-auto-translate': t.btnAutoTranslate || '✨ Traducir Automáticamente a 14 Idiomas',
     'summary-details-translations': t.summaryTranslations || '🌐 Ver / Editar Traducciones en los 14 Idiomas (Opcional)',
     'lbl-new-product-category': t.lblDishCategory || 'Categoría del Menú:',
-    'opt-cat-starter': t.optCatStarter || 'Entrante',
-    'opt-cat-main': t.optCatMain || 'Plato Principal',
-    'opt-cat-dessert': t.optCatDessert || 'Postre',
-    'opt-cat-beverage': t.optCatBeverage || 'Bebida',
-    'opt-cat-side': t.optCatSide || 'Guarnición',
+    'opt-cat-starter': `🥗 ${t.starters || 'Entrante'}`,
+    'opt-cat-main': `🥩 ${t.mains || 'Plato Principal'}`,
+    'opt-cat-dessert': `🍰 ${t.desserts || 'Postre'}`,
+    'opt-cat-beverage': `🍷 ${t.beverages || 'Bebida'}`,
+    'opt-cat-side': `🍟 ${t.catSide || 'Guarnición'}`,
     'lbl-new-product-price': t.lblDishPrice || 'Precio de Venta (€):',
     'lbl-new-product-stock': t.lblDishStock || 'Stock Inicial Disponible:',
     'lbl-new-product-cooking': t.lblRequiresCooking || 'Requiere Cocción / Elaboración en Cocina (KDS)',
@@ -421,9 +711,9 @@ function setLanguage(lang: string) {
     'lbl-new-product-img-medium': t.lblDeviceMedium || 'Tablet (Media 600x380):',
     'lbl-new-product-img-large': t.lblDeviceLarge || 'Escritorio (Grande 900x550):',
     'lbl-dietary-props-title': t.lblDietaryPropsTitle || 'Propiedades Dietéticas Especiales:',
-    'txt-prop-vegan': t.txtPropVegan || 'Vegano',
-    'txt-prop-veg': t.txtPropVeg || 'Vegetariano',
-    'txt-prop-0alc': t.txtProp0alc || '0,0% Sin Alcohol',
+    'txt-prop-vegan': `🌱 ${t.txtPropVegan || t.propVegan || 'Vegano'}`,
+    'txt-prop-veg': `🧀 ${t.txtPropVeg || t.propVegetarian || 'Vegetariano'}`,
+    'txt-prop-0alc': `💧 ${t.txtProp0alc || t.propAlcoholFree || '0,0% Sin Alcohol'}`,
     'lbl-allergens-title': t.lblAllergensTitle || 'Ficha de Alérgenos (Reglamento UE 1169/2011):',
     'txt-btn-cancel-add-product': t.btnCancel || 'Cancelar',
 
@@ -466,6 +756,7 @@ function setLanguage(lang: string) {
     'new-user-username': t.phUsername || 'p. ej. carlos.m',
     'new-user-email': t.phEmail || 'carlos@restaurante.es',
     'new-user-avatar': t.phAvatarUrl || 'https://images.unsplash.com/...',
+    'new-role-name': t.phRoleNameEs || 'p. ej. Maître, Sommelier, Barista, Pizzero',
     'new-product-name': t.phDishName || 'p. ej. Tacos de Pastor Especiales',
     'new-product-desc': t.phDishDesc || 'Descripción con ingredientes frescos...',
     'new-product-image-url': t.phDirectUrl || 'https://...',
@@ -568,12 +859,16 @@ function setLanguage(lang: string) {
   // Update Payment Buttons
   const btnPayStripe = document.getElementById('btn-pay-stripe');
   if (btnPayStripe) {
-    btnPayStripe.innerHTML = `<span>${t.payCard}</span><small style="font-size:0.7rem; color:var(--text-dim);">Stripe</small>`;
+    btnPayStripe.innerHTML = `<span id="txt-pay-stripe">${t.payCard}</span><small id="txt-pay-stripe-sub" style="font-size:0.7rem; color:var(--text-dim);">${t.payCardSub || 'Stripe'}</small>`;
   }
   const btnPayCash = document.getElementById('btn-pay-cash');
   if (btnPayCash) {
-    btnPayCash.innerHTML = `<span>${t.payCash}</span><small style="font-size:0.7rem; color:var(--text-dim);">Pagar en mesa</small>`;
+    btnPayCash.innerHTML = `<span id="txt-pay-cash">${t.payCash}</span><small id="txt-pay-cash-sub" style="font-size:0.7rem; color:var(--text-dim);">${t.payAtTable || 'Pagar en mesa'}</small>`;
   }
+
+  // Update Dynamic Roles in Selectors & Modal Allergens Grid
+  updateRoleSelectorOptions();
+  renderModalAllergensGrid();
 
   // Update language selector dropdown value
   const langSelector = document.getElementById('lang-selector') as HTMLSelectElement;
@@ -732,19 +1027,30 @@ function updateRoleSwitcherVisibility() {
   }
 }
 
-async function switchRole(role: UserRole) {
+async function switchRole(role: UserRole | string) {
   const curT = translations[currentLanguage] || translations['es'];
+  // Resolve base role for RBAC if custom hospitality role
+  const staffRoleCfg = availableStaffRoles.find(
+    sr => sr.id.toUpperCase() === (role || '').toUpperCase() || sr.name.toUpperCase() === (role || '').toUpperCase()
+  );
+  const baseRole = staffRoleCfg ? staffRoleCfg.baseRole : role;
+
   // Authorization check (RBAC Security)
   if (role !== UserRole.CUSTOMER) {
     if (!authenticatedStaffUser) {
       showToast(curT.toastAccessDeniedStaff || 'Acceso denegado: debes iniciar sesión como personal.', 'danger');
       return;
     }
-    if (authenticatedStaffUser.role === UserRole.WAITER && role !== UserRole.WAITER) {
+    const authStaffCfg = availableStaffRoles.find(
+      sr => sr.id.toUpperCase() === (authenticatedStaffUser!.role || '').toUpperCase()
+    );
+    const authBaseRole = authStaffCfg ? authStaffCfg.baseRole : authenticatedStaffUser.role;
+
+    if (authBaseRole === UserRole.WAITER && baseRole !== UserRole.WAITER) {
       showToast(curT.toastAccessRestrictedWaiters || 'Acceso restringido: los camareros solo tienen acceso a su panel de sala.', 'warning');
       return;
     }
-    if (authenticatedStaffUser.role === UserRole.CHEF && role !== UserRole.CHEF) {
+    if (authBaseRole === UserRole.CHEF && baseRole !== UserRole.CHEF) {
       showToast(curT.toastAccessRestrictedChefs || 'Acceso restringido: los cocineros no tienen acceso a la pestaña de camarero ni de gerente.', 'warning');
       return;
     }
@@ -764,9 +1070,9 @@ async function switchRole(role: UserRole) {
       ? authenticatedStaffUser
       : allUsers.find(u => u.role === role) || {
           id: `usr_${role.toLowerCase()}`,
-          name: role === UserRole.WAITER ? 'David García' : role === UserRole.CHEF ? 'Antonio Martín' : 'César Orsinys',
+          name: baseRole === UserRole.WAITER ? 'David García' : baseRole === UserRole.CHEF ? 'Antonio Martín' : 'César Orsinys',
           email: `${role.toLowerCase()}@dinedone.com`,
-          role: role,
+          role: role as UserRole,
           active: true
         };
 
@@ -789,13 +1095,14 @@ async function switchRole(role: UserRole) {
 
   // Views switching
   document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
-  const viewMap: Record<UserRole, string> = {
+  const viewMap: Record<string, string> = {
     [UserRole.CUSTOMER]: 'view-customer',
     [UserRole.WAITER]: 'view-waiter',
     [UserRole.CHEF]: 'view-chef',
     [UserRole.MANAGER]: 'view-manager'
   };
-  document.getElementById(viewMap[role])?.classList.add('active-view');
+  const targetViewId = viewMap[role] || viewMap[baseRole] || 'view-customer';
+  document.getElementById(targetViewId)?.classList.add('active-view');
 
   // Update staff table controls visibility
   updateTableControlsVisibility();
@@ -1417,7 +1724,8 @@ function addToCart(item: MenuItem) {
     currentCart.push({ menuItem: item, quantity: 1 });
   }
 
-  showToast((t.toastAddedToCart || 'Añadido "{name}" a tu comanda.').replace('{name}', displayName), 'success');
+  const toastTemplate = t.toastAddedToCart || t.toastDishAdded || 'Añadido "{name}" a tu comanda.';
+  showToast(toastTemplate.replace('{name}', displayName), 'success');
   updateCartUI();
 }
 
@@ -2283,7 +2591,10 @@ async function renderManagerDashboard() {
           <strong class="stock-item-name">${itemName}</strong>
           <span class="badge-tag tag-direct stock-inline-category">${catLabel}</span>
         </div>
-        ${item.allergens && item.allergens.length > 0 ? `<div class="stock-item-allergens" style="font-size:0.72rem; color:#f472b6; margin-top:3px;">⚠️ ${t.allergens || 'Alérgenos'}: ${item.allergens.map((a: string) => `${getAllergenIcon(a)} ${a}`).join(', ')}</div>` : ''}
+        ${item.allergens && item.allergens.length > 0 ? `<div class="stock-item-allergens" style="font-size:0.72rem; color:#f472b6; margin-top:3px;">⚠️ ${t.allergens || 'Alérgenos'}: ${item.allergens.map((a: string) => {
+          const loc = getLocalizedAllergenDisplay(a, currentLanguage);
+          return `${loc.icon} ${loc.name}`;
+        }).join(', ')}</div>` : ''}
       </td>
       <td class="stock-td-category-desktop"><span class="badge-tag tag-direct">${catLabel}</span></td>
       <td class="stock-td-price">
@@ -2353,24 +2664,26 @@ async function renderManagerDashboard() {
     usersGrid.innerHTML = '';
     const staffOnly = allUsers.filter(u => u.role !== UserRole.CUSTOMER);
     staffOnly.forEach(u => {
-      // Role details and colors
-      let roleLabel = t.roleStaffGeneric || 'Personal';
+      // Role details and colors from availableStaffRoles or defaults
+      const staffRoleCfg = availableStaffRoles.find(
+        sr => sr.id.toUpperCase() === (u.role || '').toUpperCase() || sr.name.toUpperCase() === (u.role || '').toUpperCase()
+      );
+      const baseRole = staffRoleCfg ? staffRoleCfg.baseRole : u.role;
+      const roleLabel = getTranslatedRole(u.role, t);
+
       let roleTagClass = 'tag-direct';
       let roleBorder = '#3b82f6';
       let defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
 
-      if (u.role === UserRole.MANAGER) {
-        roleLabel = `🛡️ ${t.roleManager || 'Gerente'}`;
+      if (baseRole === UserRole.MANAGER || u.role === UserRole.MANAGER) {
         roleTagClass = 'tag-stock';
         roleBorder = '#10b981';
         defaultAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
-      } else if (u.role === UserRole.CHEF) {
-        roleLabel = `👨‍🍳 ${t.roleChef || 'Cocinero'}`;
+      } else if (baseRole === UserRole.CHEF || u.role === UserRole.CHEF) {
         roleTagClass = 'tag-cooking';
         roleBorder = '#ef4444';
         defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
-      } else if (u.role === UserRole.WAITER) {
-        roleLabel = `🏃 ${t.roleWaiter || 'Camarero'}`;
+      } else {
         roleTagClass = 'tag-direct';
         roleBorder = '#3b82f6';
         defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
@@ -2471,6 +2784,8 @@ function setupManagerModals() {
   openUserEditorModal = (user?: User) => {
     formAddUser.reset();
     const t = translations[currentLanguage] || translations['es'];
+    updateRoleSelectorOptions(user ? user.role : undefined);
+
     if (user) {
       if (editUserIdInput) editUserIdInput.value = user.id;
       if (userModalTitle) userModalTitle.textContent = `${t.modalEditUserTitle || '✏️ Editar Empleado'}: ${user.name}`;
@@ -2520,6 +2835,88 @@ function setupManagerModals() {
   btnCloseAddUser?.addEventListener('click', closeAddUserModal);
   btnCancelAddUser?.addEventListener('click', closeAddUserModal);
 
+  // Hook up Create Role Modal handlers
+  const modalCreateRole = document.getElementById('create-role-modal');
+  const btnOpenCreateRole = document.getElementById('btn-open-create-role');
+  const btnOpenCreateRoleManager = document.getElementById('btn-open-create-role-manager');
+  const btnCloseCreateRole = document.getElementById('btn-close-create-role-modal');
+  const btnCancelCreateRole = document.getElementById('btn-cancel-create-role');
+  const formCreateRole = document.getElementById('create-role-form') as HTMLFormElement;
+  const roleTransStatus = document.getElementById('role-translation-status');
+  const btnSubmitRole = document.getElementById('btn-submit-create-role') as HTMLButtonElement;
+
+  function closeCreateRoleModal() {
+    if (modalCreateRole) modalCreateRole.style.display = 'none';
+    if (formCreateRole) formCreateRole.reset();
+    if (roleTransStatus) roleTransStatus.innerText = '';
+    if (btnSubmitRole) btnSubmitRole.disabled = false;
+  }
+
+  function openCreateRoleModal() {
+    if (formCreateRole) formCreateRole.reset();
+    if (roleTransStatus) roleTransStatus.innerText = '';
+    if (btnSubmitRole) btnSubmitRole.disabled = false;
+    const roleIconInput = document.getElementById('new-role-icon') as HTMLInputElement;
+    if (roleIconInput) roleIconInput.value = '💼';
+    if (modalCreateRole) modalCreateRole.style.display = 'flex';
+  }
+
+  btnOpenCreateRole?.addEventListener('click', openCreateRoleModal);
+  btnOpenCreateRoleManager?.addEventListener('click', openCreateRoleModal);
+  btnCloseCreateRole?.addEventListener('click', closeCreateRoleModal);
+  btnCancelCreateRole?.addEventListener('click', closeCreateRoleModal);
+
+  formCreateRole?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const t = translations[currentLanguage] || translations['es'];
+    const nameInput = document.getElementById('new-role-name') as HTMLInputElement;
+    const iconInput = document.getElementById('new-role-icon') as HTMLInputElement;
+    const permSelect = document.getElementById('new-role-permission') as HTMLSelectElement;
+
+    const spanishName = nameInput.value.trim();
+    if (!spanishName) {
+      showToast(t.toastRoleNameRequired || 'Por favor introduce el nombre del rol en español.', 'warning');
+      return;
+    }
+
+    if (btnSubmitRole) {
+      btnSubmitRole.disabled = true;
+      btnSubmitRole.innerText = '⏳ Traduciendo a 14 idiomas...';
+    }
+    if (roleTransStatus) {
+      roleTransStatus.innerText = '🌐 Traduciendo rol automáticamente con IA a 14 idiomas...';
+      roleTransStatus.style.color = 'var(--accent-orange)';
+    }
+
+    try {
+      const createdRole = await createNewStaffRole(
+        spanishName,
+        iconInput.value.trim() || '💼',
+        permSelect.value || 'WAITER'
+      );
+      if (roleTransStatus) {
+        roleTransStatus.innerText = '✅ Rol traducido y guardado exitosamente.';
+        roleTransStatus.style.color = '#34d399';
+      }
+      showToast((t.toastRoleCreated || '¡Rol "{name}" creado y traducido a 14 idiomas con éxito!').replace('{name}', createdRole.name), 'success');
+      setTimeout(() => {
+        closeCreateRoleModal();
+        updateRoleSelectorOptions(createdRole.id);
+      }, 500);
+    } catch (err: any) {
+      if (roleTransStatus) {
+        roleTransStatus.innerText = '⚠️ Error al generar traducciones del rol.';
+        roleTransStatus.style.color = '#f87171';
+      }
+      showToast(err.message || 'Error al guardar el rol', 'danger');
+    } finally {
+      if (btnSubmitRole) {
+        btnSubmitRole.disabled = false;
+        btnSubmitRole.innerText = t.btnSaveRole || '✨ Traducir y Guardar Rol';
+      }
+    }
+  });
+
   formAddUser?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const t = translations[currentLanguage] || translations['es'];
@@ -2543,17 +2940,18 @@ function setupManagerModals() {
       return;
     }
 
-    // Role check: Only internal staff allowed (RGPD Privacy)
-    if (roleVal !== UserRole.WAITER && roleVal !== UserRole.CHEF && roleVal !== UserRole.MANAGER) {
+    // Role check: Only internal staff allowed (RGPD Privacy) - Cannot be customer
+    const isCustomer = roleVal === UserRole.CUSTOMER || roleVal.toLowerCase() === 'customer';
+    if (isCustomer) {
       showToast(t.toastUserRoleNotAllowed || 'Rol no permitido: solo se pueden registrar empleados internos.', 'danger');
       return;
     }
 
     const avatarInput = (document.getElementById('new-user-avatar') as HTMLInputElement)?.value.trim();
     let defaultAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
-    if (roleVal === UserRole.MANAGER) {
+    if (roleVal === UserRole.MANAGER || roleVal.toUpperCase() === 'MANAGER') {
       defaultAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
-    } else if (roleVal === UserRole.CHEF) {
+    } else if (roleVal === UserRole.CHEF || roleVal.toUpperCase() === 'CHEF') {
       defaultAvatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80';
     }
 
@@ -2786,10 +3184,7 @@ function setupManagerModals() {
       if (medIn) medIn.value = item.images?.medium || '';
       if (largeIn) largeIn.value = item.images?.large || '';
 
-      const allergenCheckboxes = document.querySelectorAll<HTMLInputElement>('input[name="new-product-allergen"]');
-      allergenCheckboxes.forEach(cb => {
-        cb.checked = item.allergens ? item.allergens.includes(cb.value) : false;
-      });
+      renderModalAllergensGrid(item.allergens || []);
 
       initTranslationFields();
       ALL_ADD_LANGS.forEach(l => {
@@ -2822,8 +3217,7 @@ function setupManagerModals() {
       if (transStatusEl) transStatusEl.innerText = '';
       (document.getElementById('new-product-cooking') as HTMLInputElement).checked = true;
 
-      const allergenCheckboxes = document.querySelectorAll<HTMLInputElement>('input[name="new-product-allergen"]');
-      allergenCheckboxes.forEach(cb => { cb.checked = false; });
+      renderModalAllergensGrid([]);
 
       initTranslationFields();
     }

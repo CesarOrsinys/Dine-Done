@@ -2475,6 +2475,32 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* INVOICE FORM LAYOUT & OVERFLOW PROTECTION */
+    .invoice-fields-container {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .invoice-grid-inputs {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    @media (max-width: 480px) {
+      .invoice-grid-inputs {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    .invoice-field-input {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+    }
   </style>
 </head>
 <body>
@@ -2706,12 +2732,12 @@
             </label>
             <div class="pay-methods">
               <button class="pay-btn active" id="btn-pay-stripe" data-method="STRIPE_CARD">
-                <span>💳 Tarjeta</span>
-                <small style="font-size:0.7rem; color:var(--text-dim);">Pasarela Stripe</small>
+                <span id="txt-pay-stripe">💳 Tarjeta</span>
+                <small id="txt-pay-stripe-sub" style="font-size:0.7rem; color:var(--text-dim);">Pasarela Stripe</small>
               </button>
               <button class="pay-btn" id="btn-pay-cash" data-method="CASH">
-                <span>💵 Efectivo</span>
-                <small style="font-size:0.7rem; color:var(--text-dim);">Pagar en mesa</small>
+                <span id="txt-pay-cash">💵 Efectivo</span>
+                <small id="txt-pay-cash-sub" style="font-size:0.7rem; color:var(--text-dim);">Pagar en mesa</small>
               </button>
             </div>
           </div>
@@ -2731,14 +2757,14 @@
             </div>
 
             <!-- Formulario desplegable para Factura Fiscal -->
-            <div id="invoice-fields-container" style="display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle); flex-direction:column; gap:8px;">
+            <div id="invoice-fields-container" class="invoice-fields-container" style="display:none; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle); flex-direction:column; gap:8px; width:100%; box-sizing:border-box;">
               <span id="txt-inv-title" style="font-size:0.75rem; color:var(--accent-orange); font-weight:600;">📋 Datos Fiscales para la Factura:</span>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <input type="text" id="inv-nif" placeholder="NIF / CIF (ej. B12345678)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
-                <input type="text" id="inv-name" placeholder="Razón Social / Nombre" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+              <div class="invoice-grid-inputs">
+                <input type="text" id="inv-nif" class="invoice-field-input" placeholder="NIF / CIF (ej. B12345678)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+                <input type="text" id="inv-name" class="invoice-field-input" placeholder="Razón Social / Nombre" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
               </div>
-              <input type="text" id="inv-address" placeholder="Dirección Fiscal (Calle, CP, Ciudad)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
-              <input type="email" id="inv-email" placeholder="Email para envío de la factura" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+              <input type="text" id="inv-address" class="invoice-field-input" placeholder="Dirección Fiscal (Calle, CP, Ciudad)" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
+              <input type="email" id="inv-email" class="invoice-field-input" placeholder="Email para envío de la factura" style="padding:8px 10px; font-size:0.8rem; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); outline:none;">
             </div>
           </div>
 
@@ -2940,10 +2966,15 @@
       <div class="manager-section-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap;">
           <h3 id="txt-users-section-title" style="font-size:1.1rem; margin:0;">👥 Control de Usuarios y Personal</h3>
-          <!-- Botón compacto de añadir usuario (sólo icono) -->
-          <button class="btn-action btn-compact-add" id="btn-open-add-user" title="Añadir Usuario" aria-label="Añadir Usuario" style="background:var(--accent-orange); color:#fff; box-shadow:var(--shadow-glow);">
-            ➕
-          </button>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-action" id="btn-open-create-role-manager" style="background:rgba(249,115,22,0.15); border:1px solid var(--accent-orange); color:var(--accent-orange); padding:7px 12px; border-radius:var(--radius-sm); font-size:0.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+              <span>🎭</span> <span id="txt-btn-create-role-manager">Nuevo Rol</span>
+            </button>
+            <!-- Botón compacto de añadir usuario (sólo icono) -->
+            <button class="btn-action btn-compact-add" id="btn-open-add-user" title="Añadir Usuario" aria-label="Añadir Usuario" style="background:var(--accent-orange); color:#fff; box-shadow:var(--shadow-glow);">
+              ➕
+            </button>
+          </div>
         </div>
         <div id="users-cards-grid" class="users-cards-grid">
           <!-- Dynamically populated with compact profile cards -->
@@ -3023,7 +3054,12 @@
         </div>
 
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label for="new-user-role" id="lbl-new-user-role" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Rol de Personal:</label>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label for="new-user-role" id="lbl-new-user-role" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Rol de Personal:</label>
+            <button type="button" id="btn-open-create-role" style="background:none; border:none; color:var(--accent-orange); font-size:0.75rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+              <span>➕</span> <span id="txt-btn-create-role">Nuevo Rol</span>
+            </button>
+          </div>
           <select id="new-user-role" required style="padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none; cursor:pointer;">
             <option value="WAITER" id="opt-new-user-waiter">🏃 Camarero / Servicio de Sala</option>
             <option value="CHEF" id="opt-new-user-chef">👨‍🍳 Cocinero / Cocina (KDS)</option>
@@ -3201,21 +3237,8 @@
         <!-- Alérgenos -->
         <div style="background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
           <div id="lbl-allergens-title" style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Alérgenos Presentes:</div>
-          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:6px; font-size:0.78rem;">
-            <label><input type="checkbox" name="new-product-allergen" value="Gluten"> 🌾 Gluten</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Crustáceos"> 🦐 Crustáceos</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Huevos"> 🥚 Huevos</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Pescado"> 🐟 Pescado</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Cacahuetes"> 🥜 Cacahuetes</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Soja"> 🌱 Soja</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Lácteos"> 🥛 Lácteos</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Frutos de cáscara"> 🌰 F. Cáscara</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Apio"> 🌿 Apio</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Mostaza"> 🌭 Mostaza</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Sésamo"> 🥯 Sésamo</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Sulfitos"> 🍷 Sulfitos</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Altramuces"> 🌾 Altramuces</label>
-            <label><input type="checkbox" name="new-product-allergen" value="Moluscos"> 🦪 Moluscos</label>
+          <div id="modal-allergens-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:6px; font-size:0.78rem;">
+            <!-- Dynamically populated with localized names and icons across all 14 languages -->
           </div>
         </div>
 
@@ -3329,6 +3352,49 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL: CREAR NUEVO ROL (CONFIGURACIÓN DINÁMICA DE ROLES CON TRADUCCIÓN IA) -->
+  <div class="modal-overlay" id="create-role-modal" style="display:none;">
+    <div class="modal-card" style="max-width:480px; width:95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 id="txt-create-role-title" style="font-size:1.2rem; font-weight:700;">🎭 Crear Nuevo Rol de Personal</h3>
+        <button id="btn-close-create-role-modal" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <p id="txt-create-role-sub" style="font-size:0.84rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
+        Define el rol en español y se traducirá automáticamente a los 14 idiomas con IA.
+      </p>
+      <form id="create-role-form" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label for="new-role-name" id="lbl-role-name-es" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Nombre del Rol (en Español):</label>
+          <input type="text" id="new-role-name" placeholder="p. ej. Maître, Sommelier, Barista, Pizzero" required style="width:100%; box-sizing:border-box; padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.9rem; outline:none;">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 2fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label for="new-role-icon" id="lbl-role-icon" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Icono / Emoji:</label>
+            <input type="text" id="new-role-icon" value="💼" maxlength="4" style="width:100%; box-sizing:border-box; padding:10px 14px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:1.1rem; text-align:center; outline:none;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label for="new-role-permission" id="lbl-role-base-perm" style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Perfil de Permiso / Acceso:</label>
+            <select id="new-role-permission" required style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.88rem; outline:none; cursor:pointer;">
+              <option value="WAITER" id="opt-perm-waiter">🏃 Servicio de Sala / Barra (Camarero)</option>
+              <option value="CHEF" id="opt-perm-chef">👨‍🍳 Cocina / Elaboración (KDS)</option>
+              <option value="MANAGER" id="opt-perm-manager">📊 Administración / Dirección (Gerente)</option>
+            </select>
+          </div>
+        </div>
+        <div id="role-translation-status" style="font-size:0.8rem; color:var(--text-muted); min-height:18px;"></div>
+        <div style="display:flex; gap:10px; margin-top:6px;">
+          <button type="button" id="btn-cancel-create-role" class="btn-action" style="flex:1; background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm); cursor:pointer;">
+            <span id="txt-btn-cancel-create-role">Cancelar</span>
+          </button>
+          <button type="submit" id="btn-submit-create-role" class="btn-action" style="flex:2; background:var(--accent-gradient); color:#fff; border:none; padding:10px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; box-shadow:var(--shadow-glow);">
+            <span id="txt-btn-submit-create-role">✨ Traducir y Guardar Rol</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <!-- FOOTER: FEATURE 5 (POWERED BY DINE & DONE + NORMATIVA Y LEGAL) -->
   <footer>

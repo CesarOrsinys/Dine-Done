@@ -5,6 +5,26 @@ Todas las modificaciones notables a este proyecto serán documentadas en este ar
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.13] - 2026-10-21
+### Added & Fixed
+- **Roles de Personal en Configuración y Creación Dinámica con Traducción IA:**
+  - **Roles de hostelería en `mock_data/restaurant_config.json`:** Incorporación de 8 roles canónicos de hostelería (`MANAGER`, `WAITER`, `CHEF`, `BARTENDER`, `SOMMELIER`, `HOST`, `KITCHEN_ASSISTANT`, `HEAD_WAITER`) con emoji, rol base y traducciones completas a las 14 lenguas.
+  - **Botón y Modal de Creación de Roles (`➕ Nuevo Rol`):** Accesible tanto en la sección de usuarios de gerencia como en el modal de alta/edición de empleados. Al ingresar el nombre del rol en español, se conecta automáticamente con `translateTextOnline` y genera las traducciones a los otros 13 idiomas, persistiendo en `localStorage` (`DND_CUSTOM_ROLES`) y actualizando reactivamente los selectores de rol.
+  - **Extensión del Dominio y RBAC:** Actualización de `UserRole.ts` y `User.ts` (`role: UserRole | string`) para soportar roles dinámicos personalizados manteniendo el control de acceso basado en roles base (`WAITER`, `CHEF`, `MANAGER`).
+- **Corrección de Textos y Toasts Multilingües:**
+  - **Toast de adición a comanda:** Resuelto el texto residual en español en `"Añadido XXXX a tu comanda"`, utilizando dinámicamente `toastAddedToCart` / `toastDishAdded` en el idioma activo con el nombre del plato traducido.
+  - **Pasarela de pago:** Internacionalización de `"Pagar en mesa"` (`payAtTable`) y `"Stripe"` (`payCardSub`) en las 14 lenguas oficiales.
+- **Alérgenos e Iconos en Control de Stock y Modales:**
+  - En la tabla y tarjetas de stock de gerencia, los alérgenos ahora se traducen dinámicamente (`getLocalizedAllergenDisplay(a, currentLanguage)`) acompañados de su icono oficial (`🌾 Gluten`, `🥛 Lácteos`, etc.).
+  - En el modal de producto, el grid de selección de alérgenos se genera dinámicamente con los nombres e iconos en el idioma activo, y las opciones dietéticas (`Vegano`, `Vegetariano`, `0,0% Sin Alcohol`) cuentan con traducciones sincronizadas.
+- **Desplegable de Categorías con i18n:**
+  - En el modal de producto, las opciones de categoría (`Entrante`, `Plato Principal`, `Postre`, `Bebida`, `Guarnición`) se traducen reactivamente al idioma activo.
+- **Corrección de Desbordamiento en Formulario de Factura Fiscal:**
+  - Corrección de `width` y desbordamiento en `#invoice-fields-container` aplicando `.invoice-field-input` con `width: 100% !important; box-sizing: border-box !important; min-width: 0 !important;` y layout responsivo adaptado para pantallas estrechas y móviles.
+- **Paridad de Claves i18n:**
+  - Ampliación del diccionario a 341 claves por idioma en `mock_data/translations.json` (100% paridad).
+  - 23/23 pruebas unitarias automatizadas superadas con éxito.
+
 ## [1.6.12] - 2026-10-21
 ### Fixed & Improved
 - **Internacionalización Integral (i18n) de Popups, Ventanas, Labels, Placeholders, Roles y Sanitización de Empleados:**

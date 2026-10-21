@@ -22,5 +22,183 @@
     "Terraza 3",
     "Barra 1",
     "Barra 2"
+  ],
+  "staffRoles": [
+    {
+      "id": "MANAGER",
+      "name": "Gerente",
+      "icon": "💼",
+      "baseRole": "MANAGER",
+      "translations": {
+        "es": "Gerente",
+        "en": "Manager",
+        "fr": "Gérant",
+        "de": "Geschäftsführer",
+        "zh": "经理",
+        "ko": "매니저",
+        "uk": "Менеджер",
+        "pt": "Gerente",
+        "ja": "マネージャー",
+        "ar": "مدير",
+        "ca": "Gerent",
+        "va": "Gerent",
+        "eu": "Kudeatzailea",
+        "gl": "Xerente"
+      }
+    },
+    {
+      "id": "WAITER",
+      "name": "Camarero",
+      "icon": "🤵",
+      "baseRole": "WAITER",
+      "translations": {
+        "es": "Camarero",
+        "en": "Waiter",
+        "fr": "Serveur",
+        "de": "Kellner",
+        "zh": "服务员",
+        "ko": "웨이터",
+        "uk": "Офіціант",
+        "pt": "Garçom",
+        "ja": "ウェイター",
+        "ar": "نادل",
+        "ca": "Cambrer",
+        "va": "Cambrer",
+        "eu": "Zerbitzaria",
+        "gl": "Camareiro"
+      }
+    },
+    {
+      "id": "CHEF",
+      "name": "Cocinero",
+      "icon": "👨‍🍳",
+      "baseRole": "CHEF",
+      "translations": {
+        "es": "Cocinero",
+        "en": "Chef",
+        "fr": "Cuisinier",
+        "de": "Koch",
+        "zh": "厨师",
+        "ko": "요리사",
+        "uk": "Кухар",
+        "pt": "Cozinheiro",
+        "ja": "料理人",
+        "ar": "طاهٍ",
+        "ca": "Cuiner",
+        "va": "Cuiner",
+        "eu": "Sukaldaria",
+        "gl": "Cociñeiro"
+      }
+    },
+    {
+      "id": "BARTENDER",
+      "name": "Barman / Coctelero",
+      "icon": "🍸",
+      "baseRole": "WAITER",
+      "translations": {
+        "es": "Barman / Coctelero",
+        "en": "Bartender",
+        "fr": "Barman",
+        "de": "Barkeeper",
+        "zh": "调酒师",
+        "ko": "바텐더",
+        "uk": "Бармен",
+        "pt": "Barman",
+        "ja": "バーテンダー",
+        "ar": "ساقي الحانة",
+        "ca": "Barman",
+        "va": "Barman",
+        "eu": "Tabernaria",
+        "gl": "Barman"
+      }
+    },
+    {
+      "id": "SOMMELIER",
+      "name": "Sumiller",
+      "icon": "🍷",
+      "baseRole": "WAITER",
+      "translations": {
+        "es": "Sumiller",
+        "en": "Sommelier",
+        "fr": "Sommelier",
+        "de": "Sommelier",
+        "zh": "侍酒师",
+        "ko": "소믈리에",
+        "uk": "Сомельє",
+        "pt": "Sommelier",
+        "ja": "ソムリエ",
+        "ar": "خبير مشروبات",
+        "ca": "Sommelier",
+        "va": "Sommelier",
+        "eu": "Ardo-aditua",
+        "gl": "Sumiller"
+      }
+    },
+    {
+      "id": "HOST",
+      "name": "Recepcionista / Host",
+      "icon": "📋",
+      "baseRole": "WAITER",
+      "translations": {
+        "es": "Recepcionista / Host",
+        "en": "Host / Receptionist",
+        "fr": "Hôte d'accueil",
+        "de": "Empfangschef",
+        "zh": "迎宾领位员",
+        "ko": "리셉셔니스트",
+        "uk": "Хостес",
+        "pt": "Recepcionista",
+        "ja": "受付・案内係",
+        "ar": "موظف استقبال",
+        "ca": "Recepcionista",
+        "va": "Recepcionista",
+        "eu": "Harreragilea",
+        "gl": "Recepcionista"
+      }
+    },
+    {
+      "id": "KITCHEN_ASSISTANT",
+      "name": "Ayudante de Cocina",
+      "icon": "🔪",
+      "baseRole": "CHEF",
+      "translations": {
+        "es": "Ayudante de Cocina",
+        "en": "Kitchen Assistant",
+        "fr": "Commis de cuisine",
+        "de": "Küchenhilfe",
+        "zh": "厨房助手",
+        "ko": "주방 보조",
+        "uk": "Помічник кухаря",
+        "pt": "Ajudante de Cozinha",
+        "ja": "調理補助",
+        "ar": "مساعد مطبخ",
+        "ca": "Ajudant de Cuina",
+        "va": "Ajudant de Cuina",
+        "eu": "Sukalde-laguntzailea",
+        "gl": "Axudante de Cociña"
+      }
+    },
+    {
+      "id": "HEAD_WAITER",
+      "name": "Jefe de Sala / Maître",
+      "icon": "🎩",
+      "baseRole": "WAITER",
+      "translations": {
+        "es": "Jefe de Sala / Maître",
+        "en": "Head Waiter / Maître",
+        "fr": "Maître d'hôtel",
+        "de": "Oberkellner",
+        "zh": "餐厅领班 / 领班",
+        "ko": "지배인 / 매트르",
+        "uk": "Метрдотель",
+        "pt": "Chefe de Sala",
+        "ja": "給仕長 / メートル",
+        "ar": "رئيس النُّدُل",
+        "ca": "Cap de Sala / Maître",
+        "va": "Cap de Sala / Maître",
+        "eu": "Areto-burua",
+        "gl": "Xefe de Sala"
+      }
+    }
   ]
 }
