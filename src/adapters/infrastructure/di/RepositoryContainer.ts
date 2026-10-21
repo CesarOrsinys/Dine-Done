@@ -11,6 +11,7 @@ import { StripePaymentGatewayMock } from '../../storage/StripePaymentGatewayMock
 import { ApiMenuRepository } from '../repositories/ApiMenuRepository.js';
 import { ApiOrderRepository } from '../repositories/ApiOrderRepository.js';
 import { ApiUserRepository } from '../repositories/ApiUserRepository.js';
+import { ApiPaymentGateway } from '../repositories/ApiPaymentGateway.js';
 
 export interface AppServices {
   menuRepo: IMenuRepository;
@@ -45,7 +46,7 @@ export class RepositoryContainer {
           menuRepo: new ApiMenuRepository(),
           orderRepo: new ApiOrderRepository(),
           userRepo: new ApiUserRepository(),
-          paymentGateway: new StripePaymentGatewayMock(),
+          paymentGateway: new ApiPaymentGateway(),
           realtimeNotifier: new LocalEventRealtimeNotifier()
         };
       }

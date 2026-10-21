@@ -31,6 +31,7 @@ function mapRowToOrder(row: any) {
     status: row.status,
     paymentStatus: payment?.status || (payment?.method === 'CASH' ? 'PENDING_CASH' : 'PAID'),
     paymentMethod: payment?.method || 'STRIPE_CARD',
+    transactionId: payment?.gateway_transaction_id || undefined,
     subtotal: Number(row.subtotal),
     packagingCost: Number(row.packaging_fee || 0),
     tipAmount: Number(row.tip_amount || 0),
@@ -109,7 +110,7 @@ ordersRouter.post('/', async (req: Request, res: Response): Promise<void> => {
       method: order.paymentMethod || 'STRIPE_CARD',
       status: order.paymentStatus || (order.paymentMethod === 'CASH' ? 'PENDING_CASH' : 'PAID'),
       amount: order.total,
-      gateway_transaction_id: order.paymentMethod === 'STRIPE_CARD' ? `pi_mock_${order.id}` : null,
+      gateway_transaction_id: order.paymentMethod === 'STRIPE_CARD' ? (order.transactionId || `pi_emu_${order.id}`) : null,
       paid_at: order.paymentStatus === 'PAID' ? new Date().toISOString() : null,
       created_at: new Date().toISOString()
     };

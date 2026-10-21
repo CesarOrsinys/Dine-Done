@@ -86,6 +86,8 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
     assert.strictEqual(order.status, OrderStatus.PLACED);
     assert.strictEqual(order.packaging.bags, true);
     assert.strictEqual(order.packaging.cutleryCount, 2);
+    assert.ok(order.transactionId, 'Transaction ID must be populated');
+    assert.ok(order.transactionId.startsWith('ch_stripe_'), 'Transaction ID should match gateway pattern');
 
     // Verify stock was deducted atomically
     const updatedItem = await menuRepo.getById('menu_1');
@@ -726,6 +728,33 @@ describe('Dine & Done - Core Hexagonal Domain & Use Cases Suite', () => {
         );
       }
     }
+  });
+
+  it('HU-21: Payment Gateway Emulator & Transaction Verification', async () => {
+    // 1. Process payment via mock gateway emulator
+    const paymentResult = await paymentGateway.processPayment({
+      amount: 45.00,
+      tip: 5.00,
+      currency: 'EUR',
+      token: 'tok_visa_test'
+    });
+
+    assert.strictEqual(paymentResult.success, true);
+    assert.strictEqual(paymentResult.amountCharged, 45.00);
+    assert.strictEqual(paymentResult.tipCharged, 5.00);
+    assert.ok(paymentResult.transactionId && paymentResult.transactionId.length > 10);
+    assert.ok(paymentResult.processedAt instanceof Date);
+
+    // 2. Reject zero or negative amounts
+    await assert.rejects(
+      async () => {
+        await paymentGateway.processPayment({
+          amount: 0,
+          tip: 0
+        });
+      },
+      /El importe a cobrar debe ser superior a 0/
+    );
   });
 });
 

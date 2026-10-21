@@ -64,6 +64,7 @@ export class CreateOrderUseCase {
 
     // 3. Payment Processing
     let paymentStatus = PaymentStatus.PENDING_CASH;
+    let transactionId: string | undefined;
     if (dto.paymentMethod === PaymentMethod.STRIPE_CARD) {
       const paymentResult = await this.paymentGateway.processPayment({
         amount: subtotal + packagingCost,
@@ -75,6 +76,7 @@ export class CreateOrderUseCase {
         throw new Error('La pasarela de pago Stripe rechazó la transacción.');
       }
       paymentStatus = PaymentStatus.PAID;
+      transactionId = paymentResult.transactionId;
     }
 
     // 4. Generate order
@@ -89,6 +91,7 @@ export class CreateOrderUseCase {
       status: OrderStatus.PLACED,
       paymentStatus: paymentStatus,
       paymentMethod: dto.paymentMethod,
+      transactionId: transactionId,
       subtotal: parseFloat(subtotal.toFixed(2)),
       subtotalNet: subtotalNet,
       vatAmount: vatAmount,
