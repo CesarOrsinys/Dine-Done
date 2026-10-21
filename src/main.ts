@@ -16,6 +16,7 @@ import { setupConfirmedOrderModal, checkStripeRedirectSuccess } from './ui/compo
 import { setupManagerModals, renderManagerDashboard } from './ui/components/ManagerDashboardComponent.js';
 import { renderWaiterOrders } from './ui/components/WaiterBoardComponent.js';
 import { renderChefOrders } from './ui/components/KitchenKdsComponent.js';
+import { withCookingLoader } from './ui/services/CookingLoaderService.js';
 
 // Realtime reactive push updates across role views
 services.realtimeNotifier.subscribe((updatedOrder) => {
@@ -39,8 +40,10 @@ async function initApp() {
   applyBusinessBranding();
   setupTableIdentification();
 
-  // Load public menu catalog at startup
-  AppState.menuCatalog = await services.menuRepo.getAll();
+  // Load public menu catalog at startup with culinary loader
+  AppState.menuCatalog = await withCookingLoader(async () => {
+    return await services.menuRepo.getAll();
+  }, 'Preparando cocina y carta digital...');
   AppState.allOrders = [];
   AppState.allUsers = [];
 

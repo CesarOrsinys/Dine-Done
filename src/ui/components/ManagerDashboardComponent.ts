@@ -20,6 +20,7 @@ import { services, kpiUseCase } from '../services/UseCasesService.js';
 import { renderMenu, getResponsiveImages } from './MenuComponent.js';
 import { renderWaiterOrders } from './WaiterBoardComponent.js';
 import { renderChefOrders } from './KitchenKdsComponent.js';
+import { withCookingLoader } from '../services/CookingLoaderService.js';
 
 export let openProductEditorModal: (item?: MenuItem) => void = () => {};
 export let openUserEditorModal: (user?: User) => void = () => {};
@@ -351,7 +352,9 @@ export function setupManagerModals() {
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      const deleted = await services.userRepo.delete(userId);
+      const deleted = await withCookingLoader(async () => {
+        return await services.userRepo.delete(userId);
+      }, 'Eliminando empleado...');
       if (deleted) {
         AppState.allUsers = await services.userRepo.getAll();
         closeAddUserModal();
@@ -670,8 +673,10 @@ export function setupManagerModals() {
           password: password ? password : existingUser.password
         };
 
-        await services.userRepo.update(updatedUser);
-        AppState.allUsers = await services.userRepo.getAll();
+        await withCookingLoader(async () => {
+          await services.userRepo.update(updatedUser);
+          AppState.allUsers = await services.userRepo.getAll();
+        }, 'Actualizando empleado en tiempo real...');
 
         if (AppState.currentUser.id === updatedUser.id) {
           AppState.currentUser = updatedUser;
@@ -694,8 +699,10 @@ export function setupManagerModals() {
           avatarUrl
         };
 
-        await services.userRepo.create(newUser);
-        AppState.allUsers = await services.userRepo.getAll();
+        await withCookingLoader(async () => {
+          await services.userRepo.create(newUser);
+          AppState.allUsers = await services.userRepo.getAll();
+        }, 'Registrando nuevo empleado en tiempo real...');
         renderManagerDashboard();
         closeAddUserModal();
         showToast((t.toastUserCreated || '¡Empleado {name} registrado con éxito como {role}!').replace('{name}', newUser.name).replace('{role}', getTranslatedRole(newUser.role, t)), 'success');
@@ -988,8 +995,10 @@ export function setupManagerModals() {
         translations: dishTranslations
       };
       try {
-        await services.menuRepo.updateItem(updatedDish);
-        AppState.menuCatalog = await services.menuRepo.getAll();
+        await withCookingLoader(async () => {
+          await services.menuRepo.updateItem(updatedDish);
+          AppState.menuCatalog = await services.menuRepo.getAll();
+        }, 'Actualizando plato en carta y cocina...');
         updateLanguageSelectorOptions();
         renderManagerDashboard();
         renderMenu();
@@ -1017,8 +1026,10 @@ export function setupManagerModals() {
       };
 
       try {
-        await services.menuRepo.createItem(newDish);
-        AppState.menuCatalog = await services.menuRepo.getAll();
+        await withCookingLoader(async () => {
+          await services.menuRepo.createItem(newDish);
+          AppState.menuCatalog = await services.menuRepo.getAll();
+        }, 'Registrando nuevo plato en carta...');
         updateLanguageSelectorOptions();
         renderManagerDashboard();
         renderMenu();

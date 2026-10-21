@@ -8,23 +8,26 @@ import { renderMenu } from '../components/MenuComponent.js';
 import { renderWaiterOrders } from '../components/WaiterBoardComponent.js';
 import { renderChefOrders } from '../components/KitchenKdsComponent.js';
 import { renderManagerDashboard } from '../components/ManagerDashboardComponent.js';
+import { withCookingLoader } from './CookingLoaderService.js';
 
 export async function refreshAll() {
-  AppState.menuCatalog = await services.menuRepo.getAll();
+  await withCookingLoader(async () => {
+    AppState.menuCatalog = await services.menuRepo.getAll();
 
-  if (AppState.currentUser.role === UserRole.CUSTOMER) {
-    renderMenu();
-  } else if (AppState.currentUser.role === UserRole.WAITER) {
-    AppState.allOrders = await services.orderRepo.findAll();
-    renderWaiterOrders();
-  } else if (AppState.currentUser.role === UserRole.CHEF) {
-    AppState.allOrders = await services.orderRepo.findAll();
-    renderChefOrders();
-  } else if (AppState.currentUser.role === UserRole.MANAGER) {
-    AppState.allOrders = await services.orderRepo.findAll();
-    AppState.allUsers = await services.userRepo.getAll();
-    renderManagerDashboard();
-  }
+    if (AppState.currentUser.role === UserRole.CUSTOMER) {
+      renderMenu();
+    } else if (AppState.currentUser.role === UserRole.WAITER) {
+      AppState.allOrders = await services.orderRepo.findAll();
+      renderWaiterOrders();
+    } else if (AppState.currentUser.role === UserRole.CHEF) {
+      AppState.allOrders = await services.orderRepo.findAll();
+      renderChefOrders();
+    } else if (AppState.currentUser.role === UserRole.MANAGER) {
+      AppState.allOrders = await services.orderRepo.findAll();
+      AppState.allUsers = await services.userRepo.getAll();
+      await renderManagerDashboard();
+    }
+  }, 'Sincronizando comandas y catálogo en tiempo real...');
 }
 
 export function setupExportReport() {

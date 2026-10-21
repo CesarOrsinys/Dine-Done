@@ -8,6 +8,7 @@ import { renderMenu } from './MenuComponent.js';
 import { renderWaiterOrders } from './WaiterBoardComponent.js';
 import { renderChefOrders } from './KitchenKdsComponent.js';
 import { renderManagerDashboard } from './ManagerDashboardComponent.js';
+import { withCookingLoader } from '../services/CookingLoaderService.js';
 
 type ViewRenderer = () => void | Promise<void>;
 
@@ -159,29 +160,37 @@ export async function switchRole(role: UserRole | string) {
   const isCustomer = (role === UserRole.CUSTOMER || baseRole === UserRole.CUSTOMER);
 
   if (isCustomer) {
-    AppState.menuCatalog = await services.menuRepo.getAll();
-    renderMenu();
-    if (onRenderMenu) onRenderMenu();
+    await withCookingLoader(async () => {
+      AppState.menuCatalog = await services.menuRepo.getAll();
+      renderMenu();
+      if (onRenderMenu) onRenderMenu();
+    }, 'Cargando carta gastronómica...');
   } else if (isWaiter) {
     // 1. Carga en tiempo real de comandas para camareros
-    AppState.allOrders = await services.orderRepo.findAll();
-    AppState.menuCatalog = await services.menuRepo.getAll();
-    renderWaiterOrders();
-    if (onRenderWaiter) onRenderWaiter();
+    await withCookingLoader(async () => {
+      AppState.allOrders = await services.orderRepo.findAll();
+      AppState.menuCatalog = await services.menuRepo.getAll();
+      renderWaiterOrders();
+      if (onRenderWaiter) onRenderWaiter();
+    }, 'Cargando comandas de sala en tiempo real...');
   } else if (isChef) {
     // 2. Carga en tiempo real de comandas para cocina (KDS)
-    AppState.allOrders = await services.orderRepo.findAll();
-    AppState.menuCatalog = await services.menuRepo.getAll();
-    renderChefOrders();
-    if (onRenderChef) onRenderChef();
+    await withCookingLoader(async () => {
+      AppState.allOrders = await services.orderRepo.findAll();
+      AppState.menuCatalog = await services.menuRepo.getAll();
+      renderChefOrders();
+      if (onRenderChef) onRenderChef();
+    }, 'Cargando pedidos de cocina en tiempo real...');
   } else if (isManager) {
     // 3. Carga en tiempo real para Gerente:
     // Facturación cobrada, propinas, ticket promedio, comandas, platos más pedidos, stock y usuarios
-    AppState.allOrders = await services.orderRepo.findAll();
-    AppState.allUsers = await services.userRepo.getAll();
-    AppState.menuCatalog = await services.menuRepo.getAll();
-    await renderManagerDashboard();
-    if (onRenderManager) onRenderManager();
+    await withCookingLoader(async () => {
+      AppState.allOrders = await services.orderRepo.findAll();
+      AppState.allUsers = await services.userRepo.getAll();
+      AppState.menuCatalog = await services.menuRepo.getAll();
+      await renderManagerDashboard();
+      if (onRenderManager) onRenderManager();
+    }, 'Cargando métricas, comandas, stock y equipo en tiempo real...');
   }
 }
 

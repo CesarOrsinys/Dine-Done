@@ -483,3 +483,26 @@ export function hideCookingLoader(): void {
 export function getActiveCookingThemeId(): string {
   return activeCookingThemeId;
 }
+
+/**
+ * Executes an async task while presenting the themed Cooking Loader.
+ * Guarantees a minimum visibility time to prevent micro-flickering,
+ * and safely hides the loader in all circumstances (success or error).
+ */
+export async function withCookingLoader<T>(
+  action: () => Promise<T>,
+  message: string = 'Cargando datos en tiempo real...'
+): Promise<T> {
+  showCookingLoader(message);
+  const startTime = Date.now();
+  try {
+    return await action();
+  } finally {
+    const elapsed = Date.now() - startTime;
+    const minTime = 250;
+    if (elapsed < minTime) {
+      await new Promise(resolve => setTimeout(resolve, minTime - elapsed));
+    }
+    hideCookingLoader();
+  }
+}
