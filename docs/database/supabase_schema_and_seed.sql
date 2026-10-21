@@ -1,0 +1,550 @@
+-- ==============================================================================
+-- DINE & DONE - SUPABASE SCHEMA & COMPLETE SEED DATA
+-- Ejecuta este script en el SQL Editor del Dashboard de Supabase
+-- ==============================================================================
+
+-- 1. EXTENSIONES
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- 2. LIMPIEZA PREVIA (Para reinicios limpios en Supabase)
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS payments CASCADE;
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS menu_items CASCADE;
+DROP TABLE IF EXISTS menu_categories CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS roles CASCADE;
+DROP TABLE IF EXISTS restaurant_config CASCADE;
+
+-- 3. CREACIÓN DE TABLAS
+
+-- A. ROLES DE PERSONAL
+CREATE TABLE roles (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    icon TEXT NOT NULL,
+    base_role TEXT NOT NULL CHECK (base_role IN ('MANAGER', 'WAITER', 'CHEF')),
+    translations JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- B. USUARIOS / EMPLEADOS (Excluye comensales anónimos por privacidad)
+CREATE TABLE users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role_id TEXT NOT NULL REFERENCES roles(id) ON UPDATE CASCADE,
+    avatar_url TEXT,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- C. CATEGORÍAS DEL MENÚ
+CREATE TABLE menu_categories (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    display_order INT NOT NULL DEFAULT 0
+);
+
+-- D. PLATOS Y PRODUCTOS DEL MENÚ
+CREATE TABLE menu_items (
+    id TEXT PRIMARY KEY,
+    category_id TEXT NOT NULL REFERENCES menu_categories(id) ON UPDATE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
+    stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
+    requires_cooking BOOLEAN NOT NULL DEFAULT TRUE,
+    is_vegan BOOLEAN NOT NULL DEFAULT FALSE,
+    is_vegetarian BOOLEAN NOT NULL DEFAULT FALSE,
+    is_alcohol_free BOOLEAN NOT NULL DEFAULT FALSE,
+    ingredients JSONB NOT NULL DEFAULT '[]'::jsonb,
+    allergens JSONB NOT NULL DEFAULT '[]'::jsonb,
+    image_url TEXT,
+    images JSONB NOT NULL DEFAULT '{}'::jsonb,
+    translations JSONB NOT NULL DEFAULT '{}'::jsonb,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- E. PEDIDOS / COMANDAS
+CREATE TABLE orders (
+    id TEXT PRIMARY KEY,
+    order_number TEXT UNIQUE NOT NULL,
+    table_number TEXT NOT NULL,
+    customer_name TEXT NOT NULL DEFAULT 'Comensal',
+    status TEXT NOT NULL DEFAULT 'PLACED' CHECK (status IN ('PLACED', 'IN_KITCHEN', 'READY_TO_SERVE', 'DELIVERED', 'SERVED', 'CANCELLED')),
+    waiter_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    chef_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    tip_amount NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    packaging_bags BOOLEAN NOT NULL DEFAULT FALSE,
+    packaging_plastic BOOLEAN NOT NULL DEFAULT FALSE,
+    cutlery_count INT NOT NULL DEFAULT 0,
+    packaging_fee NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    total NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- F. LÍNEAS / ÍTEMS DEL PEDIDO
+CREATE TABLE order_items (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    menu_item_id TEXT NOT NULL REFERENCES menu_items(id),
+    item_name TEXT NOT NULL,
+    unit_price NUMERIC(10, 2) NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    requires_cooking BOOLEAN NOT NULL DEFAULT TRUE,
+    kitchen_notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- G. PAGOS Y LIQUIDACIONES
+CREATE TABLE payments (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    method TEXT NOT NULL CHECK (method IN ('STRIPE_CARD', 'CASH')),
+    status TEXT NOT NULL DEFAULT 'PENDING_CASH' CHECK (status IN ('PENDING_CASH', 'PAID', 'FAILED', 'REFUNDED')),
+    amount NUMERIC(10, 2) NOT NULL,
+    gateway_transaction_id TEXT,
+    confirmed_by_staff_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    paid_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- H. FACTURAS / COMPROBANTES FISCALES
+CREATE TABLE invoices (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    invoice_number TEXT UNIQUE NOT NULL,
+    order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE RESTRICT,
+    customer_tax_id TEXT NOT NULL,
+    customer_legal_name TEXT NOT NULL,
+    customer_address TEXT NOT NULL,
+    customer_email TEXT,
+    subtotal NUMERIC(10, 2) NOT NULL,
+    vat_rate NUMERIC(5, 2) NOT NULL DEFAULT 10.00,
+    vat_amount NUMERIC(10, 2) NOT NULL,
+    total_amount NUMERIC(10, 2) NOT NULL,
+    issued_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- I. CONFIGURACIÓN DEL RESTAURANTE
+CREATE TABLE restaurant_config (
+    id TEXT PRIMARY KEY,
+    business_name TEXT NOT NULL,
+    tagline TEXT,
+    address TEXT,
+    phone TEXT,
+    currency TEXT NOT NULL DEFAULT '€',
+    vat_number TEXT,
+    skip_staff_assignment BOOLEAN NOT NULL DEFAULT TRUE,
+    available_tables JSONB NOT NULL DEFAULT '[]'::jsonb,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 4. HABILITACIÓN DE SUPABASE REALTIME
+-- Permite que cocina, sala y comensales reciban eventos en vivo vía WebSockets
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE orders;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE order_items;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE menu_items;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- 5. POLÍTICAS ROW LEVEL SECURITY (RLS) - Permisivas para desarrollo inicial
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE menu_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE restaurant_config ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all for menu" ON menu_items FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for categories" ON menu_categories FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for config" ON restaurant_config FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for orders" ON orders FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for order_items" ON order_items FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for payments" ON payments FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for invoices" ON invoices FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for roles" ON roles FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for users" ON users FOR ALL USING (true) WITH CHECK (true);
+
+-- 6. INSERCIÓN DE DATOS INICIALES (SEED DATA)
+-- ROLES INICIALES
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('MANAGER', 'Gerente', '💼', 'MANAGER', $${"es":"Gerente","en":"Manager","fr":"Gérant","de":"Geschäftsführer","zh":"经理","ko":"매니저","uk":"Менеджер","pt":"Gerente","ja":"マネージャー","ar":"مدير","ca":"Gerent","va":"Gerent","eu":"Kudeatzailea","gl":"Xerente"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('WAITER', 'Camarero', '🤵', 'WAITER', $${"es":"Camarero","en":"Waiter","fr":"Serveur","de":"Kellner","zh":"服务员","ko":"웨이터","uk":"Офіціант","pt":"Garçom","ja":"ウェイター","ar":"نادل","ca":"Cambrer","va":"Cambrer","eu":"Zerbitzaria","gl":"Camareiro"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('CHEF', 'Cocinero', '👨‍🍳', 'CHEF', $${"es":"Cocinero","en":"Chef","fr":"Cuisinier","de":"Koch","zh":"厨师","ko":"요리사","uk":"Кухар","pt":"Cozinheiro","ja":"料理人","ar":"طاهٍ","ca":"Cuiner","va":"Cuiner","eu":"Sukaldaria","gl":"Cociñeiro"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('BARTENDER', 'Barman / Coctelero', '🍸', 'WAITER', $${"es":"Barman / Coctelero","en":"Bartender","fr":"Barman","de":"Barkeeper","zh":"调酒师","ko":"바텐더","uk":"Бармен","pt":"Barman","ja":"バーテンダー","ar":"ساقي الحانة","ca":"Barman","va":"Barman","eu":"Tabernaria","gl":"Barman"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('SOMMELIER', 'Sumiller', '🍷', 'WAITER', $${"es":"Sumiller","en":"Sommelier","fr":"Sommelier","de":"Sommelier","zh":"侍酒师","ko":"소믈리에","uk":"Сомельє","pt":"Sommelier","ja":"ソムリエ","ar":"خبير مشروبات","ca":"Sommelier","va":"Sommelier","eu":"Ardo-aditua","gl":"Sumiller"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('HOST', 'Recepcionista / Host', '📋', 'WAITER', $${"es":"Recepcionista / Host","en":"Host / Receptionist","fr":"Hôte d'accueil","de":"Empfangschef","zh":"迎宾领位员","ko":"리셉셔니스트","uk":"Хостес","pt":"Recepcionista","ja":"受付・案内係","ar":"موظف استقبال","ca":"Recepcionista","va":"Recepcionista","eu":"Harreragilea","gl":"Recepcionista"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('KITCHEN_ASSISTANT', 'Ayudante de Cocina', '🔪', 'CHEF', $${"es":"Ayudante de Cocina","en":"Kitchen Assistant","fr":"Commis de cuisine","de":"Küchenhilfe","zh":"厨房助手","ko":"주방 보조","uk":"Помічник кухаря","pt":"Ajudante de Cozinha","ja":"調理補助","ar":"مساعد مطبخ","ca":"Ajudant de Cuina","va":"Ajudant de Cuina","eu":"Sukalde-laguntzailea","gl":"Axudante de Cociña"}$$::jsonb, TRUE);
+INSERT INTO roles (id, name, icon, base_role, translations, is_system) VALUES ('HEAD_WAITER', 'Jefe de Sala / Maître', '🎩', 'WAITER', $${"es":"Jefe de Sala / Maître","en":"Head Waiter / Maître","fr":"Maître d'hôtel","de":"Oberkellner","zh":"餐厅领班 / 领班","ko":"지배인 / 매트르","uk":"Метрдотель","pt":"Chefe de Sala","ja":"給仕長 / メートル","ar":"رئيس النُّدُل","ca":"Cap de Sala / Maître","va":"Cap de Sala / Maître","eu":"Areto-burua","gl":"Xefe de Sala"}$$::jsonb, TRUE);
+
+-- USUARIOS / EMPLEADOS
+INSERT INTO users (id, name, username, email, password_hash, role_id, avatar_url, active) VALUES ('usr_waiter_1', 'David García', 'camarero', 'camarero@granvia.com', crypt('camarero123', gen_salt('bf')), 'WAITER', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', TRUE);
+INSERT INTO users (id, name, username, email, password_hash, role_id, avatar_url, active) VALUES ('usr_waiter_2', 'Lucía Ramos', 'lucia', 'lucia.ramos@dinedone.com', crypt('camarera123', gen_salt('bf')), 'WAITER', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80', TRUE);
+INSERT INTO users (id, name, username, email, password_hash, role_id, avatar_url, active) VALUES ('usr_chef_1', 'Antonio Martín', 'cocinero', 'cocina@granvia.com', crypt('cocina123', gen_salt('bf')), 'CHEF', 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80', TRUE);
+INSERT INTO users (id, name, username, email, password_hash, role_id, avatar_url, active) VALUES ('usr_chef_2', 'Elena Vega', 'elena', 'elena.chef@dinedone.com', crypt('cocinera123', gen_salt('bf')), 'CHEF', 'https://images.unsplash.com/photo-1581299894007-aaa50297cf16?w=150&auto=format&fit=crop&q=80', TRUE);
+INSERT INTO users (id, name, username, email, password_hash, role_id, avatar_url, active) VALUES ('usr_mgr_1', 'César Orsinys', 'gerente', 'gerente@granvia.com', crypt('gerente123', gen_salt('bf')), 'MANAGER', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', TRUE);
+
+-- CATEGORÍAS
+INSERT INTO menu_categories (id, name, display_order) VALUES ('STARTER', 'Entrantes', 1), ('MAIN', 'Platos Principales', 2), ('DESSERT', 'Postres', 3), ('BEVERAGE', 'Bebidas', 4);
+
+-- PLATOS Y PRODUCTOS (Con Traducciones en 14 idiomas)
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_1',
+  'STARTER',
+  'Tequeños Artesanales de Queso (5 uds)',
+  'Crujientes dedos de queso blanco acompañados de salsa tártara casera.',
+  8.5,
+  25,
+  TRUE,
+  FALSE,
+  TRUE,
+  TRUE,
+  $$["Harina de trigo","Queso blanco llanero","Mantequilla","Huevo","Salsa tártara"]$$::jsonb,
+  $$["Gluten","Lácteos","Huevos"]$$::jsonb,
+  'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Artisanal Cheese Sticks (5 pcs)","description":"Crispy rolled pastry stuffed with white cheese and homemade tartar sauce.","ingredients":["Wheat flour","White cheese","Butter","Egg","Tartar sauce"],"allergens":["Gluten","Dairy","Eggs"]},"fr":{"name":"Bâtonnets de Fromage Artisanal (5 pcs)","description":"Doigts de pâte croustillants farcis au fromage blanc et sauce tartare.","ingredients":["Farine de blé","Fromage blanc","Beurre","Oeuf","Sauce tartare"],"allergens":["Gluten","Lactose","Oeufs"]},"de":{"name":"Käse-Teigtaschen Tequeños (5 Stk.)","description":"Knusprige Teigstangen gefüllt mit Weißkäse, serviert mit Tartarsauce.","ingredients":["Weizenmehl","Weißkäse","Butter","Ei","Tartarsauce"],"allergens":["Gluten","Laktose","Eier"]},"zh":{"name":"手工起司棒 (5支)","description":"香脆手擀面皮包裹浓郁白奶酪，佐以特制塔塔酱。","ingredients":["小麦粉","拉内罗白奶酪","黄油","鸡蛋","塔塔酱"],"allergens":["麸质","乳制品","蛋类"]},"ko":{"name":"수제 치즈 스틱 (5개)","description":"홈메이드 타르타르 소스를 곁들인 바삭한 수제 화이트 치즈 스틱.","ingredients":["밀가루","화이트 치즈","버터","계란","타르타르 소스"],"allergens":["글루텐","유제품","계란"]},"uk":{"name":"Крафтові сирні палички текеньос (5 шт.)","description":"Хрусткі палички з білим сиром у тонкому тісті з домашнім соусом тартар.","ingredients":["Пшеничне борошно","Білий сир","Вершкове масло","Яйця","Соус тартар"],"allergens":["Глютен","Лактоза","Яйця"]},"pt":{"name":"Tequeños Artesanais de Queijo (5 unid.)","description":"Dedos estaladiços de queijo branco acompanhados por molho tártaro caseiro.","ingredients":["Farinha de trigo","Queijo branco","Manteiga","Ovo","Molho tártaro"],"allergens":["Glúten","Laticínios","Ovos"]},"ja":{"name":"自家製チーズスティック テケーニョ (5本)","description":"手作りタルタルソースを添えた、カリッと香ばしい白チーズ包み揚げ。","ingredients":["小麦粉","ホワイトチーズ","バター","卵","タルタルソース"],"allergens":["小麦(グルテン)","乳製品","卵"]},"ar":{"name":"أصابع الجبن الحرفية المقرمشة (5 قطع)","description":"أصابع عجين مقرمشة محشوة بالجبن الأبيض الفاخر مع صلصة التارتار المنزلية.","ingredients":["دقيق القمح","جبن أبيض","زبدة","بيض","صلصة تارتار"],"allergens":["غلوتين","مشتقات الحليب","بيض"]},"ca":{"name":"Tequeños Artesanals de Formatge (5 uts)","description":"Cruixents dits de formatge blanc acompanyats de salsa tàrtara casolana.","ingredients":["Farina de blat","Formatge blanc llanero","Mantega","Ou","Salsa tàrtara"],"allergens":["Gluten","Lactis","Ous"]},"va":{"name":"Tequeños Artesanals de Formatge (5 uts)","description":"Cruixents dits de formatge blanc acompanyats de salsa tàrtara casolana.","ingredients":["Farina de blat","Formatge blanc llanero","Mantega","Ou","Salsa tàrtara"],"allergens":["Gluten","Làctics","Ous"]},"eu":{"name":"Etxeko Gazta Tequeñoak (5 ale)","description":"Gazta zuriz betetako kurruskariak, etxeko saltsa tartaroarekin zerbitzatuak.","ingredients":["Gari-irina","Llanero gazta zuria","Gozogintzako gurina","Arrautza","Tartaro saltsa"],"allergens":["Glutena","Esnekiak","Arrautzak"]},"gl":{"name":"Tequeños Artesanais de Queixo (5 uds)","description":"Dedos crocantes de queixo branco acompañados de salsa tártara caseira.","ingredients":["Fariña de trigo","Queixo branco llanero","Manteiga","Ovo","Salsa tártara"],"allergens":["Glute","Lácteos","Ovos"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_2',
+  'STARTER',
+  'Ensalada César con Pollo Crujiente',
+  'Lechuga romana, lascas de parmesano, croutons y pollo marinado en hierbas.',
+  10.5,
+  18,
+  TRUE,
+  FALSE,
+  FALSE,
+  TRUE,
+  $$["Pechuga de pollo","Lechuga romana","Queso Parmesano D.O.P.","Pan tostado","Salsa César"]$$::jsonb,
+  $$["Gluten","Lácteos","Pescado","Huevos"]$$::jsonb,
+  'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Crispy Chicken Caesar Salad","description":"Romaine lettuce, parmesan shavings, croutons and herb marinated chicken.","ingredients":["Chicken breast","Romaine lettuce","Parmesan cheese","Croutons","Caesar dressing"],"allergens":["Gluten","Dairy","Fish","Eggs"]},"fr":{"name":"Salade César au Poulet Croustillant","description":"Laitue romaine, copeaux de parmesan, croûtons et poulet mariné aux herbes.","ingredients":["Blanc de poulet","Laitue romaine","Parmesan","Croûtons","Sauce César"],"allergens":["Gluten","Lactose","Poisson","Oeufs"]},"de":{"name":"Caesar Salat mit Knusperhähnchen","description":"Römersalat, Parmesanspäne, Croutons und Kräuter-Hähnchenbrust.","ingredients":["Hähnchenbrust","Römersalat","Parmesankäse","Croutons","Caesar Dressing"],"allergens":["Gluten","Laktose","Fisch","Eier"]},"zh":{"name":"香脆鸡肉凯撒沙拉","description":"罗马生菜、帕玛森芝士碎、香脆面包丁搭配香草烤鸡胸肉。","ingredients":["罗马生菜","烤鸡胸肉","帕玛森干酪","面包丁","凯撒酱"],"allergens":["乳制品","麸质","鱼类"]},"ko":{"name":"크리스피 치킨 시저 샐러드","description":"로메인 상추, 파마산 치즈 조각, 크루통과 허브 치킨 가슴살.","ingredients":["로메인 상추","닭가슴살","파마산 치즈","크루통","시저 드레싱"],"allergens":["유제품","글루텐","생선"]},"uk":{"name":"Салат Цезар з хрусткою куркою","description":"Листя салату ромен, пластівці пармезану, сухарики та маринована в травах курятина.","ingredients":["Салат ромен","Куряче філе","Сир пармезан","Крутони","Соус цезар"],"allergens":["Лактоза","Глютен","Риба"]},"pt":{"name":"Salada César com Frango Crocante","description":"Alface romana, lascas de parmesão, croutons e frango marinado em ervas.","ingredients":["Alface romana","Peito de frango","Queijo parmesão","Croutons","Molho César"],"allergens":["Laticínios","Glúten","Peixe"]},"ja":{"name":"クリスピーチキンのシーザーサラダ","description":"ロメインレタス、削りたてパルメザン、クルトン、ハーブチキンソテー。","ingredients":["ロメインレタス","鶏胸肉","パルメザンチーズ","クルトン","シーザードレッシング"],"allergens":["乳製品","小麦(グルテン)","魚介類"]},"ar":{"name":"سلطة سيزر بالدجاج المقرمش","description":"خس روماني طازج مع رقائق جبن البارميزان ومكعبات الخبز المحمص والدجاج المتبل بالأعشاب.","ingredients":["خس روماني","صدر دجاج","جبن بارميزان","خبز محمص","صلصة سيزر"],"allergens":["مشتقات الحليب","غلوتين","أسماك"]},"ca":{"name":"Amanida Cèsar amb Pollastre Cruixent","description":"Enciam romà fresc amb encenalls de parmesà, crostons d'herbes i pit de pollastre arrebossat.","ingredients":["Enciam romà","Pit de pollastre","Formatge Parmigiano","Crostons de pa","Salsa Cèsar"],"allergens":["Gluten","Lactis","Ous","Peix"]},"va":{"name":"Ensalada Cèsar amb Pollastre Cruixent","description":"Lletuga romana fresca amb encenalls de parmesà, crostons d'herbes i pit de pollastre arrebossat.","ingredients":["Lletuga romana","Pit de pollastre","Formatge Parmigiano","Crostons de pa","Salsa Cèsar"],"allergens":["Gluten","Làctics","Ous","Peix"]},"eu":{"name":"Zesar Entsalada Oilo Kurruskariarekin","description":"Letxuga erromatar freskoa, parmesano birrindua, ogi-txigortuak eta oilasko bularki kurruskaria.","ingredients":["Letxuga erromatarra","Oilasko bularkia","Parmigiano gazta","Ogi-txigortuak","Zesar saltsa"],"allergens":["Glutena","Esnekiak","Arrautzak","Arraina"]},"gl":{"name":"Ensalada César con Polo Crocante","description":"Leituga romana fresca con labras de parmesano, crostóns de herbas e peituga de polo empanada.","ingredients":["Leituga romana","Peituga de polo","Queixo Parmigiano","Crostóns de pan","Salsa César"],"allergens":["Glute","Lácteos","Ovos","Peixe"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_3',
+  'MAIN',
+  'Hamburguesa Trufada Angus Premium',
+  '200g de carne Angus, queso cheddar fundido, mayonesa trufada y cebolla caramelizada.',
+  14.9,
+  30,
+  TRUE,
+  FALSE,
+  FALSE,
+  TRUE,
+  $$["Carne Angus 200g","Pan brioche","Queso Cheddar","Cebolla caramelizada","Mayonesa de trufa negra"]$$::jsonb,
+  $$["Gluten","Lácteos","Huevos"]$$::jsonb,
+  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Truffled Angus Premium Burger","description":"200g Angus beef, melted cheddar, black truffle mayo and caramelized onion.","ingredients":["Angus beef 200g","Brioche bun","Cheddar cheese","Caramelized onion","Truffle mayo"],"allergens":["Gluten","Dairy","Eggs"]},"fr":{"name":"Burger Angus Truffé Premium","description":"200g de bœuf Angus, cheddar fondu, mayonnaise à la truffe et oignons caramélisés.","ingredients":["Bœuf Angus 200g","Pain brioché","Cheddar","Oignons caramélisés","Mayo truffée"],"allergens":["Gluten","Lactose","Oeufs"]},"de":{"name":"Getrüffelter Angus Premium Burger","description":"200g Angus-Rindfleisch, geschmolzener Cheddar, Trüffelmayo und karamellisierte Zwiebeln.","ingredients":["Angus Rindfleisch","Brioche-Brötchen","Cheddarkäse","Zwiebeln","Trüffelmayo"],"allergens":["Gluten","Laktose","Eier"]},"zh":{"name":"黑松露安格斯至尊汉堡","description":"200克纯正安格斯牛肉、融化切达芝士、黑松露蛋黄酱配奶油布里欧面包。","ingredients":["安格斯牛肉","布里欧汉堡胚","切达芝士","松露蛋黄酱","烤洋葱"],"allergens":["麸质","乳制品","蛋类"]},"ko":{"name":"프리미엄 앵거스 트러플 버거","description":"200g 앵거스 비프, 녹아내린 체다 치즈, 트러플 마요네즈와 브리오슈 번.","ingredients":["앵거스 쇠고기","브리오슈 번","체다 치즈","트러플 마요네즈","구운 양파"],"allergens":["글루텐","유제품","계란"]},"uk":{"name":"Преміум бургер з яловичиною Ангус і трюфелем","description":"200г добірної яловичини Ангус, розплавлений сир чеддер, трюфельний майонез та булочка бріош.","ingredients":["Яловичина Ангус","Булочка бріош","Сир чеддер","Трюфельний майонез","Карамелізована цибуля"],"allergens":["Глютен","Лактоза","Яйця"]},"pt":{"name":"Hambúrguer Trufado Angus Premium","description":"200g de carne Angus, queijo cheddar derretido, maionese trufada e pão brioche.","ingredients":["Carne Angus","Pão brioche","Queijo cheddar","Maionese trufada","Cebola grelhada"],"allergens":["Glúten","Laticínios","Ovos"]},"ja":{"name":"黒トリュフ香るアンガス牛プレミアムバーガー","description":"肉厚200gアンガスビーフ、とろけるチェダーチーズ、トリュフマヨネーズ仕立て。","ingredients":["アンガス牛肉","ブリオッシュバンズ","チェダーチーズ","トリュフマヨネーズ","グリルオニオン"],"allergens":["小麦(グルテン)","乳製品","卵"]},"ar":{"name":"برغر لحم الأنجوس الفاخر بالكمأة","description":"200 غرام من لحم الأنجوس البقري مع جبن الشيدر الذائب ومايونيز الكمأة في خبز البريوش الهش.","ingredients":["لحم أنجوس بقري","خبز بريوش","جبن شيدر","مايونيز الكمأة","بصل مشوي"],"allergens":["غلوتين","مشتقات الحليب","بيض"]},"ca":{"name":"Hamburguesa Trufada Angus Premium","description":"200g de carn d'Angus certificada, formatge cheddar madurat, maionesa de tòfona negra i ceba caramel·litzada en pa brioix.","ingredients":["Carn de bou Angus","Pa brioix","Formatge Cheddar","Maionesa de tòfona","Ceba caramel·litzada"],"allergens":["Gluten","Lactis","Ous"]},"va":{"name":"Hamburguesa Trufada Angus Premium","description":"200g de carn d'Angus certificada, formatge cheddar madurat, maionesa de tòfona negra i ceba caramel·litzada en pa brioix.","ingredients":["Carn de bou Angus","Pa brioix","Formatge Cheddar","Maionesa de tòfona","Ceba caramel·litzada"],"allergens":["Gluten","Làctics","Ous"]},"eu":{"name":"Angus Premium Trufadun Hanburgesa","description":"200g ziurtatutako Angus haragia, cheddar ondua, boilur-maionesa eta tipula karamelizatua brioche ogian.","ingredients":["Angus txahal-haragia","Brioche ogia","Cheddar gazta","Boilur-maionesa","Tipula karamelizatua"],"allergens":["Glutena","Esnekiak","Arrautzak"]},"gl":{"name":"Hamburguesa Trufada Angus Premium","description":"200g de carne de boi Angus certificada, queixo cheddar curado, maionesa de trufa negra e cebola caramelizada en pan brioche.","ingredients":["Carne de boi Angus","Pan brioche","Queixo Cheddar","Maionesa de trufa","Cebola caramelizada"],"allergens":["Glute","Lácteos","Ovos"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_4',
+  'MAIN',
+  'Salmón Noruego a la Plancha con Verduras',
+  'Lomo de salmón fresco con espárragos trigueros y emulsión de cítricos.',
+  17.5,
+  15,
+  TRUE,
+  FALSE,
+  FALSE,
+  TRUE,
+  $$["Lomo de salmón fresco","Espárragos trigueros","Zanahoria baby","Aceite de oliva virgen extra","Limón"]$$::jsonb,
+  $$["Pescado"]$$::jsonb,
+  'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Grilled Norwegian Salmon with Veggies","description":"Fresh salmon fillet with wild asparagus and citrus emulsion.","ingredients":["Fresh salmon","Wild asparagus","Baby carrots","Extra virgin olive oil","Lemon"],"allergens":["Fish"]},"fr":{"name":"Saumon Norvégien Grillé aux Légumes","description":"Pavé de saumon frais, asperges sauvages et émulsion d'agrumes.","ingredients":["Saumon frais","Asperges","Carottes","Huile d'olive","Citron"],"allergens":["Poisson"]},"de":{"name":"Gegrillter norwegischer Lachs mit Gemüse","description":"Frisches Lachsfilet mit wildem Spargel und Zitrus-Emulsion.","ingredients":["Frischer Lachs","Grüner Spargel","Babykarotten","Olivenöl","Zitrone"],"allergens":["Fisch"]},"zh":{"name":"黑松露野生菌菇意式烩饭","description":"阿波罗米与牛肝菌烩煮，拌入帕玛森干酪及特级初榨松露油。","ingredients":["意式短粒米","牛肝菌与野生蘑菇","帕玛森干酪","松露油","蔬菜高汤"],"allergens":["乳制品"]},"ko":{"name":"야생 버섯 트러플 리조또","description":"그물버섯, 파마산 치즈, 엑스트라 버진 트러플 오일로 조리한 이탈리안 아르보리오 리조또.","ingredients":["아르보리오 쌀","야생 버섯","파마산 치즈","트러플 오일","야채 육수"],"allergens":["유제품"]},"uk":{"name":"Різотто з дикими грибами та трюфелем","description":"Рис карнаролі з білими грибами, пармезаном та трюфельною олією першого віджиму.","ingredients":["Рис карнаролі","Лісові гриби","Пармезан","Трюфельна олія","Овочевий бульйон"],"allergens":["Лактоза"]},"pt":{"name":"Risotto de Cogumelos Silvestres e Trufa","description":"Arroz carnaroli com cogumelos boletus, queijo parmesão e azeite de trufa virgem extra.","ingredients":["Arroz carnaroli","Cogumelos silvestres","Queijo parmesão","Azeite de trufa","Caldo de legumes"],"allergens":["Laticínios"]},"ja":{"name":"ポルチーニ茸とトリュフの贅沢リゾット","description":"天然キノコの旨味とパルメザンチーズ、芳醇なトリュフオイルのマリアージュ。","ingredients":["カルナローリ米","ポルチーニ茸","パルメザンチーズ","トリュフオイル","野菜ブイヨン"],"allergens":["乳製品"]},"ar":{"name":"ريزوتو الفطر البري مع زيت الكمأة","description":"أرز إيطالي أصيل مطهو مع فطر الغابات وجبن البارميزان المعتق وزيت الكمأة العطري.","ingredients":["أرز إيطالي","فطر بري","جبن بارميزان","زيت الكمأة","مرق خضار"],"allergens":["مشتقات الحليب"]},"ca":{"name":"Salmó Noruec a la Planxa amb Verdures","description":"Llom de salmó fresc marcat a foc viu amb espàrrecs verds, carbassó i emulsió cítrica d'anet.","ingredients":["Salmó noruec","Espàrrecs verds","Carbassó","Oli d'oliva verge","Anet fresc"],"allergens":["Peix"]},"va":{"name":"Salmó Noruec a la Planxa amb Verdures","description":"Llom de salmó fresc marcat a foc viu amb espàrrecs verds, carabasseta i emulsió cítrica d'anet.","ingredients":["Salmó noruec","Espàrrecs verds","Carabasseta","Oli d'oliva verge","Anet fresc"],"allergens":["Peix"]},"eu":{"name":"Norvegiako Izokina Plantxan Barazkiekin","description":"Izokin-solomo freskoa su bizian egina, zainzuri berdeekin, kalabazinarekin eta aneta-emultsioarekin.","ingredients":["Norvegiako izokina","Zainzuri berdeak","Kalabazina","Oliba olio birjina","Aneto freskoa"],"allergens":["Arraina"]},"gl":{"name":"Salmón Noruegués á Prancha con Verduras","description":"Lombo de salmón fresco á grella con espárragos verdes, cabaciña e emulsión cítrica de eneldo.","ingredients":["Salmón noruegués","Espárragos verdes","Cabaciña","Aceite de oliva virxe","Eneldo fresco"],"allergens":["Peixe"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_5',
+  'MAIN',
+  'Pizza Napolitana Margarita D.O.P.',
+  'Masa fermentada 48h, salsa de tomate San Marzano, mozzarella fior di latte y albahaca fresca.',
+  12,
+  22,
+  TRUE,
+  FALSE,
+  TRUE,
+  TRUE,
+  $$["Harina de trigo tipo 00","Tomate San Marzano","Mozzarella fior di latte","Albahaca fresca","Aceite de oliva virgen extra"]$$::jsonb,
+  $$["Gluten","Lácteos"]$$::jsonb,
+  'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Neapolitan Margherita Pizza D.O.P.","description":"48h fermented dough, San Marzano tomato, fior di latte mozzarella and basil.","ingredients":["Wheat flour 00","San Marzano tomatoes","Fior di latte mozzarella","Fresh basil","Olive oil"],"allergens":["Gluten","Dairy"]},"fr":{"name":"Pizza Napolitaine Margherita D.O.P.","description":"Pâte fermentée 48h, tomate San Marzano, mozzarella fior di latte et basilic.","ingredients":["Farine de blé","Tomates San Marzano","Mozzarella","Basilic frais","Huile d'olive"],"allergens":["Gluten","Lactose"]},"de":{"name":"Neapolitanische Pizza Margherita D.O.P.","description":"48h gereifter Teig, San Marzano Tomaten, Fior di Latte Mozzarella und frisches Basilikum.","ingredients":["Weizenmehl","San Marzano Tomaten","Mozzarella","Basilikum","Olivenöl"],"allergens":["Gluten","Laktose"]},"zh":{"name":"嫩煎挪威三文鱼配烤青芦笋","description":"新鲜三文鱼柳文火煎制，佐以莳萝柠檬香草汁及芦笋。","ingredients":["挪威三文鱼","青芦笋","柠檬","特级初榨橄榄油","新鲜莳萝"],"allergens":["鱼类"]},"ko":{"name":"노르웨이 연어 스테이크와 아스파라거스","description":"그릴에 구운 신선한 연어 필레, 구운 아스파라거스와 딜 레몬 드레싱.","ingredients":["노르웨이산 연어","아스파라거스","레몬","올리브 오일","신선한 딜"],"allergens":["생선"]},"uk":{"name":"Стейк з норвезького лосося зі спаржею","description":"Ніжне філе лосося на грилі зі свіжою спаржею та кропово-лимонним соусом.","ingredients":["Норвезький лосось","Зелена спаржа","Лимон","Оливкова олія","Свіжий кріп"],"allergens":["Риба"]},"pt":{"name":"Salmão Norueguês Grelhado com Espargos","description":"Lombo de salmão fresco grelhado, acompanhado de espargos verdes e vinagrete de aneto.","ingredients":["Salmão norueguês","Espargos verdes","Limão","Azeite virgem extra","Aneto fresco"],"allergens":["Peixe"]},"ja":{"name":"ノルウェー産サーモンのグリル 焼きアスパラ添え","description":"香ばしく焼き上げたサーモンフィレに爽やかなディルレモンソースを合わせて。","ingredients":["ノルウェーサーモン","グリーンアスパラ","レモン","オリーブオイル","ディル"],"allergens":["魚介類"]},"ar":{"name":"سلمون نرويجي مشوي مع نبات الهليون","description":"شريحة سلمون طازجة مشوية على الجمر مع الهليون الأخضر وصلصة الشبت بالليمون.","ingredients":["سلمون نرويجي","هليون أخضر","ليمون","زيت زيتون بكر","شبت طازج"],"allergens":["أسماك"]},"ca":{"name":"Pizza Napolitana Margarita D.O.P.","description":"Massa fermentada 48 hores, tomàquet San Marzano, mozzarella di bufala campana i alfàbrega fresca.","ingredients":["Farina de força","Tomàquet San Marzano","Mozzarella di Bufala","Alfàbrega","Oli d'oliva"],"allergens":["Gluten","Lactis"]},"va":{"name":"Pizza Napolitana Margarita D.O.P.","description":"Massa fermentada 48 hores, tomaca San Marzano, mozzarella di bufala campana i alfàbega fresca.","ingredients":["Farina de força","Tomaca San Marzano","Mozzarella di Bufala","Alfàbega","Oli d'oliva"],"allergens":["Gluten","Làctics"]},"eu":{"name":"Margarita Pizza Napolitarra J.B.D.","description":"48 orduz hartzitutako masa, San Marzano tomatea, bufala mozzarella eta albahaka freskoa.","ingredients":["Ogi-irina","San Marzano tomatea","Mozzarella di Bufala","Albahaka freskoa","Oliba olioa"],"allergens":["Glutena","Esnekiak"]},"gl":{"name":"Pizza Napolitana Margarita D.O.P.","description":"Masa fermentada 48 horas, tomate San Marzano, mozzarella di bufala campá e alfábrega fresca.","ingredients":["Fariña de forza","Tomate San Marzano","Mozzarella di Bufala","Alfábrega","Aceite de oliva"],"allergens":["Glute","Lácteos"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_6',
+  'DESSERT',
+  'Tarta de Queso Fluida al Horno',
+  'Clásica cheesecake vasca horneada con corazón cremoso y base crujiente.',
+  6.5,
+  12,
+  FALSE,
+  FALSE,
+  TRUE,
+  TRUE,
+  $$["Queso crema","Nata fresca 35%","Huevos de corral","Azúcar de caña","Galleta artesana"]$$::jsonb,
+  $$["Gluten","Lácteos","Huevos"]$$::jsonb,
+  'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Creamy Baked Basque Cheesecake","description":"Classic baked Basque cheesecake with a runny heart and caramelized top.","ingredients":["Cream cheese","Fresh cream","Eggs","Cane sugar","Biscuit base"],"allergens":["Gluten","Dairy","Eggs"]},"fr":{"name":"Cheesecake Basque Fondant au Four","description":"Cheesecake basque traditionnel avec cœur crémeux et croûte caramélisée.","ingredients":["Fromage frais","Crème fraîche","Oeufs","Sucre de canne","Biscuit"],"allergens":["Gluten","Lactose","Oeufs"]},"de":{"name":"Cremiger baskischer Käsekuchen","description":"Klassischer baskischer Ofen-Käsekuchen mit cremigem Kern.","ingredients":["Frischkäse","Sahne","Eier","Rohrzucker","Kekskruste"],"allergens":["Gluten","Laktose","Eier"]},"zh":{"name":"经典流心烘焙芝士蛋糕","description":"巴斯克风味流心芝士蛋糕，焦香表皮搭配细腻顺滑奶酪内馅。","ingredients":["奶油奶酪","新鲜奶油","鸡蛋","糖","饼干底"],"allergens":["乳制品","蛋类","麸质"]},"ko":{"name":"바스크 번트 크리미 치즈케이크","description":"부드럽고 촉촉하게 녹아내리는 크림치즈와 바삭한 비스킷 베이스.","ingredients":["크림 치즈","생크림","계란","설탕","비스킷"],"allergens":["유제품","계란","글루텐"]},"uk":{"name":"Баскський крем-чизкейк","description":"Запечений чизкейк з карамельною скоринкою та ніжною кремовою серцевиною.","ingredients":["Вершковий сир","Вершки","Яйця","Цукор","Пісочна основа"],"allergens":["Лактоза","Яйця","Глютен"]},"pt":{"name":"Tarte de Queijo Cremosa de Forno","description":"Estilo basco com centro suave cremoso e crosta exterior ligeiramente tostada.","ingredients":["Queijo creme","Natas frescas","Ovos","Açúcar","Base de bolacha"],"allergens":["Laticínios","Ovos","Glúten"]},"ja":{"name":"窯焼きとろけるバスク風チーズケーキ","description":"香ばしい焦げ目と中からとろけ出す濃厚なクリームチーズの絶妙なハーモニー。","ingredients":["クリームチーズ","生クリーム","卵","砂糖","ビスケット生地"],"allergens":["乳製品","卵","小麦(グルテン)"]},"ar":{"name":"تشيز كيك الباسك المخبوز بالكريمة الذائبة","description":"كعكة الجبن الإسبانية الكلاسيكية المخبوزة في الفرن بقوام كريمي ناعم ونكهة كراميل فريدة.","ingredients":["جبن كريمي","كريمة طازجة","بيض","سكر","بسكويت"],"allergens":["مشتقات الحليب","بيض","غلوتين"]},"ca":{"name":"Pastís de Formatge Fluid al Forn","description":"Elaborat amb formatge Idiazábal i formatge crema, amb cor melós i base de galeta d'ametlla.","ingredients":["Formatge crema","Formatge Idiazábal","Nata fresca","Ous","Galeta d'ametlla"],"allergens":["Gluten","Lactis","Ous","Fruits de closca"]},"va":{"name":"Pastís de Formatge Fluid al Forn","description":"Elaborat amb formatge Idiazábal i formatge crema, amb cor melós i base de galeta d'ametla.","ingredients":["Formatge crema","Formatge Idiazábal","Nata fresca","Ous","Galeta d'ametla"],"allergens":["Gluten","Làctics","Ous","Fruits de corfa"]},"eu":{"name":"Labean Erretako Gazta Tarta Euria","description":"Idiazabal eta krema-gaztarekin egina, barnealde krematsua eta almendra-bixkotx oinarria duena.","ingredients":["Krema gazta","Idiazabal gazta","Esne-gain freskoa","Arrautzak","Almendra gaileta"],"allergens":["Glutena","Esnekiak","Arrautzak","Fruitu lehorrak"]},"gl":{"name":"Torta de Queixo Fluída ao Forno","description":"Elaborada con queixo Idiazábal e queixo crema, con corazón meloso e base de galleta de améndoa.","ingredients":["Queixo crema","Queixo Idiazábal","Nata fresca","Ovos","Galleta de améndoa"],"allergens":["Glute","Lácteos","Ovos","Froitos de casca"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_7',
+  'DESSERT',
+  'Brownie Vegano de Chocolate Belga con Frutos',
+  'Bizcocho tibio de chocolate amargo 70%, nueces de pecán y sirope de arce puro.',
+  6,
+  14,
+  TRUE,
+  TRUE,
+  TRUE,
+  TRUE,
+  $$["Chocolate belga 70%","Harina de avena","Nueces de pecán","Sirope de arce","Leche de almendras"]$$::jsonb,
+  $$["Frutos de cáscara"]$$::jsonb,
+  'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Vegan Belgian Chocolate Nut Brownie","description":"Warm 70% dark chocolate sponge, pecan nuts and pure maple syrup.","ingredients":["Belgian chocolate 70%","Oat flour","Pecan nuts","Maple syrup","Almond milk"],"allergens":["Nuts"]},"fr":{"name":"Brownie Végétalien au Chocolat Belge","description":"Gâteau tiède au chocolat noir 70%, noix de pécan et sirop d'érable.","ingredients":["Chocolat belge 70%","Farine d'avoine","Noix de pécan","Sirop d'érable","Lait d'amande"],"allergens":["Fruits à coque"]},"de":{"name":"Veganer Schoko-Nuss-Brownie","description":"Warmer Kuchen aus 70% Zartbitterschokolade mit Pekannüssen und Ahornsirup.","ingredients":["Schokolade 70%","Hafermehl","Pekannüsse","Ahornsirup","Mandelmilch"],"allergens":["Schalenfrüchte"]},"zh":{"name":"比利时熔岩巧克力蛋糕配香草冰淇淋","description":"70%优质比利时黑巧克力制成，一勺流心，配马达加斯加香草冰淇淋。","ingredients":["70%黑巧克力","黄油","鸡蛋","面粉","马达加斯加香草冰淇淋"],"allergens":["乳制品","蛋类","麸质"]},"ko":{"name":"벨기에 초콜릿 퐁당 & 바닐라 아이스크림","description":"70% 벨기에 다크 초콜릿이 흘러나오는 퐁당 쇼콜라와 마다가스카르 바닐라 아이스크림.","ingredients":["다크 초콜릿 70%","버터","계란","밀가루","바닐라 아이스크림"],"allergens":["유제품","계란","글루텐"]},"uk":{"name":"Бельгійський шоколадний фондан з морозивом","description":"Теплий шоколадний кекс з рідким гарячим центром із 70% бельгійського шоколаду.","ingredients":["Темний шоколад 70%","Вершкове масло","Яйця","Борошно","Ванільне морозиво"],"allergens":["Лактоза","Яйця","Глютен"]},"pt":{"name":"Coulant de Chocolate Belga com Gelado","description":"Coração de chocolate quente derretido a 70%, servido com gelado de baunilha.","ingredients":["Chocolate preto 70%","Manteiga","Ovos","Farinha","Gelado de baunilha"],"allergens":["Laticínios","Ovos","Glúten"]},"ja":{"name":"ベルギー産濃厚フォンダンショコラ バニラ添え","description":"カカオ70%の温かいとろけるチョコと冷たいマダガスカルバニラアイス。","ingredients":["ダークチョコ70%","バター","卵","小麦粉","バニラアイス"],"allergens":["乳製品","卵","小麦(グルテン)"]},"ar":{"name":"فوندان الشوكولاتة البلجيكية مع الآيس كريم","description":"كعكة الشوكولاتة الداكنة الفاخرة بقلب دافئ ذائب مع آيس كريم الفانيليا الطبيعية.","ingredients":["شوكولاتة داكنة 70%","زبدة","بيض","دقيق","آيس كريم فانيليا"],"allergens":["مشتقات الحليب","بيض","غلوتين"]},"ca":{"name":"Brownie Vegà de Xocolata Belga amb Nous","description":"Brownie 100% vegetal amb cacau pur 70%, nous de Califòrnia i gelat artesà de vainilla bourbon vegana.","ingredients":["Cacau belga 70%","Farina d'avena","Nous de Califòrnia","Oli de coco","Beguda d'ametlla"],"allergens":["Fruits de closca"]},"va":{"name":"Brownie Vegà de Xocolata Belga amb Nous","description":"Brownie 100% vegetal amb cacau pur 70%, nous de Califòrnia i gelat artesà de vainilla bourbon vegana.","ingredients":["Cacau belga 70%","Farina de civada","Nous de Califòrnia","Oli de coco","Beguda d'ametla"],"allergens":["Fruits de corfa"]},"eu":{"name":"Belgikar Txokolatezko Brownie Beganoa fruituekin","description":"%100 landare-jatorrikoa %70 kakao puruarekin, Kaliforniako intxaurrekin eta banilla izozki beganoarekin.","ingredients":["%70 Belgikar kakaoa","Olo-irina","Kaliforniako intxaurrak","Koko olioa","Almendra edaria"],"allergens":["Fruitu lehorrak"]},"gl":{"name":"Brownie Vegano de Chocolate Belga con Noces","description":"Brownie 100% vexetal con cacao puro 70%, noces de California e xeado artesán de vainilla bourbon vegana.","ingredients":["Cacao belga 70%","Fariña de avea","Noces de California","Aceite de coco","Bebida de améndoa"],"allergens":["Froitos de casca"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_8',
+  'BEVERAGE',
+  'Cerveza Artesanal IPA Madrid (33cl)',
+  'Botellín de 33cl de cerveza rubia lupulada con toques cítricos y florales. (5.8% Vol).',
+  3.8,
+  45,
+  FALSE,
+  TRUE,
+  TRUE,
+  FALSE,
+  $$["Agua","Malta de cebada","Lúpulo Cascade","Levadura"]$$::jsonb,
+  $$["Gluten"]$$::jsonb,
+  'https://images.unsplash.com/photo-1608270196882-78d10b7b51b2?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1608270196882-78d10b7b51b2?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1608270196882-78d10b7b51b2?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1608270196882-78d10b7b51b2?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Madrid Craft IPA Beer (33cl)","description":"33cl bottle of dry-hopped blonde ale with citrus notes (5.8% ABV).","ingredients":["Water","Barley malt","Cascade hops","Yeast"],"allergens":["Gluten"]},"fr":{"name":"Bière Artisanale IPA Madrid (33cl)","description":"Bouteille 33cl de bière blonde houblonnée aux agrumes (5.8% Vol).","ingredients":["Eau","Malt d'orge","Houblon Cascade","Levure"],"allergens":["Gluten"]},"de":{"name":"Madrid Craft IPA Bier (33cl)","description":"33cl Flasche gehopftes IPA mit Zitrusnoten (5,8% Vol).","ingredients":["Wasser","Gerstenmalz","Cascade Hopfen","Hefe"],"allergens":["Gluten"]},"zh":{"name":"马德里本地精酿IPA啤酒 (330ml)","description":"清爽柑橘果香与热带水果风味，酒花浓郁的本地高品质精酿啤酒。","ingredients":["水","大麦麦芽","精选啤酒花","酵母"],"allergens":["麸质"]},"ko":{"name":"마드리드 수제 IPA 맥주 (330ml)","description":"감귤류와 열대과일 아로마가 풍부한 마드리드 로컬 수제 IPA.","ingredients":["물","보리 맥아","홉","효모"],"allergens":["글루텐"]},"uk":{"name":"Крафтове пиво IPA з Мадрида (330мл)","description":"Ароматний індійський пейл-ель з цитрусовими та тропічними нотами хмелю.","ingredients":["Вода","Ячмінний солод","Хміль","Дріжджі"],"allergens":["Глютен"]},"pt":{"name":"Cerveja Artesanal IPA de Madrid (330ml)","description":"Notas cítricas e tropicais com corpo equilibrado de lúpulo aromático fresco.","ingredients":["Água","Malte de cevada","Lúpulo","Levedura"],"allergens":["Glúten"]},"ja":{"name":"マドリード特製クラフトビール IPA (330ml)","description":"華やかな柑橘系とトロピカルフルーツのアロマが広がる本格クラフトビール。","ingredients":["水","大麦麦芽","ホップ","酵母"],"allergens":["小麦(グルテン)"]},"ar":{"name":"بيرة حرفية محلية (330 مل)","description":"بيرة حرفية بطعم الفواكه الاستوائية والحمضيات المنعشة ومذاق متوازن.","ingredients":["ماء","شعير","جنجل","خميرة"],"allergens":["غلوتين"]},"ca":{"name":"Cervesa Artesana IPA Madrid (33cl)","description":"Cervesa d'alta fermentació amb llúpol aromàtic Citra i Mosaic. Notes cítriques i amargor equilibrada.","ingredients":["Aigua de la serra","Malt d'ordi","Llúpol Citra","Llúpol Mosaic","Llevat"],"allergens":["Gluten"]},"va":{"name":"Cervesa Artesana IPA Madrid (33cl)","description":"Cervesa d'alta fermentació amb llúpol aromàtic Citra i Mosaic. Notes cítriques i amargor equilibrada.","ingredients":["Aigua de la serra","Malt d'ordi","Llúpol Citra","Llúpol Mosaic","Llevat"],"allergens":["Gluten"]},"eu":{"name":"Eskulangile IPA Garagardoa Madrid (33cl)","description":"Hartzidura altuko garagardoa, Citra eta Mosaic lupulu usaintsuekin. Ohar zitrikoak eta mikatz orekatua.","ingredients":["Mendiko ura","Garagar-malta","Citra lupulua","Mosaic lupulua","Legamia"],"allergens":["Glutena"]},"gl":{"name":"Cervexa Artesanal IPA Madrid (33cl)","description":"Cervexa de alta fermentación con lúpulo aromático Citra e Mosaic. Notas cítricas e amargor equilibrado.","ingredients":["Auga da serra","Malte de cebada","Lúpulo Citra","Lúpulo Mosaic","Fermento"],"allergens":["Glute"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_9',
+  'BEVERAGE',
+  'Copa de Vino Tinto Ribera del Duero',
+  'Crianza con notas a frutos rojos y sutil madera. (14% Vol).',
+  4.2,
+  35,
+  FALSE,
+  TRUE,
+  TRUE,
+  FALSE,
+  $$["Uva Tempranillo 100%"]$$::jsonb,
+  $$["Sulfitos"]$$::jsonb,
+  'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Glass of Red Wine Ribera del Duero","description":"Crianza red wine with red berries and oak notes (14% ABV).","ingredients":["Tempranillo grapes 100%"],"allergens":["Sulphites"]},"fr":{"name":"Verre de Vin Rouge Ribera del Duero","description":"Vin rouge Crianza aux notes de fruits rouges et bois (14% Vol).","ingredients":["Cépage Tempranillo 100%"],"allergens":["Sulfites"]},"de":{"name":"Glas Ribera del Duero Rotwein","description":"Crianza Rotwein mit Waldbeeren und Holznote (14% Vol).","ingredients":["100% Tempranillo Traube"],"allergens":["Sulfite"]},"zh":{"name":"杜埃罗河岸陈酿红葡萄酒 (DO)","description":"100%添普兰尼洛葡萄，经法国和美国橡木桶陈酿12个月，果香浓郁，回味优雅。","ingredients":["添普兰尼洛红葡萄","天然亚硫酸盐"],"allergens":["亚硫酸盐"]},"ko":{"name":"리베라 델 두에로 크리안사 레드 와인","description":"100% 템프라니요 품종, 오크통에서 12개월 숙성된 스페인 최고급 레드 와인.","ingredients":["템프라니요 포도","아황산염"],"allergens":["아황산염"]},"uk":{"name":"Червоне вино Рібера дель Дуеро Кріанса","description":"100% сорт Темпранільйо, 12 місяців витримки в дубових бочках. Глибокий насичений смак.","ingredients":["Виноград Темпранільйо","Сульфіти"],"allergens":["Сульфіти"]},"pt":{"name":"Vinho Tinto Ribera del Duero Crianza","description":"100% Tempranillo com 12 meses de estágio em barrica de carvalho. Notas de frutos vermelhos.","ingredients":["Uvas Tempranillo","Sulfitos"],"allergens":["Sulfitos"]},"ja":{"name":"リベラ・デル・ドゥエロ 赤ワイン クリアンサ","description":"テンプラニーリョ100%使用。オーク樽で12ヶ月熟成させた香り豊かなフルボディワイン。","ingredients":["テンプラニーリョ種ぶどう","亜硫酸塩"],"allergens":["亜硫酸塩"]},"ar":{"name":"نبيذ أحمر معتق فاخر (ريبيرا ديل دويرو)","description":"نبيذ فاخر من عنب التيمبرانيلو المعتق لمدة 12 شهراً في براميل البلوط بنكهات الفواكه الناضجة.","ingredients":["عنب أسود فاخر","كبريتات طبيعية"],"allergens":["كبريتات"]},"ca":{"name":"Copa de Vi Negre Ribera del Duero","description":"Ull de Llebre 100% collita seleccionada amb 12 mesos de criança en bóta de roure francès.","ingredients":["Raïm Ull de Llebre (Tempranillo)","Sulfits de fermentació"],"allergens":["Sulfits"]},"va":{"name":"Copa de Vi Negre Ribera del Duero","description":"Ull de Llebre 100% collita seleccionada amb 12 mesos de criança en bóta de roure francès.","ingredients":["Raïm Tempranillo","Sulfits de fermentació"],"allergens":["Sulfits"]},"eu":{"name":"Ardo Beltz Kopa Ribera del Duero","description":"%100 Tempranillo hautatua, 12 hilabetez haritz frantziar upelatan ondua.","ingredients":["Tempranillo mahatsa","Hartzidura-sulfitoak"],"allergens":["Sulfitoak"]},"gl":{"name":"Copa de Viño Tinto Ribera del Duero","description":"Tempranillo 100% colleita seleccionada con 12 meses de crianza en barrica de carballo francés.","ingredients":["Uva Tempranillo","Sulfitos de fermentación"],"allergens":["Sulfitos"]}}$$::jsonb,
+  TRUE
+);
+INSERT INTO menu_items (id, category_id, name, description, price, stock, requires_cooking, is_vegan, is_vegetarian, is_alcohol_free, ingredients, allergens, image_url, images, translations, active) VALUES (
+  'menu_10',
+  'BEVERAGE',
+  'Agua Mineral Natural Sierra (50cl)',
+  'Agua de manantial fresca de baja mineralización.',
+  2.2,
+  60,
+  FALSE,
+  TRUE,
+  TRUE,
+  TRUE,
+  $$["Agua mineral natural"]$$::jsonb,
+  $$[]$$::jsonb,
+  'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=500&q=80',
+  $${"thumbnail":"https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=240&h=240&fit=crop&q=80","medium":"https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=600&h=380&fit=crop&q=80","large":"https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=900&h=550&fit=crop&q=85"}$$::jsonb,
+  $${"en":{"name":"Natural Mineral Water Sierra (50cl)","description":"Fresh low mineralization spring water.","ingredients":["Natural mineral water"],"allergens":[]},"fr":{"name":"Eau Minérale Naturelle Sierra (50cl)","description":"Eau de source fraîche à faible minéralisation.","ingredients":["Eau minérale naturelle"],"allergens":[]},"de":{"name":"Natürliches Mineralwasser Sierra (50cl)","description":"Frisches Quellwasser aus dem Gebirge.","ingredients":["Natürliches Mineralwasser"],"allergens":[]},"zh":{"name":"天然含气天然矿泉水 (500ml)","description":"塞拉诺斯泉眼优质水源，细腻微气泡，纯净爽口，佐餐佳品。","ingredients":["天然矿泉水","食用级二氧化碳"],"allergens":[]},"ko":{"name":"프리미엄 천연 탄산수 (500ml)","description":"산지 천연 온천수에서 채취한 부드럽고 상쾌한 프리미엄 스파클링 워터.","ingredients":["천연 광천수","탄산가스"],"allergens":[]},"uk":{"name":"Природна мінеральна газована вода (500мл)","description":"Кришталево чиста мінеральна вода з природного гірського джерела.","ingredients":["Мінеральна вода","Вуглекислий газ"],"allergens":[]},"pt":{"name":"Água Mineral de Nascente com Gás (500ml)","description":"Água mineral pura de nascente com gás natural fino e refrescante.","ingredients":["Água mineral natural","Gás carbónico"],"allergens":[]},"ja":{"name":"天然発泡スパークリングミネラルウォーター (500ml)","description":"天然の湧水を使用した、きめ細やかで爽快な炭酸が心地よいプレミアムウォーター。","ingredients":["天然鉱水","炭酸ガス"],"allergens":[]},"ar":{"name":"مياه معدنية غازية طبيعية (500 مل)","description":"مياه نقية طبيعية مستخرجة من ينابيع الجبال مع فقاعات غازية ناعمة ومنعشة.","ingredients":["مياه معدنية نقية","غاز طبيعي"],"allergens":[]},"ca":{"name":"Aigua Mineral Natural Sierra (50cl)","description":"Aigua d'origen subterrani protegit, de mineralització feble en ampolla de vidre reciclable.","ingredients":["Aigua mineral natural"],"allergens":[]},"va":{"name":"Aigua Mineral Natural Sierra (50cl)","description":"Aigua d'origen subterrani protegit, de mineralització dèbil en botella de vidre reciclable.","ingredients":["Aigua mineral natural"],"allergens":[]},"eu":{"name":"Sierra Ur Mineral Naturala (50cl)","description":"Lurpeko jatorri babestuko ura, mineralizazio ahulekoa beirazko botila birziklagarrian.","ingredients":["Ur mineral naturala"],"allergens":[]},"gl":{"name":"Auga Mineral Natural Sierra (50cl)","description":"Auga de orixe subterránea protexida, de mineralización feble en botella de vidro reciclable.","ingredients":["Auga mineral natural"],"allergens":[]}}$$::jsonb,
+  TRUE
+);
+
+-- COMANDAS Y PAGOS INICIALES
+INSERT INTO orders (id, order_number, table_number, customer_name, status, waiter_id, chef_id, subtotal, tip_amount, packaging_bags, packaging_plastic, cutlery_count, packaging_fee, total, created_at, updated_at) VALUES (
+  'ord_1001',
+  'DND-1001',
+  'Mesa 4',
+  'Carlos Sainz',
+  'IN_KITCHEN',
+  'usr_waiter_1',
+  'usr_chef_1',
+  37.4,
+  3.74,
+  TRUE,
+  FALSE,
+  2,
+  0.35,
+  41.14,
+  '2026-10-20T12:30:00.000Z',
+  '2026-10-20T12:35:00.000Z'
+);
+INSERT INTO order_items (order_id, menu_item_id, item_name, unit_price, quantity, requires_cooking, kitchen_notes) VALUES (
+  'ord_1001',
+  'menu_3',
+  'Hamburguesa Trufada Angus Premium',
+  14.9,
+  2,
+  TRUE,
+  'Punto medio, sin cebolla'
+);
+INSERT INTO order_items (order_id, menu_item_id, item_name, unit_price, quantity, requires_cooking, kitchen_notes) VALUES (
+  'ord_1001',
+  'menu_8',
+  'Cerveza Artesanal IPA Madrid',
+  3.8,
+  2,
+  FALSE,
+  NULL
+);
+INSERT INTO payments (id, order_id, method, status, amount, gateway_transaction_id, paid_at, created_at) VALUES (
+  gen_random_uuid()::text,
+  'ord_1001',
+  'STRIPE_CARD',
+  'PAID',
+  41.14,
+  'pi_mock_ord_1001',
+  '2026-10-20T12:30:00.000Z',
+  '2026-10-20T12:30:00.000Z'
+);
+
+INSERT INTO orders (id, order_number, table_number, customer_name, status, waiter_id, chef_id, subtotal, tip_amount, packaging_bags, packaging_plastic, cutlery_count, packaging_fee, total, created_at, updated_at) VALUES (
+  'ord_1002',
+  'DND-1002',
+  'Mesa 2',
+  'Ana Morales',
+  'READY_TO_SERVE',
+  'usr_waiter_2',
+  'usr_chef_2',
+  16.2,
+  1.5,
+  FALSE,
+  FALSE,
+  1,
+  0,
+  17.7,
+  '2026-10-20T12:40:00.000Z',
+  '2026-10-20T12:50:00.000Z'
+);
+INSERT INTO order_items (order_id, menu_item_id, item_name, unit_price, quantity, requires_cooking, kitchen_notes) VALUES (
+  'ord_1002',
+  'menu_5',
+  'Pizza Napolitana Margarita D.O.P.',
+  12,
+  1,
+  TRUE,
+  NULL
+);
+INSERT INTO order_items (order_id, menu_item_id, item_name, unit_price, quantity, requires_cooking, kitchen_notes) VALUES (
+  'ord_1002',
+  'menu_9',
+  'Copa de Vino Tinto Ribera del Duero',
+  4.2,
+  1,
+  FALSE,
+  NULL
+);
+INSERT INTO payments (id, order_id, method, status, amount, gateway_transaction_id, paid_at, created_at) VALUES (
+  gen_random_uuid()::text,
+  'ord_1002',
+  'CASH',
+  'PENDING_CASH',
+  17.7,
+  NULL,
+  NULL,
+  '2026-10-20T12:40:00.000Z'
+);
+
+INSERT INTO orders (id, order_number, table_number, customer_name, status, waiter_id, chef_id, subtotal, tip_amount, packaging_bags, packaging_plastic, cutlery_count, packaging_fee, total, created_at, updated_at) VALUES (
+  'ord_1003',
+  'DND-1003',
+  'Mesa 8',
+  'Javier Gómez',
+  'DELIVERED',
+  'usr_waiter_1',
+  'usr_chef_1',
+  24,
+  3.6,
+  TRUE,
+  TRUE,
+  1,
+  0.35,
+  27.6,
+  '2026-10-20T11:45:00.000Z',
+  '2026-10-20T12:20:00.000Z'
+);
+INSERT INTO order_items (order_id, menu_item_id, item_name, unit_price, quantity, requires_cooking, kitchen_notes) VALUES (
+  'ord_1003',
+  'menu_4',
+  'Salmón Noruego a la Plancha con Verduras',
+  17.5,
+  1,
+  TRUE,
+  NULL
+);
+INSERT INTO order_items (order_id, menu_item_id, item_name, unit_price, quantity, requires_cooking, kitchen_notes) VALUES (
+  'ord_1003',
+  'menu_6',
+  'Tarta de Queso Fluida al Horno',
+  6.5,
+  1,
+  FALSE,
+  NULL
+);
+INSERT INTO payments (id, order_id, method, status, amount, gateway_transaction_id, paid_at, created_at) VALUES (
+  gen_random_uuid()::text,
+  'ord_1003',
+  'STRIPE_CARD',
+  'PAID',
+  27.6,
+  'pi_mock_ord_1003',
+  '2026-10-20T11:45:00.000Z',
+  '2026-10-20T11:45:00.000Z'
+);
+
+-- CONFIGURACIÓN GENERAL DEL RESTAURANTE
+INSERT INTO restaurant_config (id, business_name, tagline, address, phone, currency, vat_number, skip_staff_assignment, available_tables) VALUES (
+  'main_config',
+  'Bistro Gran Vía',
+  'Cocina Mediterránea de Temporada',
+  'Calle Gran Vía 42, 28013 Madrid',
+  '+34 912 345 678',
+  '€',
+  'B-88776655',
+  TRUE,
+  $$["Mesa 1","Mesa 2","Mesa 3","Mesa 4","Mesa 5","Mesa 6","Mesa 7","Mesa 8","Terraza 1","Terraza 2","Terraza 3","Barra 1","Barra 2"]$$::jsonb
+);

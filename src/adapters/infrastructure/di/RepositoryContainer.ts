@@ -8,6 +8,10 @@ import { JsonMenuRepository } from '../../storage/JsonMenuRepository.js';
 import { JsonOrderRepository } from '../../storage/JsonOrderRepository.js';
 import { JsonUserRepository } from '../../storage/JsonUserRepository.js';
 import { StripePaymentGatewayMock } from '../../storage/StripePaymentGatewayMock.js';
+import { SupabaseMenuRepository } from '../repositories/SupabaseMenuRepository.js';
+import { SupabaseOrderRepository } from '../repositories/SupabaseOrderRepository.js';
+import { SupabaseUserRepository } from '../repositories/SupabaseUserRepository.js';
+import { SupabaseRealtimeNotifier } from '../realtime/SupabaseRealtimeNotifier.js';
 
 export interface AppServices {
   menuRepo: IMenuRepository;
@@ -20,9 +24,15 @@ export interface AppServices {
 export class RepositoryContainer {
   private static instance: AppServices | null = null;
 
-  static getServices(useMock: boolean = true): AppServices {
+  static getServices(useMock?: boolean): AppServices {
     if (!this.instance) {
-      if (useMock) {
+      let isMock = useMock;
+      if (isMock === undefined) {
+        const envMock = typeof import.meta !== 'undefined' && (import.meta as any).env ? (import.meta as any).env.VITE_USE_MOCK_DB : undefined;
+        isMock = envMock === 'true';
+      }
+
+      if (isMock) {
         this.instance = {
           menuRepo: new JsonMenuRepository(),
           orderRepo: new JsonOrderRepository(),
@@ -31,14 +41,13 @@ export class RepositoryContainer {
           realtimeNotifier: new LocalEventRealtimeNotifier()
         };
       } else {
-        // Reserved for Phase 2 Supabase implementation
-        console.warn('SupabaseAdapter will be initialized in Phase 2. Falling back to Mock.');
+        console.info('🔌 Inicializando repositorio con Supabase (REST & Realtime)');
         this.instance = {
-          menuRepo: new JsonMenuRepository(),
-          orderRepo: new JsonOrderRepository(),
-          userRepo: new JsonUserRepository(),
+          menuRepo: new SupabaseMenuRepository(),
+          orderRepo: new SupabaseOrderRepository(),
+          userRepo: new SupabaseUserRepository(),
           paymentGateway: new StripePaymentGatewayMock(),
-          realtimeNotifier: new LocalEventRealtimeNotifier()
+          realtimeNotifier: new SupabaseRealtimeNotifier()
         };
       }
     }

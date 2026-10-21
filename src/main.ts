@@ -432,7 +432,7 @@ function updateLanguageSelectorOptions() {
 }
 
 // 1. Initialize Hexagonal Services & Use Cases via DI
-const services = RepositoryContainer.getServices(true);
+const services = RepositoryContainer.getServices();
 const createOrderUseCase = new CreateOrderUseCase(services.orderRepo, services.menuRepo, services.paymentGateway, services.realtimeNotifier);
 const updateStatusUseCase = new UpdateOrderStatusUseCase(services.orderRepo, services.realtimeNotifier);
 const assignStaffUseCase = new AssignStaffUseCase(services.orderRepo, services.realtimeNotifier);

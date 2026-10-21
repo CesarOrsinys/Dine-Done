@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "tsc && node --test dist/tests/unit/domain_and_usecases.test.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.5.0",
