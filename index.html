@@ -400,13 +400,30 @@
       color: #fff;
     }
 
-    /* ROLE SWITCHER PILL (Only visible when logged in as employee) */
-    .role-switcher-container {
+    /* STAFF ROLE SUB-BAR (Positioned directly below header, pushes main content down) */
+    .staff-role-subbar {
       display: none;
+      width: 100%;
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 28px;
+      position: sticky;
+      top: 72px;
+      z-index: 95;
+      justify-content: center;
       align-items: center;
-      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transition: all 0.25s ease;
+    }
+
+    .role-switcher-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       background: rgba(255, 255, 255, 0.04);
-      padding: 4px;
+      padding: 5px 8px;
       border-radius: var(--radius-full);
       border: 1px solid var(--border-subtle);
     }
@@ -414,21 +431,22 @@
     .role-btn {
       background: none;
       border: none;
-      padding: 6px 14px;
+      padding: 7px 18px;
       border-radius: var(--radius-full);
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
       transition: all 0.25s ease;
+      text-decoration: none;
     }
 
     .role-btn:hover {
       color: var(--text-main);
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .role-btn.active.role-waiter { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #fff; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
@@ -2192,22 +2210,35 @@
         gap: 4px;
       }
 
+      .staff-role-subbar {
+        position: relative;
+        top: auto;
+        padding: 8px 12px;
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-subtle);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 80;
+        width: 100%;
+      }
+
       .role-switcher-container {
-        position: fixed;
-        bottom: 12px;
-        left: 12px;
-        right: 12px;
-        z-index: 850;
-        background: rgba(17, 23, 38, 0.95);
-        backdrop-filter: blur(16px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        justify-content: space-around;
-        padding: 6px;
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 4px;
+        gap: 6px;
+        box-shadow: none;
       }
 
       .role-btn {
-        padding: 8px 12px;
+        padding: 8px 10px;
         font-size: 0.78rem;
+        flex: 1 1 0;
+        justify-content: center;
+        min-height: 40px;
+        text-align: center;
+        white-space: nowrap;
       }
 
       main {
@@ -2727,19 +2758,6 @@
       </div>
     </a>
 
-    <!-- ROLE SWITCHER (Only shown when staff is authenticated) -->
-    <div class="role-switcher-container" id="staff-role-switcher">
-      <button class="role-btn role-waiter" data-role="WAITER">
-        <span id="txt-role-btn-waiter">🏃 Camarero</span>
-      </button>
-      <button class="role-btn role-chef" data-role="CHEF">
-        <span id="txt-role-btn-chef">👨‍🍳 Cocina (KDS)</span>
-      </button>
-      <button class="role-btn role-manager" data-role="MANAGER">
-        <span id="txt-role-btn-manager">📊 Gerente</span>
-      </button>
-    </div>
-
     <!-- HEADER RIGHT: THEME SELECTOR, LANGUAGE SELECTOR & STAFF AUTH BUTTON -->
     <div class="header-actions">
       <!-- Feature 20: Color Palette Selector -->
@@ -2779,6 +2797,21 @@
       </button>
     </div>
   </header>
+
+  <!-- STAFF ROLE SUB-BAR (Directamente por debajo del header, empuja el contenido hacia abajo) -->
+  <nav class="staff-role-subbar" id="staff-role-switcher" style="display:none;" aria-label="Navegación de personal">
+    <div class="role-switcher-container">
+      <button class="role-btn role-waiter" data-role="WAITER">
+        <span id="txt-role-btn-waiter">🏃 Camarero</span>
+      </button>
+      <button class="role-btn role-chef" data-role="CHEF">
+        <span id="txt-role-btn-chef">👨‍🍳 Cocina (KDS)</span>
+      </button>
+      <button class="role-btn role-manager" data-role="MANAGER">
+        <span id="txt-role-btn-manager">📊 Gerente</span>
+      </button>
+    </div>
+  </nav>
 
   <!-- MAIN APPLICATION VIEWS -->
   <main>
